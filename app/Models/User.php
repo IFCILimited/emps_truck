@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable 
+{
+    use Notifiable, HasRoles,HasApiTokens;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        // 'name','username','usertype','password','remember_token','email','email_verified_at','mobile','mobile_verified_at','isotpverified',
+        // 'isactive','isapproved','address','pincode','state','district','city','auth_name','auth_designation','auth_address','auth_pincode',
+        // 'auth_state','auth_district','auth_city','landmark','landline','fax','oem_type_id','registration_no','registration_certificate_upload_id',
+        // 'approval_for_post_reg','approval_remark','approval_by','approval_at','dealer_code','dealer_gstin_no','oem_id',
+
+        'id','name','username','password','remember_token','email','email_verified_at','mobile','mobile_verified_at','isotpverified','isactive','isapproved',
+        'address','pincode','state','district','city','auth_name','auth_designation','auth_address','auth_pincode','auth_state','auth_district','auth_city',
+        'landmark','landline','fax','oem_type_id','registration_no','registration_certificate_upload_id','approval_for_post_reg','approval_remark',
+        'approval_by','approval_at','created_at','updated_at','auth_landmark','auth_mobile','auth_email','auth_fax','post_registration_status',
+        'post_registration_remark','post_registration_action_by','post_registration_at','dealer_code','dealer_gstin_no','oem_id','approval_doc_id',
+        'post_approval_date','e_office_noting_no','declaration','e_office_computer_no','parent_id','recommended_by','recommended_at','user_created_by',
+        'user_created_at','user_segment_type'
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'mobile_verified_at' => 'datetime',
+    ];
+
+    // public function hasVerifiedEmail()
+    // {
+    //     return $this->email_verified_at !== null;
+    // }
+
+    // public function markEmailAsVerified()
+    // {
+    //     $this->forceFill([
+    //         'email_verified_at' => now(),
+    //     ])->save();
+    // }
+}

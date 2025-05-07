@@ -1,0 +1,140 @@
+ <!-- Nav Bar Ends here -->
+ @extends('layouts.e_truck_dashboard_master')
+   @section('title')
+       Admin - Manage Buyer Details
+   @endsection
+
+   @push('styles')
+   @endpush
+   @section('content')
+       <!-- Page Sidebar Ends-->
+       <div class="page-body">
+           <div class="container-fluid">
+               <div class="page-title">
+                   <div class="row">
+                       <div class="col-6">
+                           <h4>Buyer Details</h4>
+                       </div>
+                       <div class="col-6">
+                           <ol class="breadcrumb">
+                               <li class="breadcrumb-item"><a href="#">
+                                       <svg class="stroke-icon">
+                                           <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-home') }}"></use>
+                                       </svg></a></li>
+                               <li class="breadcrumb-item">Manage Buyer Details</li>
+                               <li class="breadcrumb-item active">Buyer Details</li>
+                           </ol>
+                       </div>
+                   </div>
+               </div>
+           </div>
+
+           <!-- Container-fluid starts-->
+           <div class="container-fluid">
+               <div class="row">
+                <div class="col-sm-12">
+                    <p>
+                        <b>Total Number Of Vehicles = {{$bdCount}}</b>&nbsp;&nbsp;<a href="{{route('e-trucks.downloadBuyerList',['status' => $status])}}" class="btn btn-primary btn-sm"> Download<i class="fa fa-download"></i></a><br>
+                        <b class="text-danger">Note :-  Please note, this page displays a maximum of 2000 vehicles in the ascending order of invoice date. Remaining vehicles are subsequently added as and when vehicles are approved by the OEM.
+                             </b>
+                    </p>
+                </div>
+                   <div class="col-sm-12">
+                       <div class="card">
+                           {{-- <div class="card-header pb-0 card-no-border">
+                               <a href="{{ route('buyerdetail.create') }}" class="btn btn-success" style="float: right;">Add
+                                   Buyer Detail</a>
+                           </div> --}}
+                           <div class="card-body">
+                               <div class="dt-ext table-responsive  custom-scrollbar">
+                                   {{-- <table class="display table-bordered table-striped" id=""> --}}
+                                   {{-- <table class="display table-bordered table-striped" id="export-button"> --}}
+                                   <table class="display table-bordered table-striped dataTable" id="export-button">
+                                       <thead>
+                                           <tr>
+                                            <th scope="col">S.No.</th>
+                                            <th scope="col">Model Segment</th>
+                                            <th scope="col">Model Name</th>
+                                            <th scope="col">Dealer Name</th>
+                                            <th scope="col">Dealer Code</th>
+                                            <th scope="col">Dealer Mobile No.</th>
+                                            <th scope="col">Dealer Email ID</th>
+                                            <th scope="col">VIN Chassis No.</th>
+                                            <th scope="col">Invoice No.</th>
+                                            <th scope="col">Invoice Date</th>
+                                            <th scope="col">Vehicle Reg. No.</th>
+                                            <th scope="col">Vehicle Reg. Date</th>
+                                            <th scope="col">Invoice Amount</th>
+                                            <th scope="col">Incentive Amount</th>
+                                            <th scope="col">Customer ID</th>
+                                            <th scope="col">Customer Name</th>
+                                            <th scope="col">Customer Name as per Aadhar</th>
+                                            <th scope="col">Dealer Submitted at</th>
+                                            <th scope="col">Reverted Date</th>
+                                            <th scope="col">OEM Status & Remark</th>
+
+                                               {{-- <th scope="col">Action</th> --}}
+                                           </tr>
+                                       </thead>
+                                       <tbody>
+                                           @foreach ($bankDetail as $key => $bankDetail)
+                                               <tr>
+
+                                                   <td>{{ $key + 1 }}</td>
+                                                   <td>{{ $bankDetail->segment_name }} </td>
+                                                   <td>{{ $bankDetail->model_name }} </td>
+                                                   <td>{{ $bankDetail->dealer_name }} </td>
+                                                   <td>{{ $bankDetail->dealer_code }} </td>
+
+                                                   <td>{{ $bankDetail->dealer_mobile }} </td>
+                                                   <td>{{ $bankDetail->dealer_email }} </td>
+                                                   <td>{{ $bankDetail->vin_chassis_no }} </td>
+                                                   <td>{{ $bankDetail->dlr_invoice_no }} </td>
+
+                                                   <td>{{ date('d-m-y',strtotime($bankDetail->invoice_dt)) }} </td>
+                                                   <td>{{ $bankDetail->vhcl_regis_no }} </td>
+                                                   <td>{{ date('d-m-y',strtotime($bankDetail->vihcle_dt)) }} </td>
+                                                   <td>{{ $bankDetail->tot_inv_amt }} </td>
+                                                   <td>{{ $bankDetail->tot_admi_inc_amt }} </td>
+
+
+                                                   {{-- <td>{{ $bankDetail->model_name }} </td> --}}
+                                                   <td>{{ $bankDetail->buyer_id }} </td>
+                                                   <td>{{ $bankDetail->custmr_name }} </td>
+                                                   <td>{{ $bankDetail->adhar_name }} </td>
+                                                   <td>{{ \Carbon\Carbon::parse($bankDetail->buyer_submitted_at)->format('d-m-Y') }}</td>
+                                                   <td>{{ date('d-m-Y', strtotime($bankDetail->oem_status_at)) }} </td>
+                                                   <td>
+                                                    {!! $bankDetail->oem_status == 'R' ? '<span style="color: red;">Reject With Reason: ' . $bankDetail->oem_remarks . '</span>' : '' !!}
+                                                </td>
+
+
+                                                   {{-- <td>
+                                                       @if ($bankDetail->status == 'D')
+                                                           <a href="{{ route('buyerdetail.edit', $bankDetail->id) }}"
+                                                               class="btn btn-sm btn-warning">Edit</a>
+                                                       @elseif ($bankDetail->status == 'S')
+                                                           <a href="{{route('buyerdetail.ackdoc', $bankDetail->id)}}" class="btn btn-sm btn-primary">Ack Document</a>
+                                                          @elseif ($bankDetail->status == 'A')
+                                                           <a href="{{route('ackdoc.finalview', $bankDetail->id)}}" class="btn btn-sm btn-success">VIEW</a>
+
+                                                       @endif
+
+                                                   </td> --}}
+                                               </tr>
+                                           @endforeach
+
+
+                                       </tbody>
+                                   </table>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+
+               </div>
+           </div>
+           <!-- Container-fluid Ends-->
+       </div>
+   @endsection

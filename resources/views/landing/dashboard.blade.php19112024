@@ -1,0 +1,199 @@
+<!-- Nav Bar Ends here -->
+@extends('layouts.master')
+@section('title')
+    Dashboard - PM E-DRIVE
+@endsection
+@push('styles')
+    <style>
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000 !important;
+        }
+
+        .table-container {
+            width: 80%;
+            margin: 0 auto;
+            padding-left: 10%;
+            padding-right: 10%;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/css/style1.css') }}">
+@endpush
+@section('content')
+    <div class="sub-header p-relative">
+        <div class="overlay overlay-bg-black"></div>
+        <div class="pattern"></div>
+        <div class="section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="sub-header-content p-relative">
+                            <h1 class="text-custom-white lh-default fw-600">Sales Dashboard</h1>
+                            <ul class="custom">
+                                <li> <a href="/" class="text-custom-white">Home</a>
+                                </li>
+                                <li class="text-custom-white active">Sales Segment Wise </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class=" parallax mt-20 mb-xl-30">
+
+        <div class="container mb-xl-30">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table" style="border: 1px solid #d3d3d3; border-collapse: collapse; width: 100%;">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th colspan="7" style="border: 1px solid #d3d3d3; text-align: center;">Consolidated Sales of 2024-25 & 2025-26</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">SN</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Target Sales</th>
+                                    <th colspan="2" class="text-center" style="border: 1px solid #d3d3d3;">Sales As Per Portal</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales Reported by OEM (EMPS + PM EDRIVE)</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per E-Voucher</th>
+                                    <th style="border: 1px solid #d3d3d3;">Sales As per Voucher Upload</th>
+                                </tr>
+                                {{-- <tr class="lw-table-row-1"> --}}
+                                {{-- </tr> --}}
+                            </thead>
+                            <tbody>
+                                @php
+                                    $sn = 1;
+                                @endphp
+                                @foreach ($salesSum as $sale)
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #d3d3d3;">{{ $sn++ }}</td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->targetsalessum) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->evouchersalessum) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->voucherupload) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->salesbyoem) }}</b></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container mb-xl-30">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table" style="border: 1px solid #d3d3d3; border-collapse: collapse; width: 100%;">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th colspan="7" style="border: 1px solid #d3d3d3; text-align: center;">Sales of 2024-25</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">SN</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Target Sales</th>
+                                    <th colspan="2" class="text-center" style="border: 1px solid #d3d3d3;">Sales As Per Portal</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales Reported by OEM (EMPS + PM EDRIVE)</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per E-Voucher</th>
+                                    {{-- <th style="border: 1px solid #d3d3d3;">Sales As Per Invoice</th> --}}
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per Voucher Upload</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $sn = 1;
+                                @endphp
+                                @foreach ($segment_sale->where('fy', '2024-25') as $sale)
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #d3d3d3;">{{ $sn++ }}</td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->target_sales) }}</b></td>
+                                    {{-- <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ $sale->invoice_sales }}</b></td> --}}
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->evoucher_sales) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->voucher_upload) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->salesbyoem) }}</b></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                {{-- Uncomment and modify this if you want to show totals --}}
+                                {{-- <tr>
+                                    <th class="text-center" colspan="3">Total</th>
+                                    <th class="text-right" colspan="2">{{ indian_format($totalCount) }}</th>
+                                </tr> --}}
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table" style="border: 1px solid #d3d3d3; border-collapse: collapse; width: 100%;">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th colspan="7" style="border: 1px solid #d3d3d3; text-align: center;">Sales of 2025-26</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">SN</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Target Sales</th>
+                                    <th colspan="2" class="text-center" style="border: 1px solid #d3d3d3;">Sales As Per Portal</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales Reported by OEM (EMPS + PM EDRIVE)</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per E-Voucher</th>
+                                    {{-- <th style="border: 1px solid #d3d3d3;">Sales As Per Invoice</th> --}}
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per Voucher Upload</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $sn = 1;
+                                    $totalCount = 0;
+                                @endphp
+                                @foreach ($segment_sale->where('fy', '2025-26') as $sale)
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #d3d3d3;">{{ $sn++ }}</td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->target_sales) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->evoucher_sales) }}</b></td>
+                                    {{-- <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ $sale->invoice_sales }}</b></td> --}}
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->voucher_upload) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->salesbyoem) }}</b></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            {{-- Uncomment and modify this section if you want to display totals --}}
+                            {{-- <tfoot>
+                                <tr>
+                                    <th class="text-center" colspan="2">Total</th>
+                                    <th class="text-right" colspan="2">{{ indian_format($totalCount) }}</th>
+                                </tr>
+                            </tfoot> --}}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    @endsection

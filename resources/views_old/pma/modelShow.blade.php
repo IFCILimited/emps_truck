@@ -1,0 +1,482 @@
+   <!-- Nav Bar Ends here -->
+   @extends('layouts.dashboard_master')
+   @section('title')
+       PMA - Model Verification
+   @endsection
+
+   @push('styles')
+   @endpush
+   @section('content')
+       <!-- Page Sidebar Ends-->
+       <div class="page-body">
+           <div class="container-fluid">
+               <div class="page-title">
+                   <div class="row">
+                       <div class="col-6">
+                           <h4>Model Verification</h4>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           <div class="container-fluid">
+               <div class="row">
+                   <div class="col-sm-12">
+                       <form action="{{route('manageOEMApproval.store')}}" id="plant" role="form" method="POST" class='form-horizontal modelVer' files=true
+                           enctype='multipart/form-data' accept-charset="utf-8">
+                           @csrf
+                           <div class="card">
+                               <div class="card-body">
+                                   <div class="row g-3">
+                                       <div class="col-4 offset-4">
+                                           <h5><b>Filled By OEM's</b></h5>
+                                       </div>
+                                       <div class="col-4">
+                                           <h5><b>To be Filled by Testing Agency</b></h5>
+                                       </div>
+                                       <div class="col-4">
+                                           <p><b>Testing Agency:*</b></p>
+                                       </div>
+                                       <div class="col-4">
+                                        <h5>{{ $testing_agency_name['name'] }}</h5>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="text" class="form-control readonly" readonly
+                                            value="{{ $testing_agency_name['name'] }}">
+                                    </div>
+                                        <div class="col-4">
+                                            <p><b>OEM Name:* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>  {{$model->oem_name}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" value="{{$model->oem_name}}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>xEV Model Name:* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>  {{$model->model_name}} </h5>
+                                         </div>
+                                         <div class="col-4">
+                                             <input type="text" readonly class="form-control readonly" value="{{$model->model_name}}">
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>Variant Name:* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5> {{$model->variant_name}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                             <input type="text" readonly class="form-control readonly" value="{{$model->variant_name}}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Vehicle Segment:* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->segment}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                             <input type="text" class="form-control readonly" readonly
+                                             value="{{ $model->segment }}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Vehicle Category (as per CMVR):* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->vehicle_cat}}</h5>
+                                         </div>
+                                         <div class="col-4">
+
+                                             <input type="text" class="form-control readonly" readonly
+                                               value="{{ $model->vehicle_cat }}">
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>Technology Type (xEV Type):* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->tech_type}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" class="form-control readonly" readonly
+                                            value="{{ $model->tech_type }}">
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>Ex-Factory Price (INR):*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5> {{$model->factory_price}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="factory_price" value="{{$model->testing_factory_price}}">
+                                         </div>
+                                        
+                                         <div class="col-4">
+                                            <p><b>Specific Density (Wh/Kg):*</b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->spec_density}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="spec_density" value="{{$model->testing_spec_density}}">
+                                         </div>
+                                         
+                                         <div class="col-4">
+                                            <p><b>Life Cycle (No. of Cycles):* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->life_cyc}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="life_cyc" value="{{$model->testing_life_cyc}}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>No. of Batteries Required for Vehicle Propulsion:* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->no_of_battery}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" class="form-control readonly" readonly
+                                            value="{{ $model->no_of_battery }}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Total Energy xEV Capacity (kWh):*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5> {{$model->tot_energy}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                             <input type="text" readonly class="form-control readonly" value=" {{$model->tot_energy}}">
+                                         </div>
+                                         
+                                         <div class="col-4">
+                                            <p><b>Minimum Ex-Showroom Price (INR) across the Country:*</b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->min_ex_show_price}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="min_ex_show_price" value="{{$model->testing_min_ex_show_price}}">
+                                         </div>
+                                         
+                                         <div class="col-4">
+                                            <p><b>Estimated Incentive Amount (INR):* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->estimate_incentive_amount}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                             <input type="text" readonly class="form-control readonly" value="{{$model->estimate_incentive_amount}}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Monitoring Device Fitment (Make & ID):*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->monitoring_device_fitment}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" class="form-control readonly" readonly
+                                           value="{{ $model->monitoring_device_fitment }}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Range (Km):*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->range}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="range" value="{{$model->testing_range}}">
+                                         </div>
+                                         
+                                         
+                                         <div class="col-4">
+                                            <p><b>Maximum Electric Energy Consumption (kWh/100 Km):*   </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->max_elect_consumption}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="max_elect_consumption" value="{{$model->testing_max_elect_consumption}}">
+                                         </div>
+                                         
+                                         <div class="col-4">
+                                            <p><b>MinimumMax Speed (Km/Hr):* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->min_max_speed}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly name="min_max_speed" class=" readonly form-control" value="{{$model->testing_min_max_speed}}">
+                                         </div>
+                                         
+                                         <div class="col-4">
+                                            <p><b>Minimum Acceleration (m/s2):*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->min_acceleration}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly class="form-control readonly" name="min_acceleration" value="{{$model->testing_min_acceleration}}">
+                                         </div>
+
+                                         
+
+                                         <div class="col-4">
+                                            <p><b>Meeting xEV Technology Function:*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->meeting_tech_function}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" class="form-control readonly" readonly name="meeting_tech_function" value="{{ $model->testing_meeting_tech_function == 'Y' ? 'Yes' : 'No' }}" readonly>
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Meeting Qualification Targets:*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{$model->meeting_qualif}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" class="form-control readonly" readonly name="meeting_tech_function" value="{{ $model->testing_meeting_qualif == 'Y' ? 'Yes' : 'No' }}" readonly>
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Date of Vehicle Submission to Test Agency for Type Approval:*   </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                             <h5>{{date('d-m-Y',strtotime($model->vehicle_sub_to_test_agency_apprv))}}</h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="date" readonly class="form-control readonly" name="vehicle_sub_to_test_agency_apprv" value="{{$model->testing_vehicle_sub_to_test_agency_apprv}}">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Certificate Copy:*   </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                         </div>
+                                         <div class="col-4">
+                                            <h5>   <a class="mt-2 btn btn-success btn-sm"
+                                                href="{{ route('doc.down', encrypt($model->testing_doc_id)) }}">
+                                                <i class="fa fa-download"></i>  View Document
+                                             </a>
+                                            </h5>
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>CMVR Certificate Copy:* </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                            {{-- <h5> <a class="mt-2 btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($model->testing_doc_id)) }}">
+                                                    <i class="fa fa-download"></i> View Document
+                                                </a>
+                                            </h5> --}}
+                                        </div>
+                                        <div class="col-4">
+                                            {{-- <input type="file" readonly name="certificate"
+                                                class="readonly form-control"> --}}
+                                                <h5> <a class="mt-2 btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($model->testing_cmvr_doc_id)) }}">
+                                                    <i class="fa fa-download"></i> View Document
+                                                </a>
+                                            </h5>
+                                        </div>
+                                         <div class="col-4">
+                                            <p><b>Model {{ env('APP_NAME')}} Compliance Certificate Number*</b></p>
+                                        </div>
+                                        <div class="col-4">
+                                            
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" name="certificate_no" value="{{$model->testing_certificate_no}}" readonly class="form-control readonly" placeholder="Enter Certificate Number">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b> Model {{ env('APP_NAME')}} CMVR Date:*</b></p>
+                                        </div>
+                                        <div class="col-4">
+                                            
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="date" name="cmvr_date" readonly class="form-control readonly"  value="{{$model->testing_cmvr_date}}" placeholder="Select CMVR Date">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Model {{ env('APP_NAME')}} Compliance Certificate Approval Date:*</b></p>
+                                        </div>
+                                        <div class="col-4">
+                                            
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="date" name="approval_date" readonly class="form-control readonly" value="{{$model->valid_from}}" placeholder="Select Approval Date">
+                                         </div>
+
+                                         <div class="col-4">
+                                            <p><b>Model {{ env('APP_NAME')}} Compliance Certificate Validate Upto:*</b></p>
+                                        </div>
+                                        <div class="col-4">
+                                            
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="date" name="expiry_date" readonly class="form-control readonly" value="{{$model->valid_upto}}" placeholder="Select Validate Date">
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>PMP Compliance:*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                           
+                                         </div>
+                                         <div class="col-4">
+                                            <select  id="" class="form-select" disabled name="pmp_compliance">
+                                                <option>Select</option>
+                                                <option value="Yes" {{ $model->pmp_compliance == 'Yes' ? 'selected':''}}>Yes</option>
+                                                <option value="No" {{ $model->pmp_compliance == 'No' ? 'selected':''}}>No</option>
+                                            </select>
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>Warranty Period :*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                            {{-- <input type="date" readonly name="warranty_period_from" value="{{date('d-m-Y',strtotime($model->warranty_period_from))}}" class="form-control readonly" placeholder="Select Validate Date"> --}}
+                                         </div>
+                                         <div class="col-4">
+                                            <input type="text" readonly name="warranty_period_indicate" class="form-control readonly" value="{{ $model->warranty_period_indicate }}" placeholder="">
+                                         </div>
+                                         <div class="col-4">
+                                            <p><b>Warranty Check:*  </b></p>
+                                        </div>
+                                        <div class="col-4">
+                                           
+                                         </div>
+                                         <div class="col-4">
+                                            <select  id="" class="form-select" disabled name="warranty_check">
+                                                <option>Select</option>
+                                                <option value="Yes" {{$model->warranty_check == 'Yes' ? 'selected':''}}>Yes</option>
+                                                <option value="No" {{$model->warranty_check == 'No' ? 'selected':''}}>No</option>
+                                            </select>
+                                         </div>
+                                         <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input" id="flexCheckDefault" checked type="checkbox" value="" name="declaration">
+                                                <label class="form-check-label" for="flexCheckDefault">Declaration :* We declare that the above information relating to vehicle testing report is correct to the best of our knowledge and belief. The above information is being provided to MHI for the purpose of availing demand incentive as per guidelines of the {{ env('APP_NAME')}}-2024.</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                            @if ($model->mhi_flag == 'A')
+                                                <input type="text" value="Approved" readonly class="readonly form-control">
+                                            @elseif($model->mhi_flag == 'R')
+                                                <input type="text" value="Rejected - with Reason :: {{ $model->mhi_remarks }}" readonly class="readonly form-control">
+                                            @else
+                                                <input type="text" value="Pending" readonly class="readonly form-control">
+                                            @endif
+                                        </div>
+                                   </div>
+                                  
+                               </div>
+                            </div>
+                            @if(Auth::user()->hasRole('MHI-DS'))
+                            @if($model->mhi_flag == null || $model->mhi_flag == '')
+                            <input type="hidden" name="oem_id" value="{{$model->oem_id}}">
+                            <input type="hidden" name="model_id" value="{{$model->model_id}}">
+                            <input type="hidden" name="oem_name" value="{{$model->oem_name}}">
+                            <input type="hidden" name="status" value="A">
+                            <input type="hidden" name="mid" value="{{$model->model_detail_id}}">
+                           <div class="col-12 text-center">
+                               <button type="submit" class="btn btn-info btn-approve">Approve</button>
+                               <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#reject">Reject</button>
+                           </div>
+                           @endif
+                           @endif
+
+                        </div>
+                       </form>
+                   </div>
+                   <div class="col-4">
+                    <a href="{{ route('manageOEMApproval.index') }}" class="btn btn-warning">Back</a>
+            </div>
+               </div>
+           </div>
+       </div>
+       <div class="modal fade" id="reject" tabindex="-1" role="dialog" aria-labelledby="reject" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="modal-toggle-wrapper"> 
+                <form action="{{route('manageOEMApproval.store')}}"  id="formReject" role="form" method="POST"
+                   class='form-horizontal modelVer' accept-charset="utf-8" enctype='multipart/form-data' files=true>
+                   @csrf
+               
+                   <input name="status" type="hidden" value="R">
+                   <input type="hidden" name="oem_id" value="{{$model->oem_id}}">
+                   <input type="hidden" name="model_id" value="{{$model->model_id}}">
+                   <input type="hidden" name="oem_name" value="{{$model->oem_name}}">
+                   <input type="hidden" name="mid" value="{{$model->model_detail_id}}">
+                    <div class="row">
+                        <div class="col-12">
+                            <label>Remarks</label>
+                            <textarea class="form-control" name="mhi_remarks" placeholder="Remarks"></textarea>
+                        </div> 
+                    </div>
+                    <div class="col-12">
+                        <button class="btn bg-primary mt-2 d-flex align-items-center gap-2 text-light ms-auto btnReject" type="submit">Reject<i data-feather="arrow-right"></i></button>
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+   @endsection
+   @push('scripts')
+       {{-- {!! JsValidator::formRequest('App\Http\Requests\ModelRequestEdit', '.modelVer') !!} --}}
+
+       @include('partials.js.pincode')
+       <script>
+        $(document).ready(function() {
+            // Listen for click event on the Save button
+            $('.btn-save').on('click', function() {
+                // Set the value of the hidden input to blank
+                $('input[name="status"]').val('');
+            });
+
+            // Listen for click event on the Approve button
+            $('.btn-approve').on('click', function() {
+                // Set the value of the hidden input to 'A'
+                $('input[name="status"]').val('A');
+            });
+        });
+        $(document).ready(function() {
+            
+            function toggleButtonState() {
+                var checkbox = $('#flexCheckDefault');
+                var buttons = $('button[type="submit"]');
+                var button = $('button[type="button"]');
+
+                if (checkbox.prop('checked')) {
+                    buttons.prop('disabled', false); 
+                    button.prop('disabled', false); 
+                } else {
+                    buttons.prop('disabled', true); 
+                    button.prop('disabled', true); 
+                }
+            }
+
+           
+            toggleButtonState();
+
+           
+            $('#flexCheckDefault').on('change', function() {
+                toggleButtonState(); 
+            });
+        });
+       </script>
+   @endpush

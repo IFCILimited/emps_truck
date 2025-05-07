@@ -1,0 +1,115 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/css/vendors/bootstrap.css') }}">
+
+    <title>Dealer E-Voucher</title>
+
+    <style>
+        .certificate_content{
+            position: absolute;
+            top: 30vw;
+            left: 23vw;
+            height: auto;
+            width: 815px;
+            padding: 0 1rem;
+            margin: 0 auto;
+            font-family: "Open Sans", sans-serif;
+            font-size: 20px;
+            letter-spacing: 2.5px;
+        }
+        .certificate_image img{
+            width: 816px;
+            height: 1056px;
+        }
+        .certificate_signature{
+            display: flex;
+            align-items: end;
+            justify-content: center;
+        }
+        .dealer_signature{
+            display: flex;
+            align-items: end;
+        }
+
+        .certificate_bottom{
+            margin-top: 3rem;
+        }
+        
+        @media print {
+
+            .certificate_content{
+                position: absolute;
+                top: 38%;
+                left: 2%;
+                height: auto;
+                width: 815px;
+                padding: 0 1rem;
+                margin: 0 auto;
+            }
+
+            .print_btn{
+                display: none;
+            }
+
+            .certificate_container{
+                margin-top: 6%;
+            }
+
+            @page { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid certificate_container">
+        <div class="col-12 print_btn mt-2">
+            <button class="btn btn-primary" onclick="window.print()">Print E-Voucher</button>
+        </div>
+        <div class="certificate_image text-center">
+            <img src="{{ asset('docs/dealer/dealer_certificate_back.jpg') }}"/>
+        </div>
+        <div class="certificate_content">
+            <div class="inner_container">
+                <div class="col-12 d-flex justify-content-between">
+                    <div>
+                        <span style="font-weight:500">Certificate Number: {{$detail->id}} </span>
+                    </div>
+                    <div>
+                        <span style="font-weight:500">Date: {{ \Carbon\Carbon::parse($detail->created_at)->format('F j, Y') }}</span>
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-5">
+                    {{-- <span style="font-weight: 500">This is to acknowledge that, I</span> <br> {{$detail->custmr_name}}<br><span style="font-size: 25px;font-weight:500">have received <span style="font-weight:800">PM E-DRIVE</span> subsidy of </span><br> <i class="fa fa-inr" aria-hidden="true"></i> {{$detail->addmi_inc_amt}}<br> <span style="font-weight:500">from Ministry of Heavy industries, <br>Government of India </span> <br> <span style="font-size:17px;font-weight:400">on purchase of {{$detail->model_name}}, an Electric  <br> {{$detail->segment_name}}, from {{$detail->oem_name}} <br> VIN NO: {{$detail->vin_chassis_no}} <br> </span> --}}
+                    <span style="font-weight: 500">This is to acknowledge that, I</span> <br> {{$buyerAuth->custmr_name}}<br><span style="font-size: 25px;font-weight:500">have received <span style="font-weight:800">PM E-DRIVE</span> subsidy of </span><br> <i class="fa fa-inr" aria-hidden="true"></i> {{$detail->addmi_inc_amt}}<br> <span style="font-weight:500">from Ministry of Heavy industries, <br>Government of India </span> <br> <span style="font-size:17px;font-weight:400">on purchase of {{$detail->model_name}}, an Electric  <br> {{$detail->segment_name}}, from {{$detail->oem_name}} <br> VIN NO: {{$detail->vin_chassis_no}} <br> </span>
+                </div>
+                <div class="col-12 d-flex justify-content-center certificate_bottom">
+                    {{-- <div class="col-4 certificate_signature"> 
+                        <p>----------------</p>
+                    </div> --}}
+                    <div class="col-4 text-center">
+                        <div class="text-center">
+                            {{-- {{$qRCode}} --}}
+                            <img src="{{ asset('assets/images/qrcode.png') }}" alt="PM E-DRIVE, E-Voucher" width="50%" height="50%" align="center" margin-right="10%">                        
+			</div>
+                    </div>
+                    {{-- <div class="col-4 dealer_signature">
+                        <p>----------------</p>
+                    </div> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

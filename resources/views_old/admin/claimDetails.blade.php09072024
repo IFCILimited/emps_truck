@@ -1,0 +1,76 @@
+@extends('layouts.dashboard_master')
+
+@section('title')
+    Claim Details
+@endsection
+
+@push('styles')
+@endpush
+
+@section('content')
+    <div class="page-body">
+        <div class="container-fluid">
+            <div class="page-title">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="col-6 mb-3">
+                            <h4>Claim Details</h4>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="dt-ext table-responsive custom-scrollbar mt-5">
+                                    <table class="display table-bordered table-striped" id="export-button">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">S.No.</th>
+                                                <th scope="col">Customer Name</th>
+                                                <th scope="col">Address</th>
+                                                <th scope="col">Mobile No.</th>
+                                                <th scope="col">Email Id</th>
+                                                <th scope="col">Dealer Name</th>
+                                                <th scope="col">Model Segment</th>
+                                                <th scope="col">Model Name</th>
+                                                <th scope="col">Invoice No.</th>
+                                                <th scope="col">Invoice Amount.</th>
+                                                <th scope="col">Total Incentives</th>
+                                                <th scope="col">Invoice Date</th>
+                                                <th scope="col">Vin Chassis No.</th>
+                                                <th scope="col">Invoice Amount</th>
+                                                <th scope="col">Claim Formate Number</th>
+                                                <th scope="col">Claim Id</th>
+                                                <th scope="col">Lot Id</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($claimData as $key => $claim)
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $claim->oem_name }}</td>
+                                                    <td>{{ $claim->add }}</td>
+                                                    <td>{{ $claim->mobile }}</td>
+                                                    <td>{{ $claim->email }}</td>
+                                                    <td>{{ $claim->dealer_name }}</td>
+                                                    <td>{{ $claim->segment_name }}</td>
+                                                    <td>{{ $claim->model_name }}</td>
+                                                    <td>{{ $claim->dlr_invoice_no }}</td>
+                                                    <td>{{ $claim->invoice_amt }}</td>
+                                                    <td>{{$claim->addmi_inc_amt}}</td>
+                                                    <td>{{ $claim->invoice_dt }}</td>
+                                                    <td>{{ $claim->vin_chassis_no }}</td>
+                                                    <td>{{ $claim->invoice_amt }}</td>
+                                                    <td>-</td>
+                                                    <td>{{ $claim->claim_id }}</td>
+                                                    <td>-</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

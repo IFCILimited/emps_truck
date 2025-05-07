@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/css/vendors/bootstrap.css') }}">
+
+    <title>PM E-DRIVE (Customer E-Voucher)</title>
+
+    <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .certificate_container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .certificate_image img {
+            width: 100%;
+            max-width: 816px; /* Maximum width for larger screens */
+            height: auto; /* Maintain aspect ratio */
+        }
+
+        .certificate_image{
+            grid-column: 1 / -1;
+            grid-row: 1 / -1;
+        }
+
+        .certificate_content {
+            grid-column: 1 / 6;
+            grid-row: 3 / 6;
+            width: 46rem;
+            height: auto;
+            padding: 1rem;
+            margin: 2rem 1rem;
+            letter-spacing: 2.5px;
+        }
+
+        .certificate_wrapper{
+            display: grid;
+            height: 100%;
+            grid-template-columns: repeat(6, 8rem);
+            grid-template-rows: repeat(6, 11rem);
+        }
+
+        .certificate_bottom {
+            margin-top: 1rem;
+        }
+        .certificate_bottom img{
+            width:150px;
+        }
+
+        .customer_name {
+            /* font-family: "Playfair Display", serif; */
+            font-family: "PlayFairDisplay";
+            /* font-size: 28px; */
+            font-size: 28.0304pt;
+            /* font-weight: 600; */
+        }
+
+        @media print {
+            .print_btn {
+                display: none;
+            }
+
+            @page {
+                margin: 0;
+            }
+
+            .certificate_wrapper{
+                display: grid;
+                row-gap: 1rem;
+                height: 100%;
+                grid-template-columns: repeat(6, 7.5rem);
+                grid-template-rows: repeat(6, 9.5rem);
+            }
+            .certificate_content{
+                width: 44rem;
+                margin: 2rem 0.5rem;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .certificate_content {
+                /* font-size: 16px; */
+            }
+
+            .customer_name {
+                /* font-size: 24px; */
+                font-size: 28.0304pt;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .certificate_content {
+                /* font-size: 14px; */
+                padding: 0.5rem; /* Reduce padding */
+            }
+
+            .customer_name {
+                /* font-size: 20px;  */
+                font-size: 28.0304pt;
+            }
+        }
+
+        @font-face {
+            font-family: 'MonotypeCorsiva'; /* Name for the font */
+            src: url('/docs/dealer/fonts/MTCORSVA.ttf'); /* Path to the font file */
+
+        }
+
+        @font-face {
+            font-family: 'OpenSansRegular'; /* Name for the font */
+            src: url('/docs/dealer/fonts/OpenSans-Regular.ttf'); /* Path to the font file */
+
+        }
+        @font-face {
+            font-family: 'OpenSansBold'; /* Name for the font */
+            src: url('/docs/dealer/fonts/OpenSans-Bold.ttf'); /* Path to the font file */
+
+        }
+
+        @font-face {
+            font-family: 'PlayFairDisplay'; /* Name for the font */
+            src: url('/docs/dealer/fonts/PlayfairDisplay-Italic.ttf'); /* Path to the font file */
+        }
+
+        p{
+            margin: 0 !important;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid certificate_container">
+        <div class="col-12 print_btn mt-2">
+            <button class="btn btn-primary" onclick="window.print()">Print E-Voucher</button>
+        </div>
+        <div class="certificate_wrapper">
+            <div class="certificate_image text-center">
+                <img src="{{ asset('docs/dealer/dealer_certificate_back.jpg') }}" alt="Certificate Image"/>
+            </div>
+            <div class="certificate_content">
+                <div class="inner_container">
+                    <div class="col-12 d-flex justify-content-between">
+                        <div>
+                            <span style="font-family:'OpenSansRegular';font-size:14.4036pt">Certificate Number: {{$detail->buyer_id}}</span>
+                        </div>
+                        <div>
+                            {{-- <span style="font-family:'OpenSansRegular';font-size:14.4036pt">DATE: {{ \Carbon\Carbon::parse($detail->created_at)->format('F j, Y') }}</span> --}}
+                            <span style="font-family:'OpenSansRegular';font-size:14.4036pt">DATE: {{ \Carbon\Carbon::parse(\Carbon\Carbon::now())->format('F j, Y') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center" style="margin-top: 1.2rem;">
+                        <p style="font-size: 15.5382pt;font-family:'OpenSansRegular';">This is to acknowledge that, I</p>
+                        <p class="customer_name" style=""><i>@if($detail->custmr_typ == 1) {{$detail->adhar_name}} @else  {{$detail->custmr_name}} @endif</i></p>
+                        <!-- <p class="customer_name" style=""><i>{{$detail->adhar_name}}</i></p> -->
+                        <p style="font-size: 19pt;font-family:'OpenSansRegular';">have received <span style="font-family:'OpenSansBold';">PM E-DRIVE</span> subsidy of </p>
+                        <p style="font-size: 34.8178pt; font-family: 'PlayFairDisplay';"><i class="fa fa-inr" aria-hidden="true"></i> <span>{{$detail->formatedAmount}}</span></p>
+                        <p style="font-size:15.5382pt;font-family:'OpenSansRegular';">from Ministry of Heavy Industries,<br> Government of India</p>
+                        <p style="font-size: 11.0987pt;font-family:'OpenSansRegular';">on purchase of {{$detail->model_name}}, an Electric<br>{{$detail->segment_name}}, from {{$detail->oem_name}}<br> VIN NO: {{$detail->vin_chassis_no}}<br></p>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center certificate_bottom">
+                        <div class="col-4 text-center">
+                            <div>
+                                {{-- {{$qRCode}} --}}
+                                <img src="{{ asset('docs/dealer/qr_code.png') }}" alt="Certificate Image"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

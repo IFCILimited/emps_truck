@@ -1,0 +1,252 @@
+@extends('layouts.master')
+
+@section('title')
+    Home - PM E-DRIVE
+@endsection
+@push('styles')
+@endpush
+@section('content')
+    <div class="sub-header p-relative">
+        <div class="overlay overlay-bg-black"></div>
+        <div class="pattern"></div>
+        <div class="section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="sub-header-content p-relative">
+                            <h1 class="text-custom-white lh-default fw-600">Verify E-Voucher</h1>
+                            {{-- <ul class="custom">
+                                <li> <a href="/" class="text-custom-white">Home</a>
+                                </li>
+                                <li class="text-custom-white active">verify certificate</li>
+                            </ul> --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="section-padding about-us-sec p-relative">
+        <div class="container">
+            <div class="col-12 text-center h2">
+                <strong>Benefits of EV Adoption Since 01/10/2024</strong>
+            </div>
+            <div class="row mt-">
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;background-color:#897E76;color:#fff;height: 8rem;">
+                        <div class="card-body mt-3">
+                            <h5 class="card-title text-center text-dark">Models Available</h5>
+                            <p class="card-text text-center">1234</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;background-color:#416EBE;color:#fff;height: 8rem;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-dark">Fuel Saving Per Day (in litre)</h5>
+                            <p class="card-text text-center">1234</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;background-color:#D2512D;color:#fff;height: 8rem;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-dark">Total Saved Fuel (in Ltrs.)</h5>
+                            <p class="card-text text-center">1234</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-2"></div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;background-color:#1ECBE1;color:#fff;height: 8rem;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-dark">CO2 Reduction per day (in Kg.)</h5>
+                            <p class="card-text text-center">1234</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;background-color:#D808F7;color:#fff;height: 8rem;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-dark">Total Co2 Reduction (in Kg.)</h5>
+                            <p class="card-text text-center">1234</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;background-color:#00FF87;color:#fff;height: 8rem;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-dark">Total Incentive Claimed (In Crores)</h5>
+                            <p class="card-text text-center">1234</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 text-center mt-3">
+                @if($dlr_id && $crtf_id)
+                    <button type="button" class="btn btn-primary text-uppercase" data-toggle="modal" data-target="#verifyDoc">
+                        Click here to verify your E-Voucher
+                    </button>
+                @endif
+            </div>
+        </div>
+        <div class="bg-light-white-skew-2 bg-custom-black"></div>
+    </section>
+
+
+
+    <div class="modal fade" id="verifyDoc" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #0070ba">
+                    <h5 class="modal-title">Verify E-Voucher</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="verify_Cert_form" action="{{route('dealer.check_and_Verify_certificate')}}" method="post">
+                    @csrf
+                    <div class="modal-body" style="display: block;">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label>Dealer Id</label>
+                                    <input class="form-control" type="text" name="hd_d_id" readonly value="{{$hid_dlr_id}}"/>
+                                    <input type="hidden" name="d_id" readonly value="{{$dlr_id}}"/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label>E-Voucher Id</label>
+                                    <input class="form-control" type="text" name="hd_ctf_id" readonly value="{{$hid_crtf_id}}"/>
+                                    <input type="hidden" name="ctf_id" readonly value="{{$crtf_id}}"/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label>Mobile Number</label>
+                                    <input class="form-control" type="text" max=10 name="mb_num" placeholder="Enter mobile number"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="otp_container" class="col-12" style="display:none">
+                            <div class="form-group">
+                                <label>Enter OTP</label>
+                                <input class="form-control" type="text" max=10 name="otp" placeholder="Enter OTP"/>
+                            </div>
+                            {{-- <a href="javascript:void(0)">Resend OTP</a> --}}
+                        </div>
+                        <div class="col-12 form-error text-danger"></div>
+                        <div class="col-12 form-message text-success"></div>
+                        <div id="doc_link"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="check_btn" type="button" class="btn btn-primary">Generate OTP</button>
+                        <button style="display:none" id="verify_otp_btn" type="button" class="btn btn-primary">Verify OTP</button>
+                        <a></a>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        $('#check_btn').on("click", function(){
+            let phoneNumber = $("input[name='mb_num']").val();
+            if(!phoneNumber || phoneNumber.length != 10){
+                $('.form-error').text('Please enter a valid contact number!');
+                return;
+            }
+            $('.form-error').text('');
+
+
+            let csrfToken = $('input[name="_token"]').val();
+            var formData = new FormData();
+            formData.append("ctf_id", $("input[name='ctf_id']").val());
+            formData.append("dlr_id", $("input[name='d_id']").val());
+            formData.append("mb_num", $("input[name='mb_num']").val());
+            $.ajax({
+                url: "{{route("dealer.check_and_Verify_certificate")}}",
+                method: "POST",
+                headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data){
+                    if(!data.status) {
+                        alert(data.message);
+                        return;
+                    }
+                    $('#otp_container, #verify_otp_btn').show();
+                    $('#check_btn').hide();
+                    $("input[name='mb_num']").attr("readonly", "true");
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            })
+        });
+
+        $('#verify_otp_btn').on("click", function(){
+            let phoneNumber = $("input[name='mb_num']").val();
+            let otp = $("input[name='otp']").val();
+
+            if(otp.length != 6){
+                $('.form-error').text('Please enter a valid OTP!');
+                return;
+            }
+            $('.form-error').text('');
+
+
+            let csrfToken = $('input[name="_token"]').val();
+            var formData = new FormData();
+            formData.append("otp", otp);
+            formData.append("mb_num", phoneNumber);
+            formData.append("dlr_id", $("input[name='d_id']").val());
+            
+            $.ajax({
+                url: "{{route("dealer.Verify_otp_certificate")}}",
+                method: "POST",
+                headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data){
+                    if(!data.status) {
+                        alert(data.message);
+                        return;
+                    }
+                    const anchor = document.createElement('a');
+                    anchor.href = data.message;
+                    anchor.innerText = 'Download File';
+                    $('#doc_link').append(anchor);
+
+                    $('#otp_container, #verify_otp_btn').hide();
+                    
+                    $('.form-message').text('Verified successfully!');
+
+                    // window.location.href = data.message;
+
+                    // anchor.click();
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            })
+        });
+    </script>
+@endpush
+
+

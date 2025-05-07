@@ -1,0 +1,328 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ClaimDetailsExport;
+use App\Models\User;
+use Auth;
+
+
+class AdminController extends Controller
+{
+    public function index()
+    {
+        ini_set('memory_limit', '10048M');
+        ini_set('max_execution_time', 6600);
+
+        // $models = User::join('model_master', 'users.id', '=', 'model_master.oem_id')
+        //     ->join('oem_model_details', 'model_master.id', '=', 'oem_model_details.model_id')
+        //     // ->where('model_master.oem_id', Auth::user()->id)
+        //     ->orderBy('oem_model_details.id')
+        //     ->get([
+        //         'model_master.id as model_id',
+        //         'model_master.*',
+        //         'oem_model_details.id as model_detail_id',
+        //         'oem_model_details.*',
+        //     ]);
+        // dd($models);
+        // $dashboard = DB::table('dashboard_view')->get();
+        
+        // $dealerReg = DB::table('users')
+        //     ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        //     ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        //     ->whereIn('model_has_roles.role_id', [6])
+        //     // ->where('oem_id', Auth::user()->id)
+        //     // ->select('users.*', 'roles.name as  role')
+        //     ->get();
+
+        // $vehicleSub = DB::table('buyer_details_view')->where('status', 'A')->count();
+        // $vehicleApp = DB::table('buyer_details_view')->where('oem_status', 'A')->count();
+
+        // $PostData = DB::table('users')
+        //     ->join('post_registration_detail', 'users.id', '=', 'post_registration_detail.user_id')
+        //     // ->where('users.post_registration_status',null)
+        //     ->get();
+        // dd($pendingPost);
+        // $claimData = DB::table('buyer_details_view')->get();
+    
+        // dd($claimData);
+
+        $authApi = DB::table('encryption_keys')->where('oem_code',Auth::user()->id)->first();
+
+        // Fetch the summarized data grouped by vehicle_type
+        // $oem_summary = DB::table('oem_ev_summary')
+        //     ->select(
+        //         'vehicle_type',
+        //         DB::raw('SUM(production_count) AS total_production_count'),
+        //         DB::raw('SUM(sold_by_dealer) AS total_sold_by_dealer'),
+        //         DB::raw('SUM(approved_by_oem) AS total_approved_by_oem'),
+        //         DB::raw('SUM(claim_submitted) AS total_claim_submitted')
+        //     )
+        //     ->groupBy('vehicle_type')
+        //     ->get();
+
+//             $pid=getParentId();
+// // ######################### NEW ###############33
+//             $dashboard = DB::table('dashboard_summary')->first();
+//             $claimData = DB::table('buyer_details_summary')->first();
+//             $PostData = DB::table('post_registration_summary')->first();
+//             $oem_summary = DB::table('oem_ev_summary_view')->get();
+//             // $dealerReg = DB::table('dealer_registration_count')->where('oem_id',Auth::user()->id)->first();
+//             $dealerReg = DB::table('dealer_registration_count')->where('oem_id',$pid)->first();
+//             $models = DB::table('model_summary')->first();
+//             // dd($dealerReg);
+
+
+            
+                
+        // // return view('admin.index', compact("dashboard","authApi", 'PostData', 'models', 'dealerReg', 'vehicleSub', 'vehicleApp', 'claimData', 'oem_summary'));
+        // return view('admin.index', compact("dashboard","authApi", 'PostData', 'models', 'dealerReg', 'claimData', 'oem_summary'));
+
+        // select sum("Number of vehicles Registered"), "OEM Name","Fuel Type"  from oem_model_api_map_view group by "OEM Name", "Fuel Type" order by "OEM Name" asc;
+
+        $salesSum = [];
+        $view_oem_wise_data = [];
+        $oemCount = [];
+        $actualCount = [];
+        $vehicleSales = [];
+        $vahan_summary = [];
+        $salesSum = [];
+        $emps_summary = [];
+        $portal_summary_edrive = [];
+        $emps_buyer_summary_total = [];
+
+        if(Auth::user()->hasRole('MHI-AS') ||
+        Auth::user()->hasRole('MHI-DS') ||
+        Auth::user()->hasRole('MHI-OnlyView') ||
+        Auth::user()->hasRole('PMA')){
+            $salesSum = DB::table('segment_sales_summary')
+            ->get();
+
+            $portal_summary_edrive = DB::table('buyer_data_summary')
+                ->select(
+                    DB::raw('SUM(actual_count) as count'),
+                    'vehicle_cat as cat_nm'
+                )
+                ->groupBy('vehicle_cat')
+                ->get();
+
+
+            $vahan_summary = DB::table('vahan_api_data_summary as vads')
+                ->select(
+                    DB::raw('SUM(vads.total_count) as count'),
+                    'vads.portal_category_name as cat_nm'
+                )
+                ->groupBy('portal_category_name')
+                ->get();
+
+            $emps_summary = DB::table('emps_data_summary as eds')
+            ->select(
+                DB::raw('SUM(eds.total_count) as count'),
+                'eds.cat_nm as cat_nm'
+            )
+            ->groupBy('cat_nm')
+            ->get();
+
+            $emps_buyer_summary = getEmpsDataSummary();
+            $combinedSummary = [
+                'L1+L2' => 0,
+                'e-rickshaw & e-cart' => 0,
+                'L5' => 0
+            ];
+
+            if($emps_buyer_summary || $emps_buyer_summary != 0)
+            {
+               
+                $distinctOemsMaster = DB::table('oem_model_master_vahan_use')
+                ->distinct()
+                ->pluck('MORTH_OEM', 'oem_id');
+                
+                foreach($emps_buyer_summary as $empsData)
+                {
+                    if(isset($distinctOemsMaster[$empsData["oem_id"]]))
+                    {
+                        if($empsData["vehicle_cat"] == 'L1' || $empsData["vehicle_cat"] == 'L2')
+                        {
+                            $combinedSummary['L1+L2'] +=  (int)$empsData["actual_count"];
+                        }elseif($empsData["vehicle_cat"] == 'L5')
+                        {
+                            $combinedSummary['L5'] +=  (int)$empsData["actual_count"];
+                        }else{
+                            $combinedSummary['e-rickshaw & e-cart'] +=  (int)$empsData["actual_count"];
+                        }
+                    }
+                }
+            }
+            $emps_buyer_summary_total = $combinedSummary;
+
+            // dd($emps_buyer_summary_total, $emps_summary, $portal_summary_edrive, $vahan_summary);
+
+
+            // Fetch data from the PostgreSQL view
+            // $vehicleSales = DB::table('vehicle_sales_view')->get();
+        }
+        return view('admin.index', compact('vehicleSales', 'vahan_summary', 'salesSum', 'emps_summary', 'portal_summary_edrive', 'emps_buyer_summary_total'));
+    }
+
+    public function segmentWise($segment)
+    {
+        // dd($segment);
+        $toViewSegment = [];
+        if(urldecode($segment) == "L1+L2" || $segment == "L1+L2") {
+            $toViewSegment = ['L1', 'L2'];
+        }elseif(urldecode($segment) == "L5"){
+            $toViewSegment = ['L5'];
+        }else{
+            $toViewSegment = ['e-rickshaw & e-cart'];
+        }
+        // dd($toViewSegment, $segment, urldecode($segment));
+        $vahan_summary = DB::table('vahan_api_data_summary as vads')
+            ->select(DB::raw('SUM(vads.total_count) as total_vahan_count'), 'vads.vahan_oem_name')
+            ->whereIn('vads.portal_category_name', $toViewSegment)
+            ->orderBy('vads.vahan_oem_name')
+            ->groupBy('vads.vahan_oem_name')
+            ->pluck('total_vahan_count', 'vahan_oem_name');
+
+        $emps_summary = DB::table('emps_data_summary as eds')
+            ->select(DB::raw('SUM(eds.total_count) as total_vahan_count'), 'eds.vahan_oem_name')
+            ->whereIn('eds.cat_nm', $toViewSegment)
+            ->orderBy('eds.vahan_oem_name')
+            ->groupBy('eds.vahan_oem_name')
+            ->pluck('total_vahan_count', 'vahan_oem_name');
+
+        
+        $vahan_portal_summary = DB::table('buyer_data_summary as bds')
+        ->select(DB::raw('SUM(bds.actual_count) as total_vahan_count'), 'bds.oem_name', 'bds.oem_id')
+        ->whereIn('bds.vehicle_cat', $toViewSegment)
+        ->orderBy('bds.oem_name')
+        ->groupBy('bds.oem_name', 'bds.oem_id')
+        ->pluck('total_vahan_count', 'oem_id');
+        
+
+        $oems = DB::table('oem_model_master_vahan_use as omvu')
+        ->select('omvu.MORTH_OEM as oem_name', 'oem_id')
+        ->distinct()
+        ->orderBy('omvu.MORTH_OEM')
+        ->get();
+
+        $emps_portal_summary = getEmpsDataSummary();
+        $combinedSummary = [];
+
+        if($emps_portal_summary || $emps_portal_summary != 0)
+        {
+            
+            $distinctOemsMaster = DB::table('oem_model_master_vahan_use')
+            ->distinct()
+            ->pluck('MORTH_OEM', 'oem_id');
+            
+            foreach($emps_portal_summary as $empsData)
+            {
+                if(isset($distinctOemsMaster[$empsData["oem_id"]]))
+                {
+                    if(in_array($empsData["vehicle_cat"], $toViewSegment))
+                    {
+                        $combinedSummary[$distinctOemsMaster[$empsData["oem_id"]]] =  (int)$empsData["actual_count"];
+                    }
+                }
+            }
+        }
+        $emps_buyer_summary_total = $combinedSummary;
+        // dd($emps_buyer_summary_total);
+
+        // dd( $vahan_portal_summary, $emps_buyer_summary_total, $oems);
+
+           
+        return view('admin.index_summary_oem', compact('oems', 'vahan_summary', 'emps_summary', 'toViewSegment', 'vahan_portal_summary', 'emps_buyer_summary_total'));
+    }
+
+    public function uploaddoc()
+    {
+        return view('admin.upload');
+    }
+    public function uploadcheck(Request $request)
+    {
+        // dd('he');
+        $file = $request->file;
+        // $csrfToken = csrf_token();
+        $result = exec("php " . base_path("uploaddocc.php"));
+        // $result = exec("php " . base_path("uploaddocc.php"));
+
+        // Process the result if needed
+        dd($result);
+    }
+
+    public function claimDetails($flag)
+    {
+        if ($flag == 'AV') {
+            $claimData = DB::table('buyer_details_view')
+                //->whereNull('claim_id')
+                ->where('oem_status', 'A')
+                ->get();
+        } elseif ($flag == 'CG') {
+            $claimData = DB::table('buyer_details_view')
+                ->whereNotNull('claim_id')
+                ->whereNull('lot_id')
+                ->where('oem_status', 'A')
+                ->get();
+        } elseif ($flag == 'CS') {
+            $claimData = DB::table('buyer_details_view')
+                ->whereNotNull('claim_id')
+                ->whereNotNull('lot_id')
+                ->where('oem_status', 'A')
+                ->get();
+        } elseif ($flag == 'AS') {
+            $claimData = DB::table('buyer_details_view')
+                ->whereIN('status', ['A', 'S'])
+                ->get();
+        } else {
+            $claimData = DB::table('buyer_details_view')
+                ->whereNotNull('claim_id')
+                ->whereNotNull('lot_id')
+                ->get();
+            // dd($claimData);
+
+        }
+
+        return view('admin.claimDetails', compact("claimData", "flag"));
+    }
+
+    public function downloadClaimDetails($flag)
+    {
+ ini_set('memory_limit', '4096M');
+    ini_set('max_execution_time', 3600);
+
+        $query = DB::table('buyer_details_view');
+
+        if ($flag == 'AV') {
+            $query->where('oem_status', 'A');
+        } elseif ($flag == 'CG') {
+            $query->where('oem_status', 'A')->whereNotNull('claim_id')->whereNull('lot_id');
+        } elseif ($flag == 'CS') {
+            $query->where('oem_status', 'A')->whereNotNull('claim_id')->whereNotNull('lot_id');
+        } elseif ($flag == 'AS') {
+            $query->whereIn('status', ['A', 'S']);
+        }
+
+        $claimData = $query->get();
+
+        return Excel::download(new ClaimDetailsExport($claimData, $flag), 'claimDetails.xlsx');
+    }
+
+    public function OEMSummary($vehicle_type)
+    {
+        // Fetch the detailed data based on vehicle_type
+        $details = DB::table('oem_ev_summary')->where('vehicle_type', $vehicle_type)->orderBy('oem_name')->get();
+        return view('admin.oem-summary-details', compact('details'));
+    }
+ public function OEMSalesReport()
+    {
+        // Fetch the detailed data based on vehicle_type
+        $details = DB::table('sales_report_vw')->orderBy('oem_name')->get();
+        return view('admin.oem-sales-report', compact('details'));
+    }
+
+}

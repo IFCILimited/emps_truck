@@ -1,0 +1,90 @@
+<!-- Nav Bar Ends here -->
+@extends('layouts.master')
+@section('title')
+    Dashboard - PM E-DRIVE
+@endsection
+@push('styles')
+    <style>
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000 !important;
+        }
+
+        .table-container {
+            width: 80%;
+            margin: 0 auto;
+            padding-left: 10%;
+            padding-right: 10%;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/css/style1.css') }}">
+@endpush
+@section('content')
+    <div class="sub-header p-relative">
+        <div class="overlay overlay-bg-black"></div>
+        <div class="pattern"></div>
+        <div class="section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="sub-header-content p-relative">
+                            <h1 class="text-custom-white lh-default fw-600">Sales Dashboard</h1>
+                            <ul class="custom">
+                                <li> <a href="/" class="text-custom-white">Home</a>
+                                </li>
+                                <li class="text-custom-white active">Sales Segment Wise </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class=" parallax mt-20 mb-xl-30">
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th class="text-center">SN</th>
+                                    <th>Segment Name</th>
+                                    <th>Vehicle Category</th>
+                                    <th>Sales</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    @php
+                                        $sn = 1;
+                                        $totalCount = 0;
+                                    @endphp
+                                    @foreach ($segment_sale as $sale)
+                                        @php
+                                            $totalCount += $sale->count;
+                                        @endphp
+                                <tr>
+                                    <td class="text-center">{{ $sn++ }}</td>
+                                    <td class="text-left"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right"><b>{{ indian_format($sale->count) }}</b></td>
+                                </tr>
+                                @endforeach
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th class="text-center" colspan="2">Total</th>
+                                    <th class="text-right" colspan="2">{{ indian_format($totalCount) }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endsection

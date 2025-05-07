@@ -1,0 +1,273 @@
+<?php
+
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+function helperFunction1(){
+   
+    return(1);
+}
+function vahanAPI($Chassis_Number){
+
+    $url = 'https://delhigw.napix.gov.in/nic/parivahan/oauth2/token';
+    $postData = [
+        'grant_type' => 'client_credentials',
+        'scope' => 'napix',
+    ];
+    $username = 'aa76468b6282eaeb918c33f90c69780e';
+    $password = 'fd05c2f508916d1ea7a548acf08ba425';
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type:
+        application/x-www-form-urlencoded',
+    ]);
+    curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $responseData = json_decode($response, true);
+    $token = $responseData['access_token'];
+
+
+    // $vinchasis = 'M75KAKUP22E000618';
+    $vinchasis = $Chassis_Number;
+
+    $postData = '{"chasisNo":"' . $vinchasis . '","clientId":"MHI_FAME2"}';
+    // dd($postData);
+    
+    $ch = curl_init();
+    curl_setopt_array($ch, array(
+        CURLOPT_URL => 'https://delhigw.napix.gov.in/nic/parivahan/vahanws/service/getChasisDetails',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $postData,
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token
+        ),
+    )
+    );
+    $response1 = curl_exec($ch);
+    curl_close($ch);
+    $inputKey = "MhI_FaMe2@3518#";
+    $result = $response1; // Replace with your encrypted data
+    // dd(strlen($result));
+    if(strlen($result) < 100){
+        return false; 
+    }
+   
+    $dataArray = fnDecrypt($result, $inputKey);
+    // dd($dataArray);
+
+    $dataArray = [
+        'vin_chasis_no' => $vinchasis,
+        'rc_regn_no' => $dataArray['rc_regn_no'] ?? null,
+        'rc_regn_dt' => $dataArray['rc_regn_dt'] ?? null,
+        'rc_regn_upto' => $dataArray['rc_regn_upto'] ?? null,
+        'rc_purchase_dt' => $dataArray['rc_purchase_dt'] ?? null,
+        'rc_owner_name' => $dataArray['rc_owner_name'] ?? null,
+        'rc_f_name' => $dataArray['rc_f_name'] ?? null,
+        'rc_present_address' => $dataArray['rc_present_address'] ?? null,
+        'rc_permanent_address' => $dataArray['rc_permanent_address'] ?? null,
+        'rc_vch_catg' => $dataArray['rc_vch_catg'] ?? null,
+        'rc_vh_class_desc' => $dataArray['rc_vh_class_desc'] ?? null,
+        'rc_chasi_no' => $dataArray['rc_chasi_no'] ?? null,
+        'rc_eng_no' => $dataArray['rc_eng_no'] ?? null,
+        'rc_maker_desc' => $dataArray['rc_maker_desc'] ?? null,
+        'rc_maker_model' => $dataArray['rc_maker_model'] ?? null,
+        'rc_status' => $dataArray['rc_status'] ?? null,
+        'rc_vh_class' => $dataArray['rc_vh_class'] ?? null,
+        'rc_fuel_cd' => $dataArray['rc_fuel_cd'] ?? null,
+        'rc_maker_cd' => $dataArray['rc_maker_cd'] ?? null,
+        'rc_sale_amt' => $dataArray['rc_sale_amt'] ?? null,
+        'rc_vehicle_surrendered_to_dealer' => $dataArray['rc_vehicle_surrendered_to_dealer'] ?? null,
+        'rc_currentadd_districtcode' => $dataArray['rc_currentadd_districtcode'] ?? null,
+        'rc_non_use' => $dataArray['rc_non_use'] ?? null,
+        'rc_vh_type' => $dataArray['rc_vh_type'] ?? null,
+        'rc_currentadd_statename' => $dataArray['rc_currentadd_statename'] ?? null,
+        'rc_remark' => 'PERMANENT REGISTERED',
+        'created_by'=>Auth::user()->id,
+        'created_at' => Carbon::now(),
+        'updated_at' => Carbon::now(),
+    ];
+
+    try {
+        DB::transaction(function () use ($dataArray) {
+
+            DB::table('vahanapidata')->insert($dataArray);
+        });
+        return true;
+    } catch(\Exception $e) {
+        dd($e);
+        return false; 
+    }
+   
+}
+
+function fnDecrypt($sValue, $sSecretKey)
+{
+    try {
+        if (isset($sValue)) {
+            $sValueS = $sValue;
+        } else {
+            $sValueS = "OPPS! Something went wrong. Data is does not exist.";
+        }
+        $decodeData = base64_decode($sValue);
+        if ($decodeData === false) {
+            alert()->warning( 'Something went wrong!','Error')->persistent(true)->autoClose(false);
+            return redirect()->back();
+        } else {
+            $iv = substr($sValue, 0, 16);
+            $decryptedData = openssl_decrypt($decodeData, 'aes-128-cbc', $sSecretKey, OPENSSL_RAW_DATA, $iv);
+            $trimmedValue = rtrim($decryptedData, "\0");
+            $apos = strpos($trimmedValue, "<VehicleDetails>");
+            $data = substr($decryptedData, $apos);
+            $xmlObject = simplexml_load_string($data);
+
+            // Convert SimpleXMLElement object to JSON
+            $jsonString = json_encode($xmlObject);
+            $jsonString1 = json_decode($jsonString, true);
+            return ($jsonString1);
+        }
+
+    } catch (\Exception $e) {
+        alert()->success('OPPS! Something went wrong. An exception occurred:','error')->persistent(true);
+        return redirect()->back();
+    } catch (\Error $e) {
+        alert()->success("OPPS! Something went wrong. An error occurred: " . $e->getMessage(),'error')->persistent(true);
+        return redirect()->back();
+    }
+}
+
+function uploadFileWithCurl($file, $additionalHeaders = [])
+{
+
+    if ($file->isValid()) {
+        // Get the path to the uploaded file
+        $filePath = $file->path();
+        // dd($file,$filePath, $file->getClientOriginalName());
+        $uploadUrl = 'http://docapidev.ifciltd.com/api/postUploadDocumentData';
+        // Initialize cURL session
+        $ch = curl_init();
+
+        // Set cURL options
+        // curl_setopt_array($ch, [
+        //     CURLOPT_URL => $uploadUrl,
+        //     CURLOPT_RETURNTRANSFER => true,
+        //     CURLOPT_ENCODING => '',
+        //     CURLOPT_MAXREDIRS => 10,
+        //     CURLOPT_TIMEOUT => 0,
+        //     CURLOPT_FOLLOWLOCATION => true,
+        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //     CURLOPT_CUSTOMREQUEST => 'POST',
+        //     CURLOPT_POSTFIELDS => [
+        //         'file' => new CURLFile($filePath)
+        //     ],
+        //     CURLOPT_HTTPHEADER => array_merge(
+        //         ['Content-Type: multipart/form-data'], // Set the content type as multipart/form-data
+        //         $additionalHeaders // Additional headers
+        //     ),
+        // ]);
+
+        $postFields = [
+            'file' => new CURLFile($filePath, $file->getMimeType(), $file->getClientOriginalName()) // Set original filename
+        ];
+
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $uploadUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postFields,
+            CURLOPT_HTTPHEADER => array_merge(
+                ['Content-Type: multipart/form-data'], // Set the content type as multipart/form-data
+                $additionalHeaders // Additional headers
+            ),
+        ]);
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+
+        // Check for errors
+        if ($response === false) {
+            $errorMessage = 'Error: ' . curl_error($ch);
+            curl_close($ch);
+            return $errorMessage;
+        } else {
+            curl_close($ch);
+            return $response; // Return the response
+        }
+    } else {
+        return 'Error: File is not valid.';
+    }
+
+
+}
+
+
+function downloadFile($outputFilename)
+{
+    $url = 'http://docapidev.ifciltd.com/api/getUploadedDocumentData/' . $outputFilename;
+
+    $responseHeaders = get_headers($url, 1);
+    $contentDisposition = isset($responseHeaders['Content-Disposition']) ? $responseHeaders['Content-Disposition'] : null;
+    if (preg_match('/filename="(.*?)"/', $contentDisposition, $matches)) {
+        $filename = $matches[1];
+        // dd($filename);
+    } else {
+        $filename = 'dummy';
+        // dd("Filename not found in the Content-Disposition header.");
+    }
+
+    $curl = curl_init();
+
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($curl);
+    // dd($response);
+    $headers = curl_getinfo($curl);
+    // dd($response);
+    if (curl_errno($curl)) {
+        $error_message = curl_error($curl);
+        echo "Error: $error_message";
+        return; // Stop further execution
+    }
+
+    curl_close($curl);
+
+    // Check if the response is empty
+    if (empty($response)) {
+        echo "Error: Empty response received";
+        return; // Stop further execution
+    }
+
+    if ($response === false) {
+        echo "Error: Unable to download the file.";
+        return;
+    }
+    // Set headers for file download
+    header('Content-Description: File Transfer');
+    header('Content-Type:' . $headers['content_type']);
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . strlen($response));
+
+    // Output the file content
+    echo $response;
+
+    exit; // Stop further execution
+}

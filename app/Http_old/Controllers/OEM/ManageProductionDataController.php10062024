@@ -1,0 +1,254 @@
+<?php
+
+namespace App\Http\Controllers\OEM;
+
+use DB;
+use Auth;
+use App\Models\TempProductionData;
+use App\Models\ProductionData;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
+use App\Imports\TempProductionDataImport;
+use Exception;
+
+class ManageProductionDataController extends Controller
+{
+    public function index()
+    {
+        try {
+            $modelMaster = DB::table("model_master as mm")
+                ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+                ->join('users as u', 'u.id', '=', 'mm.oem_id')
+                ->where('omd.testing_flag', 'A')
+                ->where('omd.mhi_flag', 'A')
+                ->where('omd.oem_id', Auth::user()->id)
+                ->select('u.name', 'mm.*', 'omd.*')
+                ->get();
+            // dd($modelMaster);
+            $productionData = ProductionData::where('oem_id', Auth::id())->get();
+
+            return view("oem.production_data.index_production_data", compact('productionData', 'modelMaster'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+
+    public function create()
+    {
+        try {
+            $items = DB::table('temp_production_data')
+                ->join('model_master', 'temp_production_data.model_master_id', '=', 'model_master.id')
+                ->where('temp_production_data.oem_id', Auth::id())
+                ->get();
+            return view('oem.production_data.create_production_data', compact('items'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+
+
+    public function store(Request $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                // dd($request);
+                foreach ($request->production as $value) {
+                    $productionData = new ProductionData;
+                    $productionData->oem_id = Auth::id();
+                    $productionData->model_details_id = $request->model_deatils_id;
+                    $productionData->model_master_id = $request->model_master_id;
+                    $productionData->manufacturing_date = $value['manufacturing_date'];
+                    $productionData->vin_chassis_no = $value['vin_chassis_no'];
+                    $productionData->colour = $value['colour'];
+                    $productionData->emission_norms = $value['emission_norms'];
+                    $productionData->motor_number = $value['motor_number'];
+                    $productionData->battery_number = $value['battery_number'];
+                    $productionData->battery_number2 = $value['battery_number2'];
+                    $productionData->battery_number3 = $value['battery_number3'];
+                    $productionData->battery_number4 = $value['battery_number4'];
+                    $productionData->battery_number5 = $value['battery_number5'];
+                    $productionData->battery_number6 = $value['battery_number6'];
+                    $productionData->battery_number7 = $value['battery_number7'];
+                    $productionData->battery_number8 = $value['battery_number8'];
+                    $productionData->battery_number9 = $value['battery_number9'];
+                    $productionData->battery_number10 = $value['battery_number10'];
+                    $productionData->battery_make = $value['battery_make'];
+                    $productionData->battery_capacity = $value['battery_capacity'];
+                    $productionData->battery_chemistry = $value['battery_chemistry'];
+                    $productionData->dva_indicative = $value['dva_indicative'];
+                    $productionData->pmp_compliance = $value['pmp_compliance'];
+                    $productionData->status = 'D';
+                    $productionData->uploaded_method = 'Excel';
+                    $productionData->save();
+
+                    TempProductionData::where('model_master_id', $request->model_master_id)->delete();
+
+                }
+            });
+            $data = array(
+                'model_id' => $request->model_master_id,
+                'model_det_id' => $request->model_deatils_id,
+
+            );
+            alert()->success('Data has been successfully save.', 'Success')->persistent('Close');
+            return redirect()->route('manageProductionData.edit', encrypt($data));
+        } catch (\Exception $e) {
+            dd($e);
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+
+            $id = decrypt($id);
+
+            $productionData = DB::table('production_data')
+                ->join('model_master', 'production_data.model_master_id', '=', 'model_master.id')
+                ->where('production_data.oem_id', Auth::id())
+                ->where('production_data.model_master_id', $id['model_id'])
+                ->where('production_data.model_details_id', $id['model_det_id'])
+                ->get();
+            return view('oem.production_data.view_production_data', compact('productionData'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+
+    }
+
+    public function edit($id)
+    {
+        try {
+            $id = decrypt($id);
+            $productionData = DB::table('production_data')
+                ->join('model_master', 'production_data.model_master_id', '=', 'model_master.id')
+                ->where('production_data.oem_id', Auth::id())
+                ->get(['production_data.*', 'model_master.model_name', 'model_master.model_code']);
+            return view('oem.production_data.edit_production_data', compact('productionData', 'id'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    public function update(Request $request, $user_id)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                foreach ($request->production as $value) {
+                    $productionData = ProductionData::find($value['id']);
+                    $productionData->manufacturing_date = $value['manufacturing_date'];
+                    $productionData->vin_chassis_no = $value['vin_chassis_no'];
+                    $productionData->colour = $value['colour'];
+                    $productionData->emission_norms = $value['emission_norms'];
+                    $productionData->motor_number = $value['motor_number'];
+                    $productionData->battery_number = $value['battery_number'];
+                    $productionData->battery_number2 = $value['battery_number2'];
+                    $productionData->battery_number3 = $value['battery_number3'];
+                    $productionData->battery_number4 = $value['battery_number4'];
+                    $productionData->battery_number5 = $value['battery_number5'];
+                    $productionData->battery_number6 = $value['battery_number6'];
+                    $productionData->battery_number7 = $value['battery_number7'];
+                    $productionData->battery_number8 = $value['battery_number8'];
+                    $productionData->battery_number9 = $value['battery_number9'];
+                    $productionData->battery_number10 = $value['battery_number10'];
+                    $productionData->battery_make = $value['battery_make'];
+                    $productionData->battery_capacity = $value['battery_capacity'];
+                    $productionData->battery_chemistry = $value['battery_chemistry'];
+                    $productionData->dva_indicative = $value['dva_indicative'];
+                    $productionData->pmp_compliance = $value['pmp_compliance'];
+                    $productionData->save();
+
+                }
+
+            });
+            $data = array(
+                'model_id' => $request->model_master_id,
+                'model_det_id' => $request->model_deatils_id,
+            );
+            alert()->success('Data has been successfully updated.', 'Success')->persistent('Close');
+            return redirect()->route('manageProductionData.edit', encrypt($data));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    public function destroy($id)
+    {
+        //
+    }
+
+    public function downloadFile()
+    {
+        try {
+            $file = public_path('files/ManageProductionData.xlsx');
+
+            return response()->download($file);
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    public function uploadExcel(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls|max:20480',
+        ]);
+
+
+        try {
+
+            $checkIfTempProductionDataExists = TempProductionData::where('model_details_id', $request->model_det_id)->where('model_master_id', $request->model_id)->exists();
+            if ($checkIfTempProductionDataExists) {
+                TempProductionData::where('model_details_id', $request->model_det_id)->where('model_master_id', $request->model_id)->delete();
+            }
+
+            $excel = Excel::import(new TempProductionDataImport($request), $request->file('excel_file'));
+
+            return redirect()->route('manageProductionData.create')->with('success', 'Excel file uploaded successfully!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            // dd($e);
+            $failures = $e->failures();
+            errorMail($e, Auth::user()->id);
+
+            foreach ($failures as $val) {
+                if ($val->attribute()) {
+                    alert()->error($val->errors(), 'Error')->persistent('ok');
+                    redirect()->back();
+                }
+            }
+            return redirect()->back()->withErrors($failures)->withInput();
+        }catch (\Exception $e) {
+            // dd($e);     
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+
+
+    public function finalSubmit(Request $request, $id)
+    {
+        try {
+            ProductionData::where('oem_id', $id)->update([
+                'status' => 'S'
+            ]);
+            alert()->success('Data has been successfully submitted.', 'Success')->persistent('close');
+            return redirect()->route('manageProductionData.index');
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+
+    }
+}

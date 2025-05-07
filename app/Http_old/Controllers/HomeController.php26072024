@@ -1,0 +1,199 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Auth;
+use DB;
+
+class HomeController extends Controller
+{
+
+
+    public function index()
+    {
+        $permittedip = "59.145.23.38";
+        $ipaddress = getenv("REMOTE_ADDR");
+        //if ($ipaddress !== $permittedip) {
+//dd('Module Under Development');
+//   exit();
+//}
+        return view('landing.index');
+    }
+
+    // public function dashboard(){
+    //     return view('layouts.dashboard_master');
+    // }
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->route('home');
+    }
+    public function signin($roleid)
+    {
+        $role_id = decrypt($roleid);
+        session(['role_id' => $role_id]);
+        return redirect()->route('login');
+    }
+
+    public function contact()
+    {
+        return view('landing.contact');
+    }
+    public function about_us()
+    {
+        return view('landing.about_us');
+    }
+    public function feedback()
+    {
+        return view('landing.feedback');
+    }
+    public function impotrant_links()
+    {
+        return view('landing.important_links');
+    }
+    public function press_release()
+    {
+        return view('landing.press_release');
+    }
+    public function FAQs()
+    {
+        return view('landing.faq');
+    }
+    public function policy_document()
+    {
+        return view('landing.policy_doc');
+    }
+    public function policy_procedure()
+    {
+        return view('landing.policy_procedure');
+    }
+    public function suggestion()
+    {
+        return view('landing.suggestion');
+    }
+    public function support()
+    {
+        return view('landing.support');
+    }
+    public function who()
+    {
+        return view('landing.who');
+    }
+    public function dashboard()
+    {
+        $claims = DB::select('SELECT claim_data() as claim_data')[0]->claim_data;
+
+        $stringArray = trim($claims, '{}');
+
+        // Explode the string into an array
+        $indexedArray = explode(',', $stringArray);
+
+        // dd($indexedArray);
+        // Extract values from the indexed array
+        $claim = $indexedArray[0];
+        $amount = $indexedArray[1];
+        $claime2 = $indexedArray[2];
+        $claime3 = $indexedArray[4];
+
+        $dashboard = DB::table('dashboard_view')->get();
+
+        $model = DB::table('vw_model_details')->where('mhi_flag', 'A')->distinct('model_id')->count('model_id');
+
+        // total vehicles sold
+        $buyerse2w1 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->count();
+        $buyerse2w2 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->count();
+        
+        $buyerse2w = $buyerse2w1 + $buyerse2w2;
+        
+        
+
+
+        $buyerse3w = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->count();
+               
+        $buyerse3wL5 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->count();
+
+
+        // claim generated but not submitted
+
+        $claime2w1 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+        $claime2w2 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+
+
+        $claime2w1Amt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+        $claime2w2Amt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+
+        $claimse2w = $claime2w1 + $claime2w2;
+        $claimse2wAmt = $claime2w1Amt + $claime2w2Amt;
+
+        $claimse3w = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+        $claimse3wL5 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+
+        $claimse3wAmt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+        $claimse3wL5Amt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+
+
+        //Claims generated
+
+        $claime2w1sub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+        $claime2w2sub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+
+        $claime2w1Amtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+        $claime2w2Amtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+
+        $claimse2wsub = $claime2w1sub + $claime2w2sub;
+        $claimse2wAmtsub = $claime2w1Amtsub + $claime2w2Amtsub;
+
+
+        $claimse3wsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+        $claimse3wL5sub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+
+        $claimse3wAmtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+        $claimse3wL5Amtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+
+      // Add submit count on 22-07-2024
+
+// Calculate the submit counts for e2w vehicle categories 1 and 2
+$buyerse2w1Submit = DB::table('buyer_details_view')
+->whereIn('status', ['S','A'])
+//->whereNotIn('oem_status', ['A'])
+->where('segment_id', '1')
+->where('vehicle_cat_id', '1')
+->count();
+
+$buyerse2w2Submit = DB::table('buyer_details_view')
+->whereIn('status', ['S','A'])
+//->whereNotIn('oem_status', ['A'])
+->where('segment_id', '1')
+->where('vehicle_cat_id', '2')
+->count();
+
+// Sum of e2w vehicle category submit counts
+$buyerse2wSubmit = $buyerse2w1Submit + $buyerse2w2Submit;
+
+// Calculate the submit count for e3w vehicle category 3
+$buyerse3wSubmit = DB::table('buyer_details_view')
+->whereIn('status', ['S','A'])
+//->whereNotIn('oem_status', ['A'])
+->where('segment_id', '2')
+->where('vehicle_cat_id', '3')
+->count();
+
+// Calculate the submit count for e3w L5 vehicle category 4
+$buyerse3wL5Submit = DB::table('buyer_details_view')
+->whereIn('status', ['S','A'])
+//->whereNotIn('oem_status', ['A'])
+->where('segment_id', '2')
+->where('vehicle_cat_id', '4')
+->count();
+
+
+        return view('landing.dashboard', compact("claimse2w", "claimse2wAmt", "claimse3wAmt", "claimse3wL5Amt", "claimse3w", "claimse3wL5", "dashboard", "claim", "amount", "claime2", "claime3", "model", "buyerse2w", "buyerse3w", "buyerse3wL5", "claimse2wsub", 
+        "claimse2wAmtsub", "claimse3wsub", "claimse3wL5sub", "claimse3wAmtsub", "claimse3wL5Amtsub","buyerse2wSubmit","buyerse3wSubmit","buyerse3wL5Submit"));
+    }
+
+    public function ClaimSubmissionAnnouncements()
+    {
+        return view('landing.ClaimSubmissionAnnouncements');
+    }
+}

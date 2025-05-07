@@ -1,0 +1,470 @@
+@extends('layouts.dashboard_master')
+@section('title')
+   EMPS Authentication Report
+@endsection
+
+@push('styles')
+
+<style>
+    /*----------------genealogy-scroll----------*/
+
+.genealogy-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+}
+.genealogy-scroll::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #e4e4e4;
+}
+.genealogy-scroll::-webkit-scrollbar-thumb {
+  background: #212121;
+  border-radius: 10px;
+  transition: 0.5s;
+}
+.genealogy-scroll::-webkit-scrollbar-thumb:hover {
+  background: #d5b14c;
+  transition: 0.5s;
+}
+
+/*----------------genealogy-tree----------*/
+.genealogy-body {
+  white-space: nowrap;
+  overflow-y: hidden;
+  padding: 50px;
+  min-height: 500px;
+  /* padding-top: 10px; */
+  text-align: center;
+}
+.genealogy-tree {
+  display: inline-block;
+}
+.genealogy-tree ul {
+  padding-top: 20px;
+  position: relative;
+  padding-left: 0px;
+  display: flex;
+  justify-content: center;
+  /* margin-left: -45px; */
+}
+.genealogy-tree li {
+  float: left;
+  text-align: center;
+  list-style-type: none;
+  position: relative;
+  padding: 20px 5px 0 5px;
+}
+.genealogy-tree li::before,
+.genealogy-tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 50%;
+  border-top: 2px solid #ccc;
+  width: 50%;
+  height: 18px;
+}
+.genealogy-tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid #ccc;
+}
+.genealogy-tree li:only-child::after,
+.genealogy-tree li:only-child::before {
+  display: none;
+}
+.genealogy-tree li:only-child {
+  padding-top: 0;
+}
+.genealogy-tree li:first-child::before,
+.genealogy-tree li:last-child::after {
+  border: 0 none;
+}
+.genealogy-tree li:last-child::before {
+  border-right: 2px solid #ccc;
+  border-radius: 0 5px 0 0;
+  -webkit-border-radius: 0 5px 0 0;
+  -moz-border-radius: 0 5px 0 0;
+}
+.genealogy-tree li:first-child::after {
+  border-radius: 5px 0 0 0;
+  -webkit-border-radius: 5px 0 0 0;
+  -moz-border-radius: 5px 0 0 0;
+}
+.genealogy-tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-left: 2px solid #ccc;
+  width: 0;
+  height: 20px;
+}
+.genealogy-tree li a {
+  text-decoration: none;
+  color: #666;
+  font-family: arial, verdana, tahoma;
+  font-size: 11px;
+  display: inline-block;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  /* width: 100%; */
+  /* margin-left: 50px; */
+}
+
+.genealogy-tree li a:hover,
+.genealogy-tree li a:hover + ul li a {
+  background: #c8e4f8;
+  color: #000;
+}
+
+.genealogy-tree li a:hover + ul li::after,
+.genealogy-tree li a:hover + ul li::before,
+.genealogy-tree li a:hover + ul::before,
+.genealogy-tree li a:hover + ul ul::before {
+  border-color: #fbba00;
+}
+
+/*--------------memeber-card-design----------*/
+
+.member-view-box {
+  padding-bottom: 10px;
+  text-align: center;
+  border-radius: 4px;
+  position: relative;
+  border: 1px;
+  border-color: #e4e4e4;
+  border-style: solid;
+  max-width: 100%;
+}
+.member-image {
+  padding: 10px;
+  width: 100%;
+  position: relative;
+}
+.member-image img {
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+  background-color: #fff;
+  z-index: 1;
+}
+.member-header {
+  padding: 5px 0;
+  text-align: center;
+  background: #345;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 4px 4px 0 0;
+}
+.member-footer {
+  text-align: center;
+}
+.member-footer div.name {
+  color: #000;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.member-footer div.downline {
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.custom-table {
+            /* width: 100%; */
+            /* margin: auto; */
+            /* border-radius: 10px; */
+            overflow: hidden;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-table th {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 7px;
+        }
+
+        .custom-table td {
+            text-align: center;
+            padding: 7px;
+        }
+
+        .custom-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #e9ecef;
+            transition: 0.3s;
+        }
+
+</style>
+@endpush
+@section('content')
+    <!-- Page Sidebar Ends-->
+    <div class="page-body">
+        <div class="container-fluid">
+            <div class="page-title">
+                <div class="row">
+                    <div class="col-6">
+                        <h4>Claim Report</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Container-fluid starts-->
+        <div class="container">
+            {{-- <div class="row"> --}}
+                        <div class="card">
+                            {{-- <div class="container"> --}}
+                            <div class="body genealogy-body genealogy-scroll">
+                                <div class="genealogy-tree" style="margin-left: -28px">
+                                <ul>
+                                    <li>
+                                    <a href="javascript:void(0);" style="width: 30%;">
+                                        <div class="member-view-box">
+                                        <div class="member-header">
+                                            <span>Claim Submitted</span>
+                                        </div>
+                                        <div class="member-image">
+                                                <table class="table table-bordered custom-table" style="width: 100%;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No. Of <br> Claims</th>
+                                                            <th>Claim Amount <br> (in Cr)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-end">{{$claimReport->claim_id_count}}</td>
+                                                            <td class="text-end">{{$claimReport->incentive_amount}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                        </div>
+
+                                        </div>
+                                    </a>
+                                    <ul class="active">
+                                        <li>
+                                        <a href="javascript:void(0);" style="width: 100%; ">
+                                            <div class="member-view-box">
+                                            <div class="member-header">
+                                                <span>Pending with PMA</span>
+                                            </div>
+                                            <div class="member-image">
+                                                <table class="table table-bordered custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No. Of <br> Claims</th>
+                                                            <th>Claim Amount <br> (in Cr)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-end">{{$claimReport->pending_count}}</td>
+                                                            <td class="text-end">{{$claimReport->pending_amt}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            </div>
+                                        </a>
+                                        <ul>
+
+
+                                        </ul>
+                                        </li>
+                                        <li>
+                                        <a href="javascript:void(0);"style="width: 100%; " >
+                                            <div class="member-view-box">
+                                            <div class="member-header">
+                                                <span>Recommended by PMA</span>
+                                            </div>
+                                            <div class="member-image">
+                                                <table class="table table-bordered custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No. Of <br> Claims</th>
+                                                            <th>Claim Amount <br> (in Cr)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-end">{{$claimReport->recommended_count}}</td>
+                                                            <td class="text-end">{{$claimReport->recommended_amt}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {{-- <div class="member-footer">
+                                                <div class="name"><span>Name</span></div>
+                                                <div class="downline"><span>2 | 3</span></div>
+                                            </div> --}}
+                                            </div>
+                                        </a>
+                                        <ul>
+
+
+                                        </ul>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);" style="width: 100%; ">
+                                            <div class="member-view-box">
+                                                <div class="member-header">
+                                                <span>Paid</span>
+                                                </div>
+                                                <div class="member-image">
+                                                <table class="table table-bordered custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No. Of <br> Claims</th>
+                                                            <th>Claim Amount <br> (in Cr)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-end">{{$claimReport->claim_paid_count}}</td>
+                                                            <td class="text-end">{{$claimReport->claim_paid_amt}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                                </div>
+
+                                            </div>
+                                            </a>
+                                            <ul>
+
+
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);" style="width: 100%; ">
+                                            <div class="member-view-box">
+                                                <div class="member-header">
+                                                <span>Withheld</span>
+                                                </div>
+                                                <div class="member-image">
+                                                <table class="table table-bordered custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No. Of <br> Claims</th>
+                                                            <th>Claim Amount <br> (in Cr)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-end">{{$claimReport->withheld_count}}</td>
+                                                            <td class="text-end">{{$claimReport->withheld_amt}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                                </div>
+
+                                            </div>
+                                            </a>
+                                            <ul>
+
+
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);" style="width: 100%; ">
+                                            <div class="member-view-box">
+                                                <div class="member-header">
+                                                <span>Rejected</span>
+                                                </div>
+                                                <div class="member-image">
+                                                <table class="table table-bordered custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>No. Of <br> Claims</th>
+                                                            <th>Claim Amount <br> (in Cr)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-end">{{$claimReport->rejected_count}}</td>
+                                                            <td class="text-end">{{$claimReport->rejected_amt}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                </div>
+                                            </div>
+                                            </a>
+                                            <ul>
+                                            </ul>
+                                        </li>
+
+                                    </ul>
+                                    </li>
+                                </ul>
+                                </div>
+                            </div>
+                        {{-- </div> --}}
+                </div>
+                {{-- </div> --}}
+            {{-- </div> --}}
+        </div>
+        <!-- Container-fluid Ends-->
+    </div>
+@endsection
+@push('scripts')
+{!! JsValidator::formRequest('App\Http\Requests\ClaimToMhiRequest', '#proceedGeneration') !!}
+    <script>
+
+$(function () {
+  $(".genealogy-tree ul").hide();
+  $(".genealogy-tree>ul").show();
+  $(".genealogy-tree ul.active").show();
+  $(".genealogy-tree li").on("click", function (e) {
+    var children = $(this).find("> ul");
+    if (children.is(":visible")) children.hide("fast").removeClass("active");
+    else children.show("fast").addClass("active");
+    e.stopPropagation();
+  });
+});
+
+        $(document).ready(function() {
+            $('#checkAll').click(function(e) {
+                var isChecked = $('input[type=checkbox]').not(this).is(':checked');
+                $('input[type=checkbox]').prop('checked', !isChecked);
+            });
+
+            $('#generateClaim').click(function(e) {
+                e.preventDefault();
+                var claimIds = [];
+                $('input[type=checkbox].btnShowClass:checked').each(function() {
+                    var claimId = $(this).attr('claimid');
+                    claimIds.push(claimId);
+                });
+                var selectedMonth = $('#month').val();
+                if (claimIds.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Please select Claim to proceed',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    });
+                } else if (!selectedMonth) {
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Please select a Month to proceed',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    $('#proceedGeneration').submit();
+                }
+            });
+        });
+    </script>
+@endpush

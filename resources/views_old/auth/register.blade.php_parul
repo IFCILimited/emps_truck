@@ -1,0 +1,327 @@
+@extends('layouts.master')
+@section('title')
+    Register - Fame 3
+@endsection
+@push('styles')
+    <style>
+        .bg-img {
+            width: 100%;
+            background: url(../../images/bg2.jpg) no-repeat top center;
+            padding: 30px;
+            height: 500px;
+            color: #000000;
+        }
+/*
+        .login-dark {
+            background-image: radial-gradient(at top left, #05C09B 0%, #3BE78E 50%, #3BE78E 100%);
+        } */
+
+        .card {
+            border-radius: 3%
+        }
+
+        .border-top {
+            border-color: var(--border-color) !important;
+        }
+        .form-control {
+        border-radius: 10px; /* Adjust the value as needed */
+        height: 50px; /* Adjust the value as needed */
+    }
+    </style>
+@endpush
+@section('content')
+    <div class="home-form" style="padding-top: 120px; height:1100px">
+        <div class="container" style="max-width: 1235px;">
+            <div class="row justify-content-center" style="background-color: #ffffff; border-radius: 15px;">
+                <div class="col-11">
+                    <div class="login-card">
+                        <div>
+                            <div class="login-main">
+                                <form action="{{ route('register') }}" id="PreRegForm" role="form" method="POST"
+                                    {{-- <form action="{{ route('test.store') }}" id="PreRegForm" role="form" method="POST" --}} class='form-horizontal' enctype='multipart/form-data' files=true>
+                                    @csrf
+                                    <h4 class="text-center p-4">OEM Pre-Registration</h4>
+                                    <p class="text-danger">Enter your personal details to create account</p>
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">OEM Name:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control form-control-sm" type="text" name="Name"
+                                                    value="{{ old('Name') }}" placeholder="OEM Name">
+                                                @error('Name')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Type of OEM:<span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-control form-control-sm" name="oem_type">
+                                                    <option selected disabled>Select</option>
+                                                    <option value="Proprietorship">Proprietorship</option>
+                                                    <option value="Partnership/LLP">Partnership/LLP</option>
+                                                    <option value="Company">Company</option>
+                                                </select>
+                                                @error('oem_type')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">OEM Address:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Address"
+                                                    value="{{ old('Address') }}" placeholder="OEM Address">
+                                                @error('Address')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">OEM Pincode:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Pincode"
+                                                    value="{{ old('Pincode') }}" placeholder="OEM Pincode"
+                                                    onkeyup="GetCityByPinCode('OEM', this.value, 0)">
+                                                <span id="OEMpincodeMsg0" style="color:red;font-weight:bold;display: none">
+                                                    @error('Pincode')
+                                                        <span class="text-danger">{{ $message }}</span>
+                                                    @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">OEM State:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control readonly" type="text" name="State"
+                                                    value="{{ old('State') }}" placeholder="OEM State" id="OEMAddState0"
+                                                    readonly>
+                                                @error('State')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">OEM District:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control readonly" type="text" name="District"
+                                                    value="{{ old('District') }}" placeholder="OEM District"
+                                                    id="OEMAddDistrict0" readonly>
+                                                @error('District')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">OEM City:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="City"
+                                                    value="{{ old('City') }}" placeholder="OEM City" id="OEMAddCity0">
+                                                @error('City')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Contact Person Name:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Person"
+                                                    value="{{ old('Person') }}" placeholder="Contact Person">
+                                                @error('Person')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Contact Person Designation:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Person_designation"
+                                                    value="{{ old('Person_designation') }}"
+                                                    placeholder="Contact Person Designation">
+                                                @error('Person_designation')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Mobile No.:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Mobile"
+                                                    value="{{ old('Mobile') }}" placeholder="Mobile No.">
+                                                @error('Mobile')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">E-Mail:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Mail" id="email"
+                                                    value="{{ old('Mail') }}" placeholder="E-Mail">
+                                                @error('Mail')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Fax No:</label>
+                                                <input class="form-control" type="text" name="Fax"
+                                                    value="{{ old('Fax') }}" placeholder="Fax No">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Company Registration No:<span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="text" name="Registration"
+                                                    value="{{ old('Registration') }}"
+                                                    placeholder="Company Registration No">
+                                                <span>For Partnership and Proprietorship please enter 00000 </span>
+                                                @error('Registration')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label class="col-form-label pt-0">Company Registration Certificate
+                                                    No.:<span class="text-danger">*</span></label>
+                                                <input class="form-control " type="file" name="Registration_file">
+                                                <span>Upload ROC for Company, MOA & Rules / Deed for Partnership /
+                                                    Proprietorship (pdf only and max. 100 KB size)</span>
+                                                @error('Registration_file')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <label class="col-form-label pt-0">OTP Verification Process.. [ After OTP
+                                                verification then Submit Button will be appeared.]<span
+                                                    class="text-danger">*</span></label>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <span id="getOtpBtn" class="btn btn-primary">Get OTP</span>
+                                                        <spna id="otpBtnSpinner" style="display: none;">Please wait, OTP
+                                                            generation in progress...</spna>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group">
+                                                        <input type="text" id="otpInput" class="form-control"
+                                                            placeholder="Enter OTP" style="display: none;">
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group text-center">
+                                                        <span id="verifyOtpBtn" class="btn btn-success"
+                                                            style="display: none;">Verify</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="form-group mb-0 text-center">
+                                                <button id="submitBtn" class="btn btn-primary" style="display: none;"
+                                                    type="button">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-4 mb-0">Already have an account? <a class="ms-2"
+                                            href="{{ route('home') }}">Home</a></p>
+                                </form>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @include('partials.js.pincode')
+            {!! JsValidator::formRequest('App\Http\Requests\PreRegisterRequest', '#PreRegForm') !!}
+            <script>
+                $(document).ready(function() {
+
+                    $('#getOtpBtn').click(function() {
+                        var email = $('#email').val();
+                        if (!email) {
+                            alert('Please enter your email.'); // Display a message if the email is empty
+                            return; // Return without proceeding further
+                            $('#otpBtnSpinner').hide();
+                        }
+                        if (email) {
+                            $('#otpBtnSpinner').show(); // To display the spinner message.
+                        }
+
+
+                        $.ajax({
+                            url: 'formOTP/' + email, // Separate the email with a slash
+                            type: "GET",
+                            dataType: "json",
+                            success: function(response) {
+                                var otp = response.otp;
+                                alert('Please check your email for OTP verification.');
+                                $('#otpInput').val(otp).prop('disabled', false);
+                                $('#getOtpBtn').prop('disabled', true);
+                                $('#verifyOtpBtn').show();
+                                $('#otpBtnSpinner').hide(); // To hide the spinner message
+                                $('#otpInput').show();
+                                // toggleFormElements();
+                            },
+                            error: function(xhr, status, error) {
+                                console.log(error);
+                            }
+                        });
+
+                    });
+
+                    $('#verifyOtpBtn').click(function() {
+                        var otp = $('#otpInput').val();
+                        var email = $('#email').val();
+                        if (otp.length === 6) {
+                            $.ajax({
+                                url: 'verifyFormOtp/' + otp, // Separate the email with a slash
+                                type: "GET",
+                                dataType: "json",
+                                success: function(response) {
+                                    if (response.success) {
+                                        alert('Successfully OTP verified. Now you can submit.');
+                                        $('#submitBtn').show();
+                                        $('#verifyOtpBtn').prop('disabled', true);
+                                        $('#submitBtn').prop('disabled', false);
+                                    } else {
+                                        alert('Invalid OTP. Please try again.');
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.log(error);
+                                }
+                            });
+                        } else {
+                            alert("Please enter 6 digit OTP");
+                        }
+                    });
+
+                    $('#submitBtn').click(function() {
+                        $('#PreRegForm').submit();
+                        $('#submitBtn').prop('disabled', true);
+                    });
+                });
+            </script>
+        </div>
+    </div>
+    </div>
+    </div>
+@endsection

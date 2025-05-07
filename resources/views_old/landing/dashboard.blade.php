@@ -1,0 +1,358 @@
+<!-- Nav Bar Ends here -->
+@extends('layouts.master')
+@section('title')
+    Dashboard - PM E-DRIVE
+@endsection
+@push('styles')
+    <style>
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000 !important;
+        }
+
+        .table-container {
+            width: 80%;
+            margin: 0 auto;
+            padding-left: 10%;
+            padding-right: 10%;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/css/style1.css') }}">
+@endpush
+@section('content')
+    <div class="sub-header p-relative">
+        <div class="overlay overlay-bg-black"></div>
+        <div class="pattern"></div>
+        <div class="section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="sub-header-content p-relative">
+                            <h1 class="text-custom-white lh-default fw-600">Sales Dashboard</h1>
+                            <ul class="custom">
+                                <li> <a href="/" class="text-custom-white">Home</a>
+                                </li>
+                                <li class="text-custom-white active">Sales Segment Wise </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class=" parallax mt-20 mb-xl-30">
+
+        <div class="container mb-xl-30">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table" style="border: 1px solid #d3d3d3; border-collapse: collapse; width: 100%;">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th colspan="12" style="border: 1px solid #d3d3d3; text-align: center;">Consolidated Sales of 2024-25 & 2025-26</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="3" style="border: 1px solid #d3d3d3;">SN</th>
+                                    <th rowspan="3" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                    <th rowspan="3" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                    <th rowspan="3" style="border: 1px solid #d3d3d3;">Target Sales</th>
+                                    <th colspan="2" class="text-center" style="border: 1px solid #d3d3d3;">Sales As Per Portal</th>
+                                    <th colspan="4" class="text-center" style="border: 1px solid #d3d3d3;">Sales</th>
+                                    {{-- <th rowspan="3" style="border: 1px solid #d3d3d3;">Sales Reported by OEM (EMPS + PM EDRIVE)</th> --}}
+                                    <th rowspan="2" colspan="2" style="border: 1px solid #d3d3d3;">Total Sales</th>
+                                    
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales As Per E-Voucher</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales As per Voucher Upload</th>
+                                    <th style="border: 1px solid #d3d3d3;" colspan="2">PM-EDRIVE</th>
+                                    <th style="border: 1px solid #d3d3d3;" colspan="2">EMPS</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    {{-- <th colspan=6></th> --}}
+                                    <th style="border: 1px solid #d3d3d3;">As Per vahan*</th>
+                                    <th style="border: 1px solid #d3d3d3;">As Per Portal</th>
+                                    <th style="border: 1px solid #d3d3d3;">As Per vahan*</th>
+                                    <th style="border: 1px solid #d3d3d3;">As Per Portal</th>
+                                    <th style="border: 1px solid #d3d3d3;">As Per vahan*</th>
+                                    <th style="border: 1px solid #d3d3d3;">As Per Portal</th>
+                                </tr>
+                                {{-- <tr class="lw-table-row-1"> --}}
+                                {{-- </tr> --}}
+                            </thead>
+                            <tbody>
+                                @php
+                                    $sn = 1;
+                                    $totalVahanCat1 = 0;
+                                    $totalVahanCat2 = 0;
+                                    $totalVahanCat3 = 0;
+                                    $totalPortalCat1 = 0;
+                                    $totalPortalCat2 = 0;
+                                    $totalPortalCat3 = 0;
+                                @endphp
+                                @foreach ($salesSum as $sale)
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #d3d3d3;">{{ $sn++ }}</td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->targetsalessum) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->evouchersalessum) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->voucherupload) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;">
+                                        @if($sale->vehicle_cat == "L1+L2")
+                                            @php $totalVahanl1l2 = 0; @endphp
+                                            @foreach($vahan_summary as $vahan_data)
+                                                @if($vahan_data->cat_nm == "L1" || $vahan_data->cat_nm == "L2")
+                                                    @php $totalVahanl1l2 += $vahan_data->count; @endphp
+                                                @endif
+                                            @endforeach
+
+                                            @php $totalVahanCat1 += $totalVahanl1l2; @endphp
+                                            
+                                            <b>{{indian_format($totalVahanl1l2)}}</b>
+                                        @elseif($sale->vehicle_cat == "L5")
+                                            @php $totalVahanCount = $vahan_summary->where('cat_nm', 'L5')->first(); @endphp
+
+                                            @php $totalVahanCat2 += $totalVahanCount->count; @endphp
+
+                                            <b>{{indian_format($totalVahanCount->count) }}</b>
+                                        @else
+                                            @php $totalVahanCount = $vahan_summary->where('cat_nm', 'e-rickshaw & e-cart')->first(); @endphp
+                                            
+                                            @php $totalVahanCat3 += $totalVahanCount->count; @endphp
+                                            
+                                            <b>{{indian_format($totalVahanCount->count) }}</b>
+                                        @endif
+                                    </td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;">
+                                        @if($sale->vehicle_cat == "L1+L2")
+                                            @php $totalVahanl1l2 = 0; @endphp
+                                            @foreach($portal_summary_edrive as $portal_edrive_count)
+                                                @if($portal_edrive_count->cat_nm == "L1" || $portal_edrive_count->cat_nm == "L2")
+                                                    @php $totalVahanl1l2 += $portal_edrive_count->count; @endphp
+                                                @endif
+                                            @endforeach
+                                            @php $totalPortalCat1 += $totalVahanl1l2; @endphp
+
+                                            <b>{{indian_format($totalVahanl1l2)}}</b>
+                                        @elseif($sale->vehicle_cat == "L5")
+                                            @php $totalVahanCount = $portal_summary_edrive->where('cat_nm', 'L5')->first(); @endphp
+                                            @php $totalPortalCat2 += $totalVahanCount->count; @endphp
+
+                                            <b>{{indian_format($totalVahanCount->count) }}</b>
+                                        @else
+                                            @php $totalVahanCount = $portal_summary_edrive->where('cat_nm', 'e-rickshaw & e-cart')->first(); @endphp
+                                            @php $totalPortalCat3 += $totalVahanCount->count; @endphp
+                                            
+                                            <b>{{indian_format($totalVahanCount->count) }}</b>
+                                        @endif
+                                    </td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;">
+                                        @if($sale->vehicle_cat == "L1+L2")
+                                            @php $totalVahanl1l2 = 0; @endphp
+                                            @foreach($emps_summary as $vahan_data)
+                                                @if($vahan_data->cat_nm == "L1" || $vahan_data->cat_nm == "L2")
+                                                    @php $totalVahanl1l2 += $vahan_data->count; @endphp
+                                                @endif
+                                            @endforeach
+
+                                            @php $totalVahanCat1 += $totalVahanl1l2; @endphp
+
+                                            <b>{{indian_format($totalVahanl1l2)}}</b>
+                                        @elseif($sale->vehicle_cat == "L5")
+                                            @php $totalVahanCount = $emps_summary->where('cat_nm', 'L5')->first(); @endphp
+                                            @php $totalVahanCat2 += $totalVahanCount->count; @endphp
+
+                                            <b>{{indian_format($totalVahanCount->count) }}</b>
+                                        @else
+                                            @php $totalVahanCount = $emps_summary->where('cat_nm', 'e-rickshaw & e-cart')->first(); @endphp
+                                            @php $totalVahanCat3 += $totalVahanCount->count; @endphp
+                                            <b>{{indian_format($totalVahanCount->count) }}</b>
+                                        @endif
+                                    </td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;">
+                                        <b>{{indian_format($emps_buyer_summary_total[$sale->vehicle_cat])}}</b>
+
+                                        @if($sale->vehicle_cat == "L1+L2")
+                                        @php $totalPortalCat1 += $emps_buyer_summary_total[$sale->vehicle_cat]; @endphp
+
+                                        @elseif($sale->vehicle_cat == "L5")
+                                        @php $totalPortalCat2 += $emps_buyer_summary_total[$sale->vehicle_cat]; @endphp
+
+                                        @else
+                                        @php $totalPortalCat3 += $emps_buyer_summary_total[$sale->vehicle_cat]; @endphp
+
+                                        @endif
+                                    </td>
+
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($totals[$sale->vehicle_cat]['vahan']) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($totals[$sale->vehicle_cat]['portal']) }}</b></td>
+                                    
+
+
+                                    {{-- <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->salesbyoem) }}</b></td> --}}
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            {{-- <tfoot>
+                                    <tr class="lw-table-row-1">
+                                        <th colspan="11" style="border: 1px solid #d3d3d3; text-align: center;">Total Sales</th>
+                                    </tr>
+                                    <tr class="lw-table-row-1">
+
+                                        <th colspan="1" style="border: 1px solid #d3d3d3;">S.No.</th>
+                                        <th colspan="3" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                        <th colspan="3" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                        <th colspan="2" style="border: 1px solid #d3d3d3;">As Per Vahan</th>
+                                        <th colspan="2" style="border: 1px solid #d3d3d3;">As Per Portal</th>
+                                    </tr>
+                                    @php $sn2 = 1; @endphp
+                                    @foreach ($salesSum as $sale)
+                                    <tr>
+                                        <th colspan="1" style="border: 1px solid #d3d3d3;">{{$sn2++}}</th>
+                                        <th colspan="3" style="border: 1px solid #d3d3d3;">{{$sale->segment_name}}</th>
+                                        <th colspan="3" style="border: 1px solid #d3d3d3;">{{$sale->vehicle_cat}}</th>
+                                        <td colspan="2" style="border: 1px solid #d3d3d3;">
+                                            <b>
+                                                @if($sale->vehicle_cat == "L1+L2")
+                                                    {{indian_format($totalVahanCat1)}}
+                                                @elseif($sale->vehicle_cat == "L5")
+                                                    {{indian_format($totalVahanCat2)}}
+                                                @else
+                                                    {{indian_format($totalVahanCat3)}}
+                                                @endif
+                                            </b>
+                                        </td>
+                                        <td colspan="2" style="border: 1px solid #d3d3d3;">
+                                            <b>
+                                                @if($sale->vehicle_cat == "L1+L2")
+                                                    {{indian_format($totalPortalCat1)}}
+                                                @elseif($sale->vehicle_cat == "L5")
+                                                    {{indian_format($totalPortalCat2)}}
+                                                @else
+                                                    {{indian_format($totalPortalCat3)}}
+                                                @endif
+                                            </b>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                            </tfoot> --}}
+                        </table>
+                    </div>
+                    <span>*As per vahan as of {{ \Carbon\Carbon::parse($maxDateOfVahan)->format('d-m-Y') }}</span>
+                </div>
+            </div>
+        </div>
+
+
+        
+        <div class="container mb-xl-30">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table" style="border: 1px solid #d3d3d3; border-collapse: collapse; width: 100%;">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th colspan="7" style="border: 1px solid #d3d3d3; text-align: center;">Sales of 2024-25</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">SN</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Target Sales</th>
+                                    <th colspan="2" class="text-center" style="border: 1px solid #d3d3d3;">Sales As Per Portal</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales Reported by OEM (EMPS + PM EDRIVE)</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per E-Voucher</th>
+                                    {{-- <th style="border: 1px solid #d3d3d3;">Sales As Per Invoice</th> --}}
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per Voucher Upload</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $sn = 1;
+                                @endphp
+                                @foreach ($segment_sale->where('fy', '2024-25') as $sale)
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #d3d3d3;">{{ $sn++ }}</td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->target_sales) }}</b></td>
+                                    {{-- <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ $sale->invoice_sales }}</b></td> --}}
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->evoucher_sales) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->voucher_upload) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->salesbyoem) }}</b></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                {{-- Uncomment and modify this if you want to show totals --}}
+                                {{-- <tr>
+                                    <th class="text-center" colspan="3">Total</th>
+                                    <th class="text-right" colspan="2">{{ indian_format($totalCount) }}</th>
+                                </tr> --}}
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table" style="border: 1px solid #d3d3d3; border-collapse: collapse; width: 100%;">
+                            <thead>
+                                <tr class="lw-table-row-1">
+                                    <th colspan="7" style="border: 1px solid #d3d3d3; text-align: center;">Sales of 2025-26</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">SN</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Segment Name</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Vehicle Category</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Target Sales</th>
+                                    <th colspan="2" class="text-center" style="border: 1px solid #d3d3d3;">Sales As Per Portal</th>
+                                    <th rowspan="2" style="border: 1px solid #d3d3d3;">Sales Reported by OEM (EMPS + PM EDRIVE)</th>
+                                </tr>
+                                <tr class="lw-table-row-1">
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per E-Voucher</th>
+                                    {{-- <th style="border: 1px solid #d3d3d3;">Sales As Per Invoice</th> --}}
+                                    <th style="border: 1px solid #d3d3d3;">Sales As Per Voucher Upload</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $sn = 1;
+                                    $totalCount = 0;
+                                @endphp
+                                @foreach ($segment_sale->where('fy', '2025-26') as $sale)
+                                <tr>
+                                    <td class="text-center" style="border: 1px solid #d3d3d3;">{{ $sn++ }}</td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->segment_name }}</b></td>
+                                    <td class="text-left" style="border: 1px solid #d3d3d3;"><b>{{ $sale->vehicle_cat }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->target_sales) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->evoucher_sales) }}</b></td>
+                                    {{-- <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ $sale->invoice_sales }}</b></td> --}}
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->voucher_upload) }}</b></td>
+                                    <td class="text-right" style="border: 1px solid #d3d3d3;"><b>{{ indian_format($sale->salesbyoem) }}</b></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            {{-- Uncomment and modify this section if you want to display totals --}}
+                            {{-- <tfoot>
+                                <tr>
+                                    <th class="text-center" colspan="2">Total</th>
+                                    <th class="text-right" colspan="2">{{ indian_format($totalCount) }}</th>
+                                </tr>
+                            </tfoot> --}}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+
+        
+    @endsection

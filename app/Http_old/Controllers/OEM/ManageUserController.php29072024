@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Http\Controllers\OEM;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Auth;
+use DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Exception;
+
+class ManageUserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $users = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [4])
+        ->where('parent_id', Auth::user()->id)
+        ->select('users.*', 'roles.name as  role')
+        ->get();
+           
+            return view('oem.users.index',compact('users'));
+        
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('oem.users.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $password = generatePassword();
+
+        try {
+            $exception = DB::transaction(function () use ($request, $password) {
+                $username = generateUsername($request->auth_name, $request->mobile_no);
+                $manageUser = new User;
+                $manageUser->name = Auth::user()->name;
+                $manageUser->email = $request->email;
+                $manageUser->username = $username;
+                $manageUser->password = Hash::make($password);
+                $manageUser->mobile = $request->mobile;
+                $manageUser->auth_name = $request->auth_name;
+                $manageUser->parent_id = Auth::user()->id;
+                $manageUser->isactive = $request->isactive;
+                $manageUser->isotpverified = 0;
+                $manageUser->isapproved = $request->isapproved;
+                $manageUser->auth_designation = $request->designation;
+                $manageUser->approval_for_post_reg = 'A';
+                $manageUser->post_registration_status = 'A';
+                
+                $manageUser->save();
+
+
+                $manageUser->assignRole('OEM');
+
+                $userData = $manageUser->where('id', $manageUser->id)->first();
+
+                $userMail = array (
+                    'name' => $manageUser->name,
+                    'email' => $manageUser->email,
+                    'status' => 'Login Credential Successfully Create',
+                    'username' => $userData->username,
+                    'password' => $password
+                );
+
+                // Mail::send('emails.dealerCredential', $userMail, function ($message) use ($userMail) {
+                // Mail::send('emails.Credential', $userMail, function ($message) use ($userMail) {
+                //     $message->to($userMail['email'])->subject($userMail['status']);
+                // });
+                $to = $userMail['email'];
+                $cc= '';
+                $bcc='';
+                $subject=$userMail['status'];
+                $from='noreply.emps.heavyindustry@gov.in';
+                $msg=view('emails.Credential', ['user' => $userMail])->render();
+
+                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+            });
+            if (is_null($exception)) {
+                alert()->success('User has been successfully created.', 'Success')->persistent('Close');
+                return redirect()->route('manageUser.index');
+            } else {
+                throw new Exception;
+            }
+        } catch (Exception $e) {
+            // dd($e);
+alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+
+           // dd($e);
+            //errorMail($e, Auth::user()->id);
+            return redirect()->route('manageUser.index');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}

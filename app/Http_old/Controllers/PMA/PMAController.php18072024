@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers\PMA;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\ClaimMaster;
+use Auth;
+use DB;
+use App\Models\User;
+class PMAController extends Controller
+{
+    public function index() {
+      //  $claimMaster = DB::table('claim_master')
+        //->join('claim_lots', 'claim_master.lot_id', '=', 'claim_lots.id')
+        //->join('users', 'claim_master.oem_id', '=', 'users.id')
+        //->get();
+$claimMaster = DB::table('claim_master_view')->whereNotNull('lot_id')->get();
+        
+        
+        return view('pma.claimProcessing',compact('claimMaster'));
+    }
+
+    public function dealers($id = null) {
+        if($id == 'all' || $id == null){
+            $dealerReg = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [6])
+        // ->where('oem_id', Auth::user()->id)
+        ->select('users.*', 'roles.name as  role')
+        ->orderBy('users.name','asc')
+        ->get();
+        }
+        else{
+           
+        $dealerReg = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [6])
+        ->where('oem_id', $id)
+        ->select('users.*', 'roles.name as  role')
+        ->orderBy('users.name','asc')
+        ->get();
+        }
+        $users = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [4])
+        // ->where('oem_id', Auth::user()->id)
+        ->select('users.*', 'roles.name as  role')
+        ->get();
+
+        return view('pma.dealers',compact('dealerReg','users','id'));
+    }
+
+    public function dealersShow($id)
+    {
+        try {
+            $id = decrypt($id);
+
+            $dealerReg = User::where("id", $id)->first();
+
+            return view('pma.dealersShow', compact('dealerReg'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+    public function modelmis() {
+        $modelsDet = DB::table('vw_model_details as vmd')
+   ->join('users', 'users.id', '=', 'vmd.oem_id')
+   ->orderBy('users.name','ASC')
+   ->get();
+
+   $proDat = DB::table('production_data_view')->get();
+   return view('pma.modelmis',compact('modelsDet','proDat'));
+    }
+}

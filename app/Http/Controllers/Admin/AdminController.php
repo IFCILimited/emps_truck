@@ -1,0 +1,667 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ClaimDetailsExport;
+use App\Models\User;
+use Auth;
+use Carbon\Carbon;
+
+
+class AdminController extends Controller
+{
+    public function index()
+    {
+        ini_set('memory_limit', '10048M');
+        ini_set('max_execution_time', 10000);
+
+        $authApi = DB::table('encryption_keys')->where('oem_code',Auth::user()->id)->first();
+        $fomated = [];
+        
+        if(Auth::user()->hasRole('MHI-AS') ||
+        Auth::user()->hasRole('MHI-DS') ||
+        Auth::user()->hasRole('MHI-OnlyView') ||
+        Auth::user()->hasRole('PMA') || Auth::user()->hasRole('OEM') || Auth::user()->hasRole('MHI')){
+            $summary_prev =  DB::table('dashboard_consolidated_summary_current_vw as dcs')
+            // $summary_prev =  DB::table('dashboard_consolidated_summary as dcs')
+            ->select(
+                'dcs.categroy_name',
+                'dcs.segment_name',
+                DB::raw("
+                    CASE 
+                        WHEN dcs.categroy_name = 'L1' OR dcs.categroy_name = 'L2' THEN
+                            (SELECT SUM(target_sales) FROM segment_sales ss WHERE ss.fy = '2024-25' and ss.vehicle_cat IS NULL)
+                        ELSE
+                            (SELECT SUM(target_sales) FROM segment_sales ss WHERE ss.fy = '2024-25' and ss.vehicle_cat = dcs.category_id)
+                    END AS target_sales
+                "),
+                DB::raw('SUM(dcs.sales_e_voucher) as voucher_generated'),
+                DB::raw('SUM(dcs.sales_e_voucher_uploaded) as voucher_uploaded'),
+                DB::raw('SUM(dcs.sales_drive_vahan) as drive_vahan'),
+                DB::raw('SUM(dcs.sales_drive_portal) as drive_portal'),
+                DB::raw('SUM(dcs.sales_emps_vahan) as emps_vahan'),
+                DB::raw('SUM(dcs.sales_emps_portal) as emps_portal'),
+                DB::raw('SUM(dcs.total_sales_vahan) as total_vahan'),
+                DB::raw('SUM(dcs.total_sales_portal) as total_portal'),
+                DB::raw('SUM(dcs.claim_edrive) as claim_drive'),
+                DB::raw('SUM(dcs.claim_emps) as claim_emps'),
+                DB::raw('SUM(dcs.face_scanned_count) as face_scans_count'),
+                DB::raw('SUM(dcs.buyer_id_edrive) as buyer_id_generated_edrive'),
+                DB::raw('SUM(dcs.perm_num_count) as perm_num_count')
+            );
+            if(Auth::user()->hasRole('OEM')){
+                $summary_prev->where('dcs.oem_id', getParentId());
+            }
+
+            $summary = $summary_prev->groupBy('dcs.category_id', 'dcs.segment_id', 'dcs.categroy_name', 'dcs.segment_name')
+            ->orderBy('dcs.category_id')
+            ->get();
+            $fomated = [];
+            $total_L1_L2 = [
+                "categroy_name" => "L1+L2",
+                "segment_name" => "e-2W",
+                "target_sales" => 0,
+                "voucher_generated" => 0,
+                "voucher_uploaded" => 0,
+                "drive_vahan" => 0,
+                "drive_portal" => 0,
+                "emps_vahan" => 0,
+                "emps_portal" => 0,
+                "total_vahan" => 0,
+                "total_portal" => 0,
+                "claim_drive" => 0,
+                "claim_emps" => 0,
+                "face_scans_count" => 0,
+                "buyer_id_drive" => 0,
+                "perm_num_count_edrive" => 0,
+                "percent_buyer_id" => 0,
+                "percent_face_scanned" => 0,
+                "percentVoucherGenerated" => 0,
+                "percentVoucherUploaded" => 0,
+                "percentPermanentNumber" => 0
+            ];
+            foreach ($summary as $category) {
+                if ($category->categroy_name == "L1" || $category->categroy_name == "L2") {
+                    $total_L1_L2['target_sales'] = (float) $category->target_sales;
+                    $total_L1_L2['voucher_generated'] += (int) $category->voucher_generated;
+                    $total_L1_L2['voucher_uploaded'] += (int) $category->voucher_uploaded;
+                    $total_L1_L2['drive_vahan'] += (int) $category->drive_vahan;
+                    $total_L1_L2['drive_portal'] += (int) $category->drive_portal;
+                    $total_L1_L2['emps_vahan'] += (int) $category->emps_vahan;
+                    $total_L1_L2['emps_portal'] += (int) $category->emps_portal;
+                    $total_L1_L2['total_vahan'] += (int) $category->total_vahan;
+                    // $total_L1_L2['total_portal'] += (int) $category->total_portal;
+                    // $total_L1_L2['total_portal'] += (int) $category->emps_portal + (int) $category->face_scans_count;
+                    $total_L1_L2['total_portal'] += (int) $category->emps_portal + (int) $category->buyer_id_generated_edrive;
+                    $total_L1_L2['claim_drive'] += (int) $category->claim_drive;
+                    $total_L1_L2['claim_emps'] += (int) $category->claim_emps;
+                    $total_L1_L2['face_scans_count'] += (int) $category->face_scans_count;
+                    $total_L1_L2['buyer_id_drive'] += (int) $category->buyer_id_generated_edrive;
+                    $total_L1_L2['perm_num_count_edrive'] += (int) $category->perm_num_count;
+
+                    // $total_L1_L2['percent_buyer_id'] += (int) $category->percentBuyerId;
+                    // $total_L1_L2['percent_face_scanned'] += (int) $category->percentFaceScanned;
+                    // $total_L1_L2['percentVoucherGenerated'] += (int) $category->percentVoucherGenerated;
+                    // $total_L1_L2['percentVoucherUploaded'] += (int) $category->percentVoucherUploaded;
+                    // $total_L1_L2['percentPermanentNumber'] += (int) $category->percentPermanentNumber;
+                }else{
+                    $fomated[] = [
+                        "categroy_name" => $category->categroy_name,
+                        "segment_name" => $category->segment_name,
+                        "target_sales" => $category->target_sales,
+                        "voucher_generated" => $category->voucher_generated,
+                        "voucher_uploaded" => $category->voucher_uploaded,
+                        "drive_vahan" => $category->drive_vahan,
+                        "drive_portal" => $category->drive_portal,
+                        "emps_vahan" => $category->emps_vahan,
+                        "emps_portal" => $category->emps_portal,
+                        "total_vahan" => $category->total_vahan,
+                        // "total_portal" => $category->total_portal,
+                        // "total_portal" => (int) $category->emps_portal + (int) $category->face_scans_count,
+                        "total_portal" => (int) $category->emps_portal + (int) $category->buyer_id_generated_edrive,
+                        "claim_drive" => $category->claim_drive,
+                        "claim_emps" => $category->claim_emps,
+                        "face_scans_count" => $category->face_scans_count,
+                        "buyer_id_drive" => $category->buyer_id_generated_edrive,
+                        "perm_num_count_edrive" => $category->perm_num_count,
+
+                        // "percent_buyer_id" => $category->percentBuyerId,
+                        // "percent_face_scanned" => $category->percentFaceScanned,
+                        // "percentVoucherGenerated" => $category->percentVoucherGenerated,
+                        // "percentVoucherUploaded" => $category->percentVoucherUploaded,
+                        // "percentPermanentNumber" => $category->percentPermanentNumber
+                    ];
+                }
+            }
+            
+
+            $fomated[] = $total_L1_L2;
+            $fomated = collect($fomated); // Convert to collection if it isn't already
+            $fomated = $fomated->sortBy('segment_name'); // Sort by 'segment_name'
+            
+        }elseif(Auth::user()->hasRole('DEALER')){
+
+            $details = DB::table('buyer_details_view')
+            ->where('dealer_id', getParentId())
+            ->where('invoice_dt', '>=' ,'2024-10-01')
+            ->orderBy('vin_chassis_no')
+            ->get();
+
+            return view('admin.index_summary_dealer_vin', compact('details'));
+        }
+        // return view('admin.index', compact('totals', 'vehicleSales', 'vahan_summary', 'salesSum', 'emps_summary', 'portal_summary_edrive', 'emps_buyer_summary_total'));
+        return view('admin.index', compact('fomated'));
+    }
+
+    public function segmentDealerVinWise($segment, $id)
+    {
+        // dd($segment, $id);
+        $toViewSegment = [];
+        $toViewSegmentId = [];
+        if(urldecode($segment) == "L1+L2" || $segment == "L1+L2") {
+            $toViewSegment = ['L1', 'L2'];
+            $toViewSegmentId = [1,2];
+        }elseif(urldecode($segment) == "L5"){
+            $toViewSegment = ['L5'];
+            $toViewSegmentId = [4];
+        }else{
+            $toViewSegment = ['e-rickshaw & e-cart'];
+            $toViewSegmentId = [3];
+        }
+
+        $details = DB::table('buyer_details_view')
+        ->where('dealer_id', $id)
+        ->whereIn('vehicle_cat_id',$toViewSegmentId)
+        ->where('invoice_dt', '>=' ,'2024-10-01')
+        ->get();
+
+        return view('admin.index_summary_dealer_vin', compact('details', 'toViewSegment'));
+
+
+    }
+
+    public function segmentDealerWise($segment)
+    {
+        $toViewSegment = [];
+        $toViewSegmentId = [];
+        if(urldecode($segment) == "L1+L2" || $segment == "L1+L2") {
+            $toViewSegment = ['L1', 'L2'];
+            $toViewSegmentId = [1,2];
+        }elseif(urldecode($segment) == "L5"){
+            $toViewSegment = ['L5'];
+            $toViewSegmentId = [4];
+        }else{
+            $toViewSegment = ['e-rickshaw & e-cart'];
+            $toViewSegmentId = [3];
+        }
+
+        // dd(getParentId());
+        $summary = DB::table('dashboard_summary_dealer_vw as dsd')
+        ->select(
+            'dealer_name', 'dealer_id', 'dealer_code',
+            DB::raw('CAST(sum(evoucher_generated) AS INT) as voucher_generated'),
+            DB::raw('CAST(sum(evoucher_uploaded) AS INT) as voucher_uploaded'),
+            DB::raw('CAST(sum(record_count) AS INT) as portal_count'),
+            DB::raw('CAST(sum(perm_num_exist) AS INT) as pem_record_count'),
+            DB::raw('CAST(sum(face_scanned) AS INT) as face_scanned'),
+            DB::raw('CAST(sum(submitted_count) AS INT) as oem_submitted'),
+            DB::raw('CAST(sum(approved_count) AS INT) as oem_approved'),
+            DB::raw('CAST(sum(draft_count) AS INT) as draft_count'),
+            DB::raw('CAST(sum(record_count) AS INT) as record_count'),
+        )->where('oem_id' , getParentId())
+        ->whereIn('vehicle_cat_id', $toViewSegmentId)
+        ->groupBy('dealer_code', 'dealer_name', 'dealer_id')
+        ->orderBy('dealer_name')
+        ->get();
+
+        // dd($summary, getParentId());
+        return view('admin.index_summary_dealer', compact('summary', 'toViewSegment'));
+
+
+    }
+
+    public function segmentWise($segment)
+    {
+        // dd($segment);
+        $toViewSegment = [];
+        if(urldecode($segment) == "L1+L2" || $segment == "L1+L2") {
+            $toViewSegment = ['L1', 'L2'];
+        }elseif(urldecode($segment) == "L5"){
+            $toViewSegment = ['L5'];
+        }else{
+            $toViewSegment = ['e-rickshaw & e-cart'];
+        }
+        // dd($toViewSegment, $segment, urldecode($segment));
+
+        $summary =  DB::table('dashboard_consolidated_summary')
+        ->select(
+            'oem_id',
+            'oem_name',
+            DB::raw('CAST(sum(sales_e_voucher) AS INT) as voucher_generated'),
+            DB::raw('CAST(sum(sales_e_voucher_uploaded) AS INT) as voucher_uploaded'),
+            DB::raw('CAST(sum(sales_drive_vahan) AS INT) as drive_vahan'),
+            DB::raw('CAST(sum(sales_drive_portal) AS INT) as drive_portal'),
+            DB::raw('CAST(sum(sales_emps_vahan) AS INT) as emps_vahan'),
+            DB::raw('CAST(sum(sales_emps_portal) AS INT) as emps_portal'),
+            DB::raw('CAST(sum(total_sales_vahan) AS INT) as total_vahan'),
+            DB::raw('CAST(sum(total_sales_portal) AS INT) as total_portal'),
+            DB::raw('CAST(sum(face_scanned_count) AS INT) as face_scanned'),
+            DB::raw('CAST(sum(claim_edrive) AS INT) as claim_edrive'),
+            DB::raw('CAST(sum(claim_emps) AS INT) as claim_emps'),
+            DB::raw('CAST(sum(perm_num_count) AS INT) as perm_reg_count'),
+            DB::raw('CAST(SUM(buyer_id_edrive) AS INT) as buyer_id_generated_edrive')
+        )
+        ->whereIn('categroy_name', $toViewSegment)
+        ->groupBy('oem_name', 'oem_id')
+        ->orderBy('oem_name')
+        ->get();
+        // dd($summary);
+        $maxPercent = 0;
+        $ranked = [];
+
+        foreach($summary as $sum)
+        {
+            $sum->total_portal_oem = (int) $sum->emps_portal + (int) $sum->buyer_id_generated_edrive;
+            $sum->total_vahm_oem = (int) $sum->total_vahan;
+
+
+            
+                $sum->percentBuyerId = 0;
+                if($sum->drive_vahan > 0) {
+                    $percentBuyerIdGenerated = round(( $sum->buyer_id_generated_edrive / $sum->drive_vahan ) * 100);
+                    $sum->percentBuyerId = $percentBuyerIdGenerated > 100 ? 100 : $percentBuyerIdGenerated;
+                }
+
+                $sum->percentFaceScanned = 0;
+                if($sum->buyer_id_generated_edrive > 0)
+                {
+                    $percentFaceScaned = round(( $sum->face_scanned / $sum->buyer_id_generated_edrive ) * 100);
+                    $sum->percentFaceScanned = $percentFaceScaned > 100 ? 100 : $percentFaceScaned;
+                }
+
+                $sum->percentVoucherGenerated = 0;
+                if($sum->face_scanned > 0) {
+                    $percentVoucherGenerated = round(( $sum->voucher_generated / $sum->face_scanned ) * 100);
+                    $sum->percentVoucherGenerated = $percentVoucherGenerated > 100 ? 100 : $percentVoucherGenerated;
+                }
+
+                $sum->percentVoucherUploaded = 0;
+                if($sum->voucher_generated > 0) {
+                    $percentVoucherUploaded = round(( $sum->voucher_uploaded / $sum->voucher_generated ) * 100);
+                    $sum->percentVoucherUploaded = $percentVoucherUploaded > 100 ? 100 : $percentVoucherUploaded;
+                }
+
+                $sum->percentPermanentNumber = 0;
+                if($sum->drive_vahan > 0) {
+                    $percentPermanentNumber = round(( $sum->perm_reg_count / $sum->drive_vahan ) * 100);
+                    $sum->percentPermanentNumber = $percentPermanentNumber;
+                }
+             array_push($ranked, $sum);
+        }
+        usort($ranked, function($a, $b) {
+            return $b->percentFaceScanned <=> $a->percentFaceScanned;
+        });
+        // dd($ranked);
+        $summary = $ranked;
+
+        return view('admin.index_summary_oem', compact('summary', 'toViewSegment'));
+    }
+
+    public function uploaddoc()
+    {
+        return view('admin.upload');
+    }
+    public function uploadcheck(Request $request)
+    {
+        // dd('he');
+        $file = $request->file;
+        // $csrfToken = csrf_token();
+        $result = exec("php " . base_path("uploaddocc.php"));
+        // $result = exec("php " . base_path("uploaddocc.php"));
+
+        // Process the result if needed
+        dd($result);
+    }
+
+    public function claimDetails($flag)
+    {
+        if ($flag == 'AV') {
+            $claimData = DB::table('buyer_details_view')
+                //->whereNull('claim_id')
+                ->where('oem_status', 'A')
+                ->get();
+        } elseif ($flag == 'CG') {
+            $claimData = DB::table('buyer_details_view')
+                ->whereNotNull('claim_id')
+                ->whereNull('lot_id')
+                ->where('oem_status', 'A')
+                ->get();
+        } elseif ($flag == 'CS') {
+            $claimData = DB::table('buyer_details_view')
+                ->whereNotNull('claim_id')
+                ->whereNotNull('lot_id')
+                ->where('oem_status', 'A')
+                ->get();
+        } elseif ($flag == 'AS') {
+            $claimData = DB::table('buyer_details_view')
+                ->whereIN('status', ['A', 'S'])
+                ->get();
+        } else {
+            $claimData = DB::table('buyer_details_view')
+                ->whereNotNull('claim_id')
+                ->whereNotNull('lot_id')
+                ->get();
+            // dd($claimData);
+
+        }
+
+        return view('admin.claimDetails', compact("claimData", "flag"));
+    }
+
+    public function downloadClaimDetails($flag)
+    {
+ ini_set('memory_limit', '4096M');
+    ini_set('max_execution_time', 3600);
+
+        $query = DB::table('buyer_details_view');
+
+        if ($flag == 'AV') {
+            $query->where('oem_status', 'A');
+        } elseif ($flag == 'CG') {
+            $query->where('oem_status', 'A')->whereNotNull('claim_id')->whereNull('lot_id');
+        } elseif ($flag == 'CS') {
+            $query->where('oem_status', 'A')->whereNotNull('claim_id')->whereNotNull('lot_id');
+        } elseif ($flag == 'AS') {
+            $query->whereIn('status', ['A', 'S']);
+        }
+
+        $claimData = $query->get();
+
+        return Excel::download(new ClaimDetailsExport($claimData, $flag), 'claimDetails.xlsx');
+    }
+
+    public function OEMSummary($vehicle_type)
+    {
+        // Fetch the detailed data based on vehicle_type
+        $details = DB::table('oem_ev_summary')->where('vehicle_type', $vehicle_type)->orderBy('oem_name')->get();
+        return view('admin.oem-summary-details', compact('details'));
+    }
+    public function OEMSalesReport()
+    {
+        $segments = DB::table('segment_master')
+            ->get();
+        // Fetch the detailed data based on vehicle_type
+        // $details = DB::table('sales_report_vw')->orderBy('oem_name')->get();
+        $currentDate = Carbon::now();
+
+        $details = DB::select('SELECT * FROM get_portal_sales_report()');
+        $startDate = Carbon::create(2024, 10, 1);
+        $dateArray = [];
+        while ($startDate <= $currentDate) {
+            $dateArray[$startDate->format('m-Y')] = $startDate->format('M-Y');
+            $startDate->addMonth();
+        }
+        $oems = DB::table('oem_category_wise_vw')
+        ->select('oem_name', 'oem_id')
+        ->distinct('oem_name')->get();
+
+       
+        return view('admin.oem-sales-report', compact('details','segments', 'dateArray', 'oems'));
+    }
+
+    public function OEMSalesReportSegment(Request $request)
+    {
+        $segment = NULL;
+        $oem = NULL;
+        $month = NULL;
+        $currentDate = Carbon::now();
+        
+        if($request->input('month') && $request->input('month') != 'all'){
+            $month = $request->input('month');
+        }
+
+        if($request->input('oem') && $request->input('oem') != 'all'){
+            $oem = $request->input('oem');
+        }
+
+        if($request->input('segment') && $request->input('segment') != 'all'){
+            $segment = $request->input('segment');
+        }
+
+        if($month) {
+            $currentMonthYearFormated = Carbon::createFromFormat('m-Y', $month)->format('m-Y');
+            // dd($currentMonthYearFormated);
+            $details = DB::select('SELECT * FROM get_portal_sales_report(?,?,?)', [$currentMonthYearFormated, $segment, $oem]);
+        }else{
+            $details = DB::select('SELECT * FROM get_portal_sales_report(?,?,?)', [NULL, $segment, $oem]);
+        }
+        $startDate = Carbon::create(2024, 10, 1);
+        $dateArray = [];
+        while ($startDate <= $currentDate) {
+            $dateArray[$startDate->format('m-Y')] = $startDate->format('M-Y');
+            $startDate->addMonth();
+        }
+
+        // $details = DB::table('sales_report_vw')->orderBy('oem_name')->where('segment_name',$segment)->get();
+        $segments = DB::table('segment_master')->get();
+        $oems = DB::table('oem_category_wise_vw')
+        ->select('oem_name', 'oem_id')
+        ->distinct('oem_name')->get();
+
+        return view('admin.oem-sales-report', compact('details','segments', 'dateArray', 'oems'));
+    }
+    public function VahanOEMSalesReport()
+    {
+        $isFilter = false;
+        $segments = DB::table('segment_master')->get();
+        $oems = DB::table('vahan_sales_report_up_vw')->select('portal_oem_name as oem_name', 'oem_id')->distinct('portal_oem_name')->get();
+        $currentDate = Carbon::now();
+        $currentMonthYear = $currentDate->format('m-Y');
+        $currentMonthYearFormated = $currentDate->format('M-Y');
+        $details = DB::table('vahan_sales_report_up_vw')->get();
+        
+        $startDate = Carbon::create(2024, 10, 1);
+        $dateArray = [];
+        while ($startDate <= $currentDate) {
+            $dateArray[$startDate->format('m-Y')] = $startDate->format('M-Y');
+            $startDate->addMonth();
+        }
+        return view('admin.vahan_oem-sales-report', compact('oems','details', 'segments', 'dateArray', 'isFilter'));
+    }
+
+    public function VahanOEMSalesReportSegment(Request $request)
+    {
+        $isFilter = true;
+        $segment = $request->input('segment');
+        $month = $request->input('month');
+        $oem = $request->input('oem');
+        $oems = DB::table('vahan_sales_report_up_vw')->select('portal_oem_name as oem_name', 'oem_id')->distinct('portal_oem_name')->get();
+        $segments = DB::table('segment_master')->get();
+        $currentDate = Carbon::now();
+        if(!$month) {
+            $data = DB::table('vahan_sales_report_up_vw');
+            if($segment && $segment != 'all'){
+                $data->where('portal_segment_name', $segment);
+            }
+            if($oem && $oem != 'all'){
+                $data->where('oem_id', $oem);
+            }
+            $details = $data->get();
+        }else{
+            if($month != 'all'){
+                // $currentMonthYearFormated = Carbon::createFromFormat('m-Y', $month)->format('M-Y');
+                $selectedSegment = NULL;
+                $selectedOem = NULL;
+                if($segment && $segment != 'all'){
+                    $selectedSegment = $segment;
+                }
+                if($oem && $oem != 'all'){
+                    $selectedOem = $oem;
+                }
+                $details = DB::select('SELECT * FROM get_vehicle_registration_counts(?,?, ?)', [$month, $selectedSegment, $selectedOem]);
+            }else{
+                $selectedSegment = NULL;
+                $selectedOem = NULL;
+                if($segment && $segment != 'all'){
+                    $selectedSegment = $segment;
+                }
+                if($oem && $oem != 'all'){
+                    $selectedOem = $oem;
+                }
+                $details = DB::select('SELECT * FROM get_vehicle_registration_counts(?,?, ?)', [NULL, $selectedSegment, $selectedOem]);
+            }
+        }
+        
+        $startDate = Carbon::create(2024, 10, 1);
+        $dateArray = [];
+        while ($startDate <= $currentDate) {
+            $dateArray[$startDate->format('m-Y')] = $startDate->format('M-Y');
+            $startDate->addMonth();
+        }
+        // dd($details);
+
+        return view('admin.vahan_oem-sales-report', compact('oems', 'details', 'segments', 'dateArray', 'isFilter'));
+    }
+
+    public function OEMEmpsSalesReport(Request $request)
+    {
+        $segments = DB::table('segment_master')
+            ->get();
+        // Fetch the detailed data based on vehicle_type
+        // $data = DB::table('sales_report_emps_vw')->orderBy('oem_name');
+        $oems = DB::table('emps_buyer_details')->select('oem_name', 'oem_id')->distinct()->get();
+        // $currentDate = Carbon::now();
+        // $startDate = Carbon::create(2024, 10, 1);
+        $currentDate = Carbon::create(2024, 9, 1);
+        $startDate = Carbon::create(2024, 4, 1);
+        $dateArray = [];
+        while ($startDate <= $currentDate) {
+            $dateArray[$startDate->format('m-Y')] = $startDate->format('M-Y');
+            $startDate->addMonth();
+        }
+       
+        $selectedSegment = NULL;
+        $oemId = NULL;
+        $month = NULL;
+
+        if(isset($request->segment) && $request->segment != 'all') {
+            $selectedSegment = $request->segment;
+        }
+        if(isset($request->month) && $request->month != 'all') {
+           $month = $request->month;
+        }
+        if(isset($request->oem) && $request->oem != 'all') {
+            $oemId = $request->oem;
+        }
+
+        $details = DB::select('SELECT * FROM get_emps_portal_sales(?,?, ?)', [$month, $selectedSegment, $oemId]);
+        // dd($details);
+        return view('admin.oem-emps-sales-report', compact('details','segments', 'dateArray', 'oems'));
+    }
+
+    public function VahanOEMSEmpssalesReport(Request $request)
+    {
+        $segments = DB::table('segment_master')
+            ->get();
+
+        $oems = DB::table('oem_model_map_view')->select("OEM Name as oem_name" , 'oem_id')->distinct()->get();
+        // $currentDate = Carbon::now();
+        $currentDate = Carbon::create(2024, 9, 1);
+        $startDate = Carbon::create(2024, 4, 1);
+        $dateArray = [];
+        while ($startDate <= $currentDate) {
+            $dateArray[$startDate->format('m-Y')] = $startDate->format('M-Y');
+            $startDate->addMonth();
+        }
+        
+        // Fetch the detailed data based on vehicle_type
+        // $data = DB::table('emps_vahan_sales_report_vw')->orderBy('portal_oem_name');
+
+        $selectedSegment = NULL;
+        $oemId = NULL;
+        $month = NULL;
+
+        if(isset($request->segment) && $request->segment != 'all') {
+            $selectedSegment = $request->segment;
+        }
+        if(isset($request->month) && $request->month != 'all') {
+           $month = $request->month;
+        }
+        if(isset($request->oem) && $request->oem != 'all') {
+            $oemId = $request->oem;
+        }
+        $details = DB::select('SELECT * FROM get_emps_vahan_sales(?,?, ?)', [$month, $selectedSegment, $oemId]);
+        // dd($details);
+        return view('admin.vahan_oem_emps_sales_report', compact('details', 'segments', 'dateArray', 'oems'));
+    }
+
+    public function StateSalesReportEdrive(Request $request, $portal)
+    {
+        $segment = null;
+        $state = null;
+
+        if($portal == 1){
+            $heading = "PM E-DRIVE";
+
+            $result = DB::table('buyer_details_view as bdv')
+            ->join('state_master as sm', 'sm.state_adh', '=', 'bdv.state')
+            ->select(
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-2W' THEN bdv.addmi_inc_amt ELSE 0 END) AS e2w_inc"),
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-3W' THEN bdv.addmi_inc_amt ELSE 0 END) AS e3w_inc"),
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-2W' THEN 1 ELSE 0 END) AS e2w_veh"),
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-3W' THEN 1 ELSE 0 END) AS e3w_veh"),
+                'sm.state_exist'
+            )
+            ->where('bdv.adh_verify', '=', 'Y');
+    
+            if(isset($request->from_date) && isset($request->to_date)){
+                $result->whereBetween('bdv.invoice_dt', [$request->from_date, $request->to_date]);
+            }
+            
+            if(isset($request->state) && $request->state != 'all') {
+                $result->where('state_exist', $request->state);
+            }
+            $result->whereNotNull('claim_id');
+            $result->whereNotNull('lot_id');
+            $result->groupBy('sm.state_exist')->orderBy('sm.state_exist');
+    
+            $details = $result->get();
+        }elseif($portal == 2){
+            $heading = "EMPS";
+
+            $result = DB::table('emps_buyer_details as bdv')
+            ->select(
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-2W' THEN bdv.addmi_inc_amt ELSE 0 END) AS e2w_inc"),
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-3W' THEN bdv.addmi_inc_amt ELSE 0 END) AS e3w_inc"),
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-2W' THEN 1 ELSE 0 END) AS e2w_veh"),
+                DB::raw("sum(CASE WHEN bdv.segment_name = 'e-3W' THEN 1 ELSE 0 END) AS e3w_veh"),
+                DB::raw("split_part(state, ',', 1) AS state_exist")
+            );
+    
+            if(isset($request->from_date) && isset($request->to_date)){
+                $result->whereBetween('bdv.invoice_dt', [$request->from_date, $request->to_date]);
+            }
+            
+            if(isset($request->state) && $request->state != 'all') {
+                $result->whereRaw("split_part(bdv.state, ',', 1) = ? ", $request->state);
+            }
+            $result->whereNotNull('claim_id');
+            $result->whereNotNull('lot_id');
+            $result->groupBy('state_exist')->orderBy('state_exist');
+    
+            $details = $result->get();
+        }
+       
+
+        $allStates = DB::table('state_master')->distinct('state_exist')->orderBy('state_exist')->get();
+        // dd($details, $allStates);
+
+        return view('admin.state-sales-report-edrive', compact('allStates', 'details', 'heading', 'portal'));
+    }
+
+
+}

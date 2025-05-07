@@ -1,0 +1,273 @@
+<?php
+
+namespace App\Exports;
+
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use DB;
+
+class BuyerDetailExport implements FromCollection, WithHeadings
+{
+    public $status;
+    public $type;
+    public $approvedOrPendingHeaders;
+    public $approvedOrPendingColumns;
+    public $rejectedColumns;
+    public $rejectedHeaders;
+    public $approvedOrPendingBulkHeaders;
+    public $approvedOrPendingBulkColumns;
+    public $rejectedBulkColumns;
+    public $rejectedBulkHeaders;
+
+    public function __construct($status, $type)
+    {
+        $this->status = $status;
+        $this->type = $type;
+        $this->approvedOrPendingColumns = [
+            'segment_name',
+            'model_name',
+            'dealer_name',
+            'dealer_code',
+            'dealer_mobile',
+            'dealer_email',
+            'vin_chassis_no',
+            'dlr_invoice_no',
+            'invoice_dt',
+            'vhcl_regis_no',
+            'vihcle_dt',
+            'tot_inv_amt',
+            'tot_admi_inc_amt',
+            'buyer_id',
+            'custmr_name',
+            'adhar_name',
+            'add',
+            'mobile',
+            'email',
+            'buyer_submitted_at'
+        ];
+
+        if ($this->status == 'A') {
+            $this->approvedOrPendingColumns[] = 'oem_status_at';
+        }
+        $this->rejectedColumns = [
+           'segment_name',
+            'model_name',
+            'dealer_name',
+            'dealer_code',
+            'dealer_mobile',
+            'dealer_email',
+            'vin_chassis_no',
+            'dlr_invoice_no',
+            'invoice_dt',
+            'vhcl_regis_no',
+            'vihcle_dt',
+            'tot_inv_amt',
+            'tot_admi_inc_amt',
+            'buyer_id',
+            'custmr_name',
+            'adhar_name',
+            'add',
+            'mobile',
+            'email',
+            'buyer_submitted_at',
+            'oem_status_at',
+            'oem_remarks'
+        ];
+
+        $this->approvedOrPendingHeaders = [
+            'Model Segment',
+            'Model Name',
+            'Dealer Name',
+            'Dealer Code',
+            'Dealer Mobile No.',
+            'Dealer Email ID',
+            'VIN Chassis No.',
+            'Invoice No.',
+            'Invoice Date',
+            'Vehicle Reg. No.',
+            'Vehicle Reg. Date',
+            'Invoice Amount',
+            'Incentive Amount',
+            'Customer ID',
+            'Customer Name',
+            'Customer Name as per Aadhar',
+            'Customer Address',
+            'Customer Mobile No',
+            'Customer Email ID',
+            'Dealer Submitted at'
+        ];
+
+        if ($this->status == 'A') {
+            $this->approvedOrPendingHeaders[] = 'OEM Approved at';
+        }
+
+        $this->rejectedHeaders = [
+          'Model Segment',
+            'Model Name',
+            'Dealer Name',
+            'Dealer Code',
+            'Dealer Mobile No.',
+            'Dealer Email ID',
+            'VIN Chassis No.',
+            'Invoice No.',
+            'Invoice Date',
+            'Vehicle Reg. No.',
+            'Vehicle Reg. Date',
+            'Invoice Amount',
+            'Incentive Amount',
+            'Customer ID',
+            'Customer Name',
+            'Customer Name as per Aadhar',
+            'Customer Address',
+            'Customer Mobile No',
+            'Customer Email ID',
+            'Dealer Submitted at',
+            'Reverted Date',
+            'OEM Status & Remarks'
+        ];
+
+        $this->approvedOrPendingBulkColumns = [
+            'segment_name',
+            'model_name',
+            'dealer_name',
+            'dealer_code',
+            'dealer_mobile',
+            'dealer_email',
+            'vin_chassis_no',
+            'dlr_invoice_no',
+            'invoice_dt',
+            'vhcl_regis_no',
+            'vihcle_dt',
+            'tot_inv_amt',
+            'tot_admi_inc_amt',
+            'buyer_id',
+            'custmr_name',
+            'add',
+            'mobile',
+            'email',
+            'adhar_name',
+            'buyer_submitted_at'
+        ];
+
+        $this->approvedOrPendingBulkHeaders = [
+            'Model Segment',
+            'Model Name',
+            'Dealer Name',
+            'Dealer Code',
+            'Dealer Mobile No.',
+            'Dealer Email ID',
+            'VIN Chassis No.',
+            'Invoice No.',
+            'Invoice Date',
+            'Vehicle Reg. No.',
+            'Vehicle Reg. Date',
+            'Invoice Amount',
+            'Incentive Amount',
+            'Customer Name',
+            'Address',
+            'Customer Mobile No',
+            'Customer Email ID',
+            'Customer Aadhar Name',
+            'Dealer Submitted at'
+        ];
+
+        $this->rejectedBulkColumns = [
+            'dealer_name',
+            'dealer_code',
+            'vin_chassis_no',
+            'model_name',
+            'variant_name',
+            'segment_name',
+            'custmr_name',
+            'add',
+            'mobile',
+            'email',
+            'state',
+            'district',
+            'invoice_dt',
+            'oem_status_at'
+        ];
+
+        $this->rejectedBulkHeaders = [
+            'Dealer Name',
+            'Dealer Code',
+            'VIN Chassis No.',
+            'Model Name',
+            'Variant Name',
+            'Segment Name',
+            'Customer Name',
+            'Address',
+            'Mobile',
+            'Email',
+            'State',
+            'District',
+            'Invoice Date',
+            'OEM Status At'
+        ];
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function collection()
+    {
+        // dd($this->approvedOrPendingHeaders, $this->rejectedHeaders);
+        ini_set('memory_limit', '10048M');
+        ini_set('max_execution_time', 360000);
+
+        $pid = getParentId();
+
+        if ($this->type == '1'){
+        $query = DB::table('buyer_details_view');
+        $bankDetail = $query;
+
+        if ($this->status == 'P') {
+            $bankDetail->whereNull('oem_status')->where('status', 'A')->where('oem_id', $pid)->where('custmr_typ', 1)->select($this->approvedOrPendingColumns);
+        } elseif ($this->status == 'A') {
+            $bankDetail->where('oem_status', 'A')->where('status', 'A')->where('oem_id', $pid)->where('custmr_typ', 1)->select($this->approvedOrPendingColumns);
+        } elseif ($this->status == 'R') {
+            $bankDetail->where('oem_status', 'R')->where('oem_id', $pid)->where('custmr_typ', 1)->select($this->rejectedColumns);
+        }
+        $bankDetail = $bankDetail->orderBy('invoice_dt', 'asc')->get();
+        return new Collection($bankDetail);
+    }else {
+        $query = DB::table('buyer_details_view');
+        $bulkbankDetail = $query;
+        if ($this->status == 'P') {
+            $bulkbankDetail->whereNull('oem_status')->where('status', 'A')->where('oem_id', $pid)->whereIn('custmr_typ' ,[2,3])->select($this->approvedOrPendingBulkColumns);
+        } elseif ($this->status == 'A') {
+            $bulkbankDetail->where('oem_status', 'A')->where('status', 'A')->where('oem_id', $pid)->whereIn('custmr_typ' ,[2,3])->select($this->approvedOrPendingBulkColumns);
+        } elseif ($this->status == 'R') {
+            $bulkbankDetail->where('oem_status', 'R')->where('oem_id', $pid)->whereIn('custmr_typ' ,[2,3])->select($this->rejectedBulkColumns);
+        }
+        $bulkbankDetail = $bulkbankDetail->orderBy('invoice_dt', 'asc')->get();
+
+        return new Collection($bulkbankDetail);
+    }
+    }
+
+    /**
+     * @return array
+     */
+    public function headings(): array
+    {
+    if($this->type == '1'){
+        if($this->status == 'P' || $this->status == 'A') {
+            return $this->approvedOrPendingHeaders;
+
+        }
+        elseif($this->status == 'R'){
+            return $this->rejectedHeaders;
+        }
+    }else if ($this->type == '2'){
+            if($this->status == 'P' || $this->status == 'A') {
+                return $this->approvedOrPendingBulkHeaders;
+
+            }
+            elseif($this->status == 'R'){
+                return $this->rejectedBulkHeaders;
+            }
+    }
+    }
+}

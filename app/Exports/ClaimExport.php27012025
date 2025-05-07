@@ -1,0 +1,144 @@
+<?php
+
+namespace App\Exports;
+
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
+class ClaimExport implements FromCollection, WithHeadings
+{
+    protected $claimno;
+
+    public function __construct($claimno)
+    {
+        $this->claimno = $claimno;
+    }
+
+    public function collection()
+    {
+        return DB::table('tblclaimvahanresult')
+            ->where('claim_id', $this->claimno)
+            ->orderby('s_no', 'asc')
+            ->get([
+                's_no',
+                'claim_id',
+                'claim_no',
+                'vehicle_segment',
+                'model_name',
+                'dealer_name',
+                'buyer_name',
+                'mobile_number',
+                'invoicedate',
+                'vin_chassis_no',
+                'vehicle_reg_no',
+                'v4_commercial_registration',
+                'v4_date_of_registration',
+                'v4_regn_no',
+                'v4_owner_name',
+                'v4_maker',
+                'v4_vh_class',
+                'v4_purchase_dt',
+                'v4_eng_no',
+                'v4_state',
+                'v4_office',
+                'v4_remark',
+                'claim_submission_dt',
+                'incentive_amt',
+                'battery_capacity',
+                'status',
+                'remark',
+                'duplicateclaims',
+                'manufacturing_date',
+                'customertype',
+                'crd',
+                'customeridno',
+                'clean_manf_date',
+                'approved_incentive',
+                'eligible_incentive',
+                'rejected_incentive',
+                'productiondataid',
+                'battery_number',
+                'cleanbuyurname',
+                'cleandealername',
+                'cleanoemname',
+                'oemname',
+                'oem_id',
+                'batterychemistry',
+                'dva',
+                'pmp',
+                'model_id',
+                'mvn_approved_status',
+                'buyurid',
+                'pma_status',
+                'pma_remark',
+                'adh_verify',
+                DB::raw("CASE WHEN vehicle_reg_no IS NOT NULL AND vihcle_dt IS NOT NULL THEN 'Y' ELSE 'N' END AS evoucher_generated"),
+                DB::raw("CASE WHEN self_copy_id IS NOT NULL THEN 'Y' ELSE 'N' END AS self_copy_uploaded"),
+                // 'pma_remarks'
+            ]);
+            
+    }
+    
+
+    public function headings(): array
+    {
+        return [
+            's_no',
+            'claim_id',
+            'claim_number',
+            'vehicle_segment',
+            'model_name',
+            'dealer_name',
+            'buyer_name',
+            'mobile_number',
+            'invoicedate',
+            'vin_chassis_no',
+            'vehicle_reg_no',
+            'v4_commercial_registration',
+            'v4_date_of_registration',
+            'v4_regn_no',
+            'v4_owner_name',
+            'v4_maker',
+            'v4_vh_class',
+            'v4_purchase_dt',
+            'v4_eng_no',
+            'v4_state',
+            'v4_office',
+            'v4_remark',
+            'claim_submission_dt',
+            'incentive_amt',
+            'battery_capacity',
+            'status',
+            'remark',
+            'duplicateclaims',
+            'manufacturing_date',
+            'customertype',
+            'crd',
+            'customeridno',
+            'clean_manf_date',
+            'approved_incentive',
+            'eligible_incentive',
+            'rejected_incentive',
+            'productiondataid',
+            'battery_number',
+            'cleanbuyurname',
+            'cleandealername',
+            'cleanoemname',
+            'oemname',
+            'oem_id',
+            'batterychemistry',
+            'dva',
+            'pmp',
+            'model_id',
+            'mvn_approved_status',
+            'buyurid',
+            'pma_status',
+            'pma_remark',
+            'face_authentication',
+            'evoucher_generated',
+            'self_copy_uploaded',
+            // 'pma_remarks',
+        ];
+    }
+}

@@ -1,0 +1,178 @@
+   <!-- Nav Bar Ends here -->
+   @extends('layouts.dashboard_master')
+   @section('title')
+       Admin - Claim To MHI
+   @endsection
+
+   @push('styles')
+   @endpush
+   @section('content')
+       <!-- Page Sidebar Ends-->
+       <div class="page-body">
+           <div class="container-fluid">
+               <div class="page-title">
+                   <div class="row">
+                       <div class="col-6">
+                           <h4>Claim Generate</h4>
+                       </div>
+                       {{-- <div class="col-6">
+                           <ol class="breadcrumb">
+                               <li class="breadcrumb-item"><a href="#">
+                                       <svg class="stroke-icon">
+                                           <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-home') }}"></use>
+                                       </svg></a></li>
+                               <li class="breadcrumb-item">Manage Bank Details</li>
+                               <li class="breadcrumb-item active">Bank Details</li>
+                           </ol>
+                       </div> --}}
+                   </div>
+               </div>
+           </div>
+           {{-- <div class="modal fade" id="vehicleDetailsModal" tabindex="-1" aria-labelledby="vehicleDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="vehicleDetailsModalLabel">Vehicle Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Vehicle details will be displayed here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+             </div>
+            </div> --}}
+           <!-- Container-fluid starts-->
+           <div class="container-fluid">
+               <div class="row">
+                    {{-- {{ route('claimToMhi.show') }} --}}
+                    <form action="{{ route('claimToMhi.show') }}" id="proceedGeneration" role="form" method="post" class='form-horizontal'
+                        files=true enctype='multipart/form-data' accept-charset="utf-8">
+                    @csrf
+                   <div class="col-sm-12">
+                       <div class="card">
+                           <div class="card-body">
+                               <div class="dt-ext table-responsive  custom-scrollbar">
+                                <table class="display table-bordered table-striped" id="export-button">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col"><input id="checkAll" type="checkbox" name=""/></th>
+                                            <th scope="col">S.No.</th>
+                                            <th scope="col">Claim Number</th>
+                                            <th scope="col">No of Vehicle </th>
+                                            <th scope="col">Total Incentive Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- @foreach (range(1, 10) as $iteration)
+                                        <tr>
+                                            <th scope="row"><input type="checkbox" name="" buyerid="{{($iteration)}}" class="btnShowClass"/></th>
+                                            <th>{{$iteration}}</th>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td><a href="javascript:void(0);" id="btnShow" buyerid="{{$iteration}}">Test{{$iteration}}</a></td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>Test{{$iteration}}</td>
+                                            <td>
+                                                <a href="" class="btn btn-sm btn-warning">View</a>
+                                            </td>
+                                        </tr>
+                                        @endforeach --}}
+                                        @if(count($claimMaster)>0)
+                                        @foreach($claimMaster as $claim)
+                                        <tr>
+                                            @php
+                                                $sn = $loop->iteration;
+                                            @endphp
+                                            <td scope="row">
+                                                {{-- <input type="checkbox" name="check[{{$sn}}]" claimid="{{($claim->id)}}" class="btnShowClass"/> --}}
+                                                <input type="checkbox" name="check[{{$sn}}]" claimid="{{($claim->id)}}" class="btnShowClass" value="{{($claim->id)}}"/>
+                                            </td>
+                                            <td>{{$sn}}</td>
+                                            <td>{{$claim->claimnumberformat}}</td>
+                                            <td>{{$claim->vehicle_count}}</td>
+                                            <td>{{$claim->tot_incamt}}</td>
+                                            {{-- <td>
+                                                <a href="" class="btn btn-sm btn-warning">View</a>
+                                            </td> --}}
+                                        </tr>
+                                        @endforeach
+                                        @else
+                                        <td colspan="19" class="text-center">No Data Available</td>
+                                        @endif
+                                    </tbody>
+                                </table>
+                                
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="row py-2">
+                        <div class="col-md-2 offset-md-5">
+                            <button type="submit" id="generateClaim" class="btn btn-primary btn-sm form-control form-control-sm"><i
+                                    class="fa fa-save"></i> Save as Draft</button>
+                        </div>
+                    </div>
+                </form>
+               </div>
+           </div>
+           <!-- Container-fluid Ends-->
+       </div>
+   @endsection
+   @push('scripts')
+       <script>
+
+           $(document).ready(function() {
+               $('#checkAll').click(function(e) {
+                    var isChecked = $('input[type=checkbox]').not(this).is(':checked');
+                    $('input[type=checkbox]').prop('checked', !isChecked);
+               });
+
+                $('#generateClaim').click(function(e) {
+                    e.preventDefault();
+                    var claimIds = [];
+                    $('input[type=checkbox].btnShowClass:checked').each(function() {
+                        // var claimId = $(this).closest('.btnShowClass').attr('claimid');
+                        var claimId = $(this).attr('claimid');
+                        claimIds.push(claimId);
+                    });
+                    if(claimIds.length===0){
+                        Swal.fire({
+                        icon: 'warning',
+                        text: 'Please select Claim to proceed',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                        });
+                    }else{
+                        $('#proceedGeneration').submit();
+
+                    }
+                });
+
+                // $('#proceedGeneration').submit(function(event) {
+                //     $('#export-button tr').each(function(rowIndex, row) {
+                //         $(row).find('input').each(function(index, input) {
+                //             let hiddenInput = $('<input>')
+                //                 .attr('type', 'hidden')
+                //                 .attr('name', `data[${rowIndex}][${$(input).attr('name')}]`)
+                //                 .val($(input).val());
+                //             $('#data-form').append(hiddenInput);
+                //         });
+                //     });
+                // });
+           });
+       </script>
+   @endpush

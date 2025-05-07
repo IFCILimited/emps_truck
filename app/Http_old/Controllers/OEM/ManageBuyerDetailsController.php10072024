@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Http\Controllers\OEM;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+use DB;
+use Auth;
+use App\Models\User;
+use App\Models\BuyerDetail;
+
+class ManageBuyerDetailsController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $pid = getParentId();
+        try {
+            $bankDetail = DB::table('buyer_details_view')->where('status', 'A')->where('oem_id',$pid)->get();
+            // dd($bankDetail);
+            return view('oem.manage_buyer.index_manage_buyer_details', compact('bankDetail'));
+        } catch (\Exception $e) {
+            errorMail($e, $pid);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create($id)
+    {
+        $pid = getParentId();
+        try {
+            $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+            $user = User::where('id',$pid)->first();
+            $bankDetail = DB::table('buyer_details_view as bd')->where('status', 'A')
+                ->where('id', $id)->first();
+
+            $customerId = (int) $bankDetail->custmr_id;
+
+            $cat = DB::table('customer_doc_verf_type')
+                ->where('id', $customerId)
+                ->first();
+            return view('oem.manage_buyer.create_manage_buyer_details', compact('type', 'bankDetail', 'user', 'customerId', 'cat'));
+        } catch (\Exception $e) {
+            errorMail($e, $pid);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        // $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+        // $user = User::where('id', Auth::user()->id)->first();
+        // $bankDetail = DB::table('buyer_details_view as bd')
+        //     ->where('id', $id)->first();
+
+        // // dd($bankDetail);
+
+        // $customerId = (int) $bankDetail->custmr_id;
+
+        // $oemname = DB::table('users')->where('oem_id',Auth::user()->oem_id)->first();
+
+        // $cat = DB::table('customer_doc_verf_type')
+        //     ->where('id', $customerId)
+        //     ->first();
+        // return view('oem.manage_buyer.show_manage_buyer_details',compact('type','user','bankDetail','oemname','customerId','cat'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+        try {
+            DB::transaction(function () use ($request) {
+
+                $buyerAppr = BuyerDetail::find($request->id);
+                if ($request->status == 'R') {
+                    $buyerAppr->status = 'D';
+                    $buyerAppr->oem_remarks = $request->oem_remarks;
+                    $buyerAppr->oem_status = $request->status;
+                    $buyerAppr->oem_status_at = now();
+                    $buyerAppr->child_id = Auth::user()->id;
+                    $buyerAppr->save();
+                    alert()->success('Data has been successfully revert.','Success')->persistent('Close');
+
+                } else {
+                    $buyerAppr->oem_status = 'A';
+                    $buyerAppr->oem_status_at = now();
+                    $buyerAppr->child_id = Auth::user()->id;
+                    $buyerAppr->save();
+                    alert()->success('Data has been successfully approved.','Success')->persistent('Close');
+                }
+
+            });
+            return redirect()->route('manageBuyerDetails.index');
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+    public function returnToDealer() {
+        $pid = getParentId();
+        try {
+
+            $bankDetail = DB::table('buyer_details_view')
+                ->where('oem_status', 'R')
+                ->where('oem_id', $pid)
+                ->get();
+
+            return view('oem.manage_buyer.oemreturn', compact('bankDetail'));
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+}   

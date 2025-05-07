@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('admin/css/vendors/bootstrap.css') }}">
+
+    <title>Dealer E-Voucher</title>
+
+    <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .certificate_container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .certificate_image img {
+            width: 100%;
+            max-width: 816px; /* Maximum width for larger screens */
+            height: auto; /* Maintain aspect ratio */
+        }
+
+        .certificate_image{
+            grid-column: 1 / -1;
+            grid-row: 1 / -1;
+        }
+
+        .certificate_content {
+            /* position: relative;
+            width: 100%;
+            max-width: 800px;
+            padding: 1rem;
+            margin: 2rem 0;
+            font-size: 20px;
+            letter-spacing: 2.5px; */
+
+
+            grid-column: 1 / 6;
+            grid-row: 3 / 6;
+            /* width: 100%; */
+            width: 48rem;
+            height: auto;
+            /* max-width: 800px; */
+            padding: 1rem;
+            margin: 2rem 0;
+            font-size: 20px;
+            letter-spacing: 2.5px;
+        }
+
+        .certificate_wrapper{
+            display: grid;
+            height: 100%;
+            grid-template-columns: repeat(6, 8rem);
+            grid-template-rows: repeat(6, 11rem);
+        }
+
+        .certificate_bottom {
+            margin-top: 3rem;
+        }
+
+        .customer_name {
+            font-family: "Playfair Display", serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        @media print {
+            .print_btn {
+                display: none;
+            }
+
+            @page {
+                margin: 0;
+            }
+
+            .certificate_wrapper{
+                display: grid;
+                row-gap: 1rem;
+                height: 100%;
+                grid-template-columns: repeat(6, 7.5rem);
+                grid-template-rows: repeat(6, 9.5rem);
+            }
+            .certificate_content{
+                width: 46rem;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .certificate_content {
+                font-size: 16px; /* Reduce font size on smaller screens */
+            }
+
+            .customer_name {
+                font-size: 24px; /* Adjust customer name size */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .certificate_content {
+                font-size: 14px; /* Further reduce font size */
+                padding: 0.5rem; /* Reduce padding */
+            }
+
+            .customer_name {
+                font-size: 20px; /* Adjust for very small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid certificate_container">
+        <div class="col-12 print_btn mt-2">
+            <button class="btn btn-primary" onclick="window.print()">Print E-Voucher</button>
+        </div>
+        <div class="certificate_wrapper">
+            <div class="certificate_image text-center">
+                <img src="{{ asset('docs/dealer/dealer_certificate_back.jpg') }}" alt="Certificate Image"/>
+            </div>
+            <div class="certificate_content">
+                <div class="inner_container">
+                    <div class="col-12 d-flex justify-content-between">
+                        <div>
+                            <span style="font-weight: 500">Certificate Number: {{$detail->id}}</span>
+                        </div>
+                        <div>
+                            <span style="font-weight: 500">Date: {{ \Carbon\Carbon::parse($detail->created_at)->format('F j, Y') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center mt-5">
+                        <span style="font-weight: 500; font-size: 22px;">This is to acknowledge that, I</span><br>
+                        <span class="customer_name"><i><u>{{$detail->custmr_name}}</u></i></span><br>
+                        <span style="font-size: 25px; font-weight: 500">have received <span style="font-weight: 800">PM E-DRIVE</span> subsidy of </span><br>
+                        <span style="font-size: 30px; font-weight: 600; font-family: 'Playfair Display', serif;"><i class="fa fa-inr" aria-hidden="true"></i> <span>{{$detail->formatedAmount}}</span></span><br>
+                        <span style="font-weight: 500">from Ministry of Heavy Industries,<br> Government of India</span><br>
+                        <span style="font-size: 17px; font-weight: 400">on purchase of {{$detail->model_name}}, an Electric<br>{{$detail->segment_name}}, from {{$detail->oem_name}}<br> VIN NO: {{$detail->vin_chassis_no}}<br></span>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center certificate_bottom">
+                        <div class="col-4 text-center">
+                            <div>
+                                {{$qRCode}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

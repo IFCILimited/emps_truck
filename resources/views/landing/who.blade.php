@@ -1,0 +1,212 @@
+@extends('layouts.master')
+@section('title')
+   Who - {{ env('APP_NAME')}}
+@endsection
+@push('styles')
+@endpush
+@section('content')
+    <!-- Start Subheader -->
+    <div class="sub-header p-relative">
+        <div class="overlay overlay-bg-black"></div>
+        <div class="pattern"></div>
+        <div class="section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="sub-header-content p-relative">
+                            <h1 class="text-custom-white lh-default fw-600">Who's who</h1>
+                            <ul class="custom">
+                                <li> <a href="/" class="text-custom-white">Home</a>
+                                </li>
+                                <li class="text-custom-white active">Who's who</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Subheader -->
+    <!-- start aboutus -->
+    <section class=" parallax mt-20 mb-xl-30">
+
+        <div class="container">
+            <div class="section-header">
+                <div class="section-heading">
+                    <h3 class="text-custom-black fw-700">Ministry of Heavy Industries</h3>
+                    <div class="section-description">
+                        <p class="text-light-white">Udyog Bhawan,Rafi Marg,
+                            New Delhi-110011</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="lw-tab-table">
+                            <tbody>
+                                <tr class="lw-table-row-1">
+                                    <th>S.No.</th>
+                                    <th>Name</th>
+                                    <th>Designation</th>
+                                    <th>Email Address</th>
+                                    <th>Phone No.</th>
+                                    <th>PABX</th>
+                                    <th>Room No.</th>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">1</td>
+                                    <td class="lw-table-data-2">
+                                       <strong> Shri H. D. Kumaraswamy</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Hon'ble Minister Ministry of Heavy Industries</strong>
+                                    </td>
+                                    <td class="lw-table-data-4 text-center">
+                                        <strong>minoff-dhi@nic.in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 text-center">
+                                        <strong>23063598, 23061339</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating text-center"> <span class="rating-number"></span>
+                                        <strong>-</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 choose-btn text-center"> <strong> 176 </strong>  </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">2</td>
+                                    <td class="lw-table-data-2">
+                                       <strong> Shri Bhupathiraju Srinivasa Varma</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Hon'ble Minister of State (HI)</strong>
+                                    </td>
+                                    <td class="lw-table-data-4 text-center">
+                                        <strong>mosoff.dhi@nic.in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 text-center">
+                                        <strong>23062676, 23062678</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating text-center"> <span class="rating-number"></span> 3251</td>
+                                    <td class="lw-table-data-3 choose-btn text-center"> <strong>36</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">3</td>
+                                    <td class="lw-table-data-2">
+                                       <strong> Shri Kamran Rizvi, IAS</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Secretary (HI)</strong>
+                                    </td>
+                                    <td class="lw-table-data-4">
+                                        <strong>shioff[at]nic[dot]in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>23063633, 23061854</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating"> <span class="rating-number"></span> 2305 </td>
+                                    <td class="lw-table-data-3 choose-btn"> <strong>155</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">4</td>
+                                    <td class="lw-table-data-2">
+                                        <strong>Dr. Hanif Qureshi, IPS</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Additional Secretary</strong>
+                                    </td>
+                                    <td class="lw-table-data-4">
+                                        <strong>jsauto[at]gov[dot]in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>23062365</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating"> <span class="rating-number"></span> 3382</td>
+                                    <td class="lw-table-data-3 choose-btn"> <strong>126-C</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">5</td>
+                                    <td class="lw-table-data-2">
+                                        <strong>Shri Amrendra Kishore Singh, IOFS</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Deputy Secretary</strong>
+                                    </td>
+                                    <td class="lw-table-data-4">
+                                        <strong>dsem-mhi[at]gov[dot]in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>23061745</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating"> <span class="rating-number"></span> 2412</td>
+                                    <td class="lw-table-data-3 choose-btn"> <strong>275-E</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">6</td>
+                                    <td class="lw-table-data-2">
+                                        <strong>Shri Sumit Kumar</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Deputy Secretary</strong>
+                                    </td>
+                                    <td class="lw-table-data-4">
+                                        <strong>sumit[dot]kr88[at]gov[dot]in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>23061845</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating"> <span class="rating-number"></span> 3219 </td>
+                                    <td class="lw-table-data-3 choose-btn"> <strong>216-A</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">7</td>
+                                    <td class="lw-table-data-2">
+                                        <strong>Shri Manish Kumar</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Deputy Secretary</strong>
+                                    </td>
+                                    <td class="lw-table-data-4">
+                                        <strong>manishkumar[dot]hei[at]gov[dot]in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>23063334</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating"> <span class="rating-number"></span> 2326 </td>
+                                    <td class="lw-table-data-3 choose-btn"> <strong>243</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="lw-table-data-1">8</td>
+                                    <td class="lw-table-data-2">
+                                        <strong>Shri Ajay Kumar</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>Under Secretary</strong>
+                                    </td>
+                                    <td class="lw-table-data-4">
+                                        <strong>ajay[dot]kumar03[at]gov[dot]in</strong>
+                                    </td>
+                                    <td class="lw-table-data-3">
+                                        <strong>23061340</strong>
+                                    </td>
+                                    <td class="lw-table-data-3 company-rating"> <span class="rating-number"></span> 2408 </td>
+                                    <td class="lw-table-data-3 choose-btn"> <strong>387</strong>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--About-two-section-end-->
+@endsection

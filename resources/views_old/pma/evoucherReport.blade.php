@@ -1,0 +1,83 @@
+@extends('layouts.dashboard_master')
+
+@section('title')
+    OEM E-Voucher Reports
+@endsection
+
+@section('content')
+    <div class="page-body">
+        <div class="container-fluid">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1>OEM E-Voucher Reports</h1>
+                </div>
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="dt-ext table-responsive custom-scrollbar">
+                                <table class="display table-bordered table-striped" id="export-button">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th class="text-center">SN</th>
+                                            <th class="text-center">OEM Name</th>
+                                            <th class="text-center">Segment Name</th>
+                                            {{-- <th class="text-center">April-2024</th>
+                                            <th class="text-center">May-2024</th>
+                                            <th class="text-center">June-2024</th>
+                                            <th class="text-center">July-2024</th>
+                                            <th class="text-center">August-2024</th>
+                                            <th class="text-center">September-2024</th> --}}
+                                            <th class="text-center">Vehicle Category</th>
+                                            <th class="text-center">Invoice Count</th>
+                                            <th class="text-center">E - Voucher Uploaded</th>
+                                            <th class="text-center">E - Voucher Generated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            // $totalApr = 0;
+                                            // $totalMay = 0;
+                                            // $totalJun = 0;
+                                            // $totalJul = 0;
+                                            // $totalAug = 0;
+                                            // $totalSep = 0;
+                                            $totalInv = 0;
+                                            $totalEup = 0;
+                                            $totalEg = 0;
+                                            $sn = 1;
+                                        @endphp
+                                        @foreach ($details as $detail)
+                                        
+                                            <tr>
+                                                <td>{{ $sn++ }}</td>
+                                                <td>{{ $detail->name }}</td>
+                                                <td>{{ $detail->segment_name }}</td>
+                                                <td>{{ $detail->vehicle_cat }}</td>
+                                                <td class="text-end">{{ number_format($detail->invoice_count) }}</td>
+                                                <td class="text-end">{{ number_format($detail->evoucher_uploaded) }}</td>
+                                                <td class="text-end">{{ number_format($detail->evoucher_generated) }}</td>
+                                            </tr>
+                                            @php
+                                            $totalInv += $detail->invoice_count;
+                                            $totalEup += $detail->evoucher_uploaded;
+                                            $totalEg += $detail->evoucher_generated;
+                                        @endphp
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="4">Total</th>
+                                            <th class="text-end">{{ number_format($totalInv) }}</th>
+                                            <th class="text-end">{{ number_format($totalEup) }}</th>
+                                            <th class="text-end">{{ number_format($totalEg) }}</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

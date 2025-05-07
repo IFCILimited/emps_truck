@@ -1,0 +1,344 @@
+<?php
+
+namespace App\Http\Controllers\OEM;
+
+use DB;
+use Exception;
+use App\Models\DealerRegistration;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\DealerRegistrationRequest;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+use App\Imports\BulkDealerImport;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Hash;
+use Mail;
+
+
+
+
+class ManageDealerController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // $dealerReg = User::get();
+        try {
+            $dealerReg = DB::table('users')
+                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                ->whereIn('model_has_roles.role_id', [6])
+                ->where('oem_id', Auth::user()->id)
+                ->select('users.*', 'roles.name as  role')
+                ->get();
+
+            return view('oem.manage_dealer.index_managedealer', compact('dealerReg'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        try {
+            Auth::id();
+            return view('oem.manage_dealer.create_managedealer');
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    // public function store(DealerRegistrationRequest $request)
+    public function store(Request $request)
+    {
+        $password = generatePassword();
+
+        try {
+            $exception = DB::transaction(function () use ($request, $password) {
+                $username = generateUsername($request->dealer_name, $request->mobile_no);
+                $manageDealer = new User;
+                $manageDealer->name = $request->dealer_name;
+                $manageDealer->dealer_code = $request->dealer_code;
+                $manageDealer->dealer_gstin_no = $request->gstin_number;
+                $manageDealer->password = Hash::make($password);
+                $manageDealer->username = $username;
+                $manageDealer->auth_name = $request->authorized_person_name;
+                $manageDealer->pincode = $request->pin_code;
+                $manageDealer->address = $request->address;
+                $manageDealer->landline = $request->landline_no;
+                $manageDealer->landmark = $request->landmark;
+                $manageDealer->mobile = $request->mobile_no;
+                $manageDealer->state = $request->state;
+                $manageDealer->fax = $request->fax_no;
+                $manageDealer->isotpverified = 0;
+                $manageDealer->isactive = 'Y';
+                $manageDealer->isapproved = 'Y';
+                $manageDealer->district = $request->district;
+                $manageDealer->email = $request->email_id;
+                $manageDealer->oem_id = Auth::id();
+                $manageDealer->save();
+
+
+                $manageDealer->assignRole('DEALER');
+
+                $userData = $manageDealer->where('id', $manageDealer->id)->first();
+
+                $userMail = array (
+                    'name' => $manageDealer->name,
+                    'email' => $manageDealer->email,
+                    'status' => 'Login Credential Successfully Create',
+                    'username' => $userData->username,
+                    'password' => $password
+                );
+
+                // Mail::send('emails.dealerCredential', $userMail, function ($message) use ($userMail) {
+                // Mail::send('emails.Credential', $userMail, function ($message) use ($userMail) {
+                //     $message->to($userMail['email'])->subject($userMail['status']);
+                // });
+                $to = $userMail['email'];
+                $cc= '';
+                $bcc='';
+                $subject=$userMail['status'];
+                $from='noreply.emps.heavyindustry@gov.in';
+                $msg=view('emails.Credential', ['user' => $userMail])->render();
+
+                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+            });
+            if (is_null($exception)) {
+                alert()->success('Dealer has been successfully created.', 'Success')->persistent('Close');
+                return redirect()->route('manageDealer.index');
+            } else {
+                throw new Exception;
+            }
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorMessage = "Database error: " . $e->getMessage();
+            if ($e->errorInfo[1] == 1062) { // Unique constraint violation
+                $errorMessage = "A record with the same value already exists.";
+            }
+            alert()->warning('Something Went Wrong: ' . $errorMessage, 'Danger')->persistent('Close');
+            return redirect()->route('manageDealer.index')->withErrors(['error' => $errorMessage]);
+        } catch (Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('An error occurred: ' . $e->getMessage());
+    
+            // Display an alert with the error message
+            alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
+    
+            // Redirect to a specific route
+            return redirect()->route('manageDealer.index');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+
+    public function uploadExcel(Request $request)
+    {
+      
+ini_set('memory_limit', '2048M');
+
+ini_set('max_execution_time', 3600);        // dd($request);
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls|max:5120',
+        ]);
+
+        try {
+            Excel::import(new BulkDealerImport, $request->file('excel_file'));
+            alert()->success('Successfully Excel file uploaded & Dealer Created.', 'Success');
+            return redirect()->back();
+        }catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            foreach ($failures as $failure) {
+                $errorValue = isset($failure->values()[$failure->attribute()]) ? $failure->values()[$failure->attribute()] : 'N/A';
+                $errorMessages[] = "Error in row " . $failure->row() . " for column " . $failure->attribute() . " (value: " . $errorValue . "): " . implode(", ", $failure->errors());
+            }
+            if (!empty($errorMessages)) {
+                $allErrors = implode("\n", $errorMessages);
+                alert()->error(nl2br($allErrors), 'Errors')->persistent('ok');
+                return redirect()->back()->withErrors($errorMessages)->withInput(); // Redirect after showing alert
+            }
+            return redirect()->back()->withErrors($failures)->withInput();
+        } catch (Exception $e) {
+            // dd($e,2);
+            errorMail($e, Auth::user()->id); // Handle exception (e.g., log or send email)
+            return redirect()->route('manageDealer.index'); // Redirect after handling exception
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $id = decrypt($id);
+
+            $dealerReg = User::where("id", $id)->first();
+
+            return view('oem.manage_dealer.view_managedealer', compact('dealerReg'));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        try {
+            $id = decrypt($id);
+
+            $dealerReg = User::where("id", $id)->first();
+
+            return view("oem.manage_dealer.edit_managedealer", compact("dealerReg"));
+        } catch (\Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        // dd($request,$id);
+
+        try {
+            $exception = DB::transaction(function () use ($request, $id) {
+
+
+                $password = generatePassword();
+
+                $manageDealer = User::find($id);
+                $manageDealer->name = $request->dealer_name;
+                $manageDealer->dealer_code = $request->dealer_code;
+                $manageDealer->dealer_gstin_no = $request->gstin_number;
+                $manageDealer->password = Hash::make($password);
+                $manageDealer->auth_name = $request->authorized_person_name;
+                $manageDealer->pincode = $request->pin_code;
+                $manageDealer->address = $request->address;
+                $manageDealer->landline = $request->landline_no;
+                $manageDealer->landmark = $request->landmark;
+                $manageDealer->mobile = $request->mobile_no;
+                $manageDealer->state = $request->state;
+                $manageDealer->fax = $request->fax_no;
+                $manageDealer->district = $request->district;
+                $manageDealer->email = $request->email_id;
+                $manageDealer->save();
+
+                // dd( $manageDealer->username);
+                $userData = $manageDealer->where('id', $id)->first();
+                // dd($username);
+                $userMail = array (
+                    'name' => $manageDealer->name,
+                    'email' => $manageDealer->email,
+                    'status' => 'Login Credential Successfully Updated',
+                    'username' => $userData->username,
+                    'password' => $password
+                );
+
+                // Mail::send('emails.dealerCredential', $userMail, function ($message) use ($userMail) {
+                //     $message->to($userMail['email'])->subject($userMail['status']);
+                // });
+                Mail::send('emails.Credential', $userMail, function ($message) use ($userMail) {
+                    $message->to($userMail['email'])->subject($userMail['status']);
+                });
+
+
+            });
+            alert()->success('Data has been successfully updated.', 'Success')->persistent('Close');
+            return redirect()->route('manageDealer.index');
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+
+    public function resendMail($id)
+{
+    try {
+        $id = decrypt($id);
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception("User not found.");
+        }
+        $password = generatePassword();
+
+        $user->password = Hash::make($password);
+        $user->save();
+        // $decryptedPwd = decrypt($password);
+        // dd($user->password );
+        $userMail = array(
+            'name' => $user->name,
+            'email' => $user->email,
+            'status' => 'Login Credential Successfully Updated',
+            'username' => $user->username,
+            'password' => $password // This should not be sent in plain text
+        );
+
+        $to = $userMail['email'];
+        $cc = '';
+        $bcc = '';
+        $subject = $userMail['status'];
+        $from = 'noreply.emps.heavyindustry@gov.in';
+        $msg = view('emails.Credential', ['user' => $userMail])->render();
+
+        $response = sendEmailNic($to, $cc, $bcc, $subject, $from, $msg);
+
+        alert()->success('Email has been successfully resent.', 'Success')->persistent('Close');
+    } catch (Exception $e) {
+        // Log the error for debugging purposes
+        Log::error('An error occurred while resending the email: ' . $e->getMessage());
+
+        // Display an alert with the error message
+        alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
+    }
+
+    return redirect()->route('manageDealer.index');
+}
+
+
+}

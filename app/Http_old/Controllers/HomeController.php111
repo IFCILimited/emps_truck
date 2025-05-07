@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Auth;
+use DB;
+class HomeController extends Controller
+{
+
+
+    public function index()
+    {
+$permittedip = "59.145.23.38";
+$ipaddress = getenv("REMOTE_ADDR") ;
+//if ($ipaddress !== $permittedip) {
+//dd('Module Under Development');
+//   exit();
+//}
+        return view('landing.index');
+    }
+
+    // public function dashboard(){
+    //     return view('layouts.dashboard_master');
+    // }
+    public function logout(){
+        Auth::logout();
+        return redirect()->route('home');
+    }
+    public function signin($roleid) {
+        $role_id = decrypt($roleid);
+        session(['role_id' => $role_id]);
+        return redirect()->route('login');
+    }
+
+    public function contact()
+    {
+        return view('landing.contact');
+    }
+    public function about_us()
+    {
+        return view('landing.about_us');
+    }
+    public function feedback()
+    {
+        return view('landing.feedback');
+    }
+    public function impotrant_links()
+    {
+        return view('landing.important_links');
+    }
+    public function press_release()
+    {
+        return view('landing.press_release');
+    }
+    public function FAQs()
+    {
+        return view('landing.faq');
+    }
+    public function policy_document()
+    {
+        return view('landing.policy_doc');
+    }
+    public function policy_procedure()
+    {
+        return view('landing.policy_procedure');
+    }
+    public function suggestion()
+    {
+        return view('landing.suggestion');
+    }
+    public function support()
+    {
+        return view('landing.support');
+    }
+    public function who()
+    {
+        return view('landing.who');
+    }
+    public function dashboard()
+    {
+        $claims = DB::select('SELECT claim_data() as claim_data')[0]->claim_data;
+        
+        $stringArray = trim($claims, '{}');
+        
+        // Explode the string into an array
+        $indexedArray = explode(',', $stringArray);
+        
+        // dd($indexedArray);
+        // Extract values from the indexed array
+        $claim = $indexedArray[0];
+        $amount = $indexedArray[1];
+        $claime2 = $indexedArray[2];
+        $claime3 = $indexedArray[4];
+        
+        $dashboard = DB::table('dashboard_view')->get();
+        return view('landing.dashboard',compact("dashboard","claim","amount","claime2","claime3"));
+    }
+}

@@ -1,0 +1,206 @@
+@extends('layouts.master')
+@section('title')
+    Scheme Notifications - {{ env('APP_NAME') }}
+@endsection
+@push('styles')
+@endpush
+@section('content')
+    <!-- Start Subheader -->
+    <div class="sub-header p-relative">
+        <div class="overlay overlay-bg-black"></div>
+        <div class="pattern"></div>
+        <div class="section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="sub-header-content p-relative">
+                            <h1 class="text-custom-white lh-default fw-600">Model Details</h1>
+                            <ul class="custom">
+                                <li> <a href="/" class="text-custom-white">Home</a>
+                                </li>
+                                <li class="text-custom-white active">Model Details</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Subheader -->
+    <!-- start aboutus -->
+    <section class="mt-20 m-5">
+
+        @foreach ($oem_name as $key => $val)
+            <div class="border-primary">
+                <div class="card-header w-100" style="background-color: #009cde; color: white;">
+                    <b>{{ $key + 1 }}. <b>OEM Name:-></b>{{ $val->oem_name }}</b>
+                </div>
+            </div>
+
+            <table class="table table-sm table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>xEV Model Name</th>
+                        <th>Variant Name</th>
+                        <th>Vehicle Type & Segment</th>
+                        <th>Vehicle CMVR Category</th>
+                        {{-- <th>Incentive Amount (In INR)</th>
+                    <th>Current Incentive Amount (In INR)</th> --}}
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $srNo = 1; @endphp
+                    @foreach ($model_detail as $item)
+                        @if ($item->oem_id == $val->oem_id)
+                            <tr>
+                                <td>{{ $srNo++ }}</td>
+                                <td>{{ $item->model_name }}</td>
+                                <td>{{ $item->variant_name }}</td>
+                                <td>{{ $item->segment }}</td>
+                                <td>{{ $item->vehicle_cat }}</td>
+                                <td class="text-center">{{ $item->model_status }}</td>
+                                {{-- <td>test5</td>
+                            <td>test6</td> --}}
+                                <td>
+                                    <button type="button" class="btn btn-info btn-sm btn-block" data-toggle="modal"
+                                        data-target="#editModal{{ $item->model_detail_id }}">View</button>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="editModal{{ $item->model_detail_id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+
+                                                    <h5 class="modal-title" id="editModalLabel">Model Details</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="card-header mt-2"
+                                                    style="background-color: #009cde; color: white; font-size: 20px;">
+                                                    Brief Technical Specifications of PMEDRIVE Cases
+                                                </div>
+                                                <div class="text-center" style="font-size: 20px">
+                                                    <b>{{ $item->oem_name }}</b>({{ $item->segment }})
+                                                </div>
+                                                <div class="modal-body text-center">
+
+
+                                                    <div class="row">
+                                                        <div class="col-md-6" style="margin: auto">
+                                                            @if ($item->vehicle_img_upload_id)
+                                                                <a href="{{ route('doc.down', $item->vehicle_img_upload_id) }}"
+                                                                    class="btn btn-info">Download Image</a>
+                                                            @else
+                                                                <button href="" class="btn btn-info">Download
+                                                                    Image</button>
+                                                            @endif
+
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <table class="table table-sm table-bordered table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th colspan="2">Performance and Efficiency of
+                                                                            vehicle</th>
+
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Range (Km)</td>
+                                                                        <td style="width: 70px">{{ $item->range }}</td>
+
+
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Max. Speed (Km/Hr)</td>
+                                                                        <td>{{ $item->min_max_speed }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Acceleration (m/s2)</td>
+                                                                        <td>{{ $item->min_acceleration }}</td>
+                                                                    </tr>
+                                                                    <td>Warranty (In Years)</td>
+                                                                    <td>
+                                                                        @if ($item->warranty_period_indicate)
+                                                                        
+                                                                       {{ $item->warranty_period_indicate }}
+                                                                        
+                                                                        @else
+                                                                        ---
+                                                                            
+                                                                        @endif
+                                                                      
+                                                                    </td>
+
+                                                                    <tr>
+                                                                        <td>Electric Energy consumption (KWh per 100KM)</td>
+                                                                        <td>{{ $item->max_elect_consumption }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th colspan="2" class="text-left">
+                                                                            <b>Battery</b>
+                                                                        </th>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Battery Technology</td>
+                                                                        <td>{{ $item->battery_type }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            Battery Capacity (kWh)
+                                                                        </td>
+                                                                        <td>
+                                                                            @if ( $item->tot_energy)
+                                                                            {{ $item->tot_energy }}
+                                                                            @else
+                                                                            ---
+                                                                                
+                                                                            @endif
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            Battery Density (Wh/Kg)
+                                                                        </td>
+                                                                        <td>{{ $item->spec_density }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Battery cycle (No. of Cycles)</td>
+                                                                        <td>{{ $item->no_of_battery }}</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+
+                                                        </div>
+                                                    </div>
+
+
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
+                                                    {{-- <button type="button" class="btn btn-primary">Save changes</button> --}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        @endforeach
+
+
+
+
+    </section>
+@endsection

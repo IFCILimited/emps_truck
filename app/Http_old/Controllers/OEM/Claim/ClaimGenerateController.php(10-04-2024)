@@ -1,0 +1,202 @@
+<?php
+
+namespace App\Http\Controllers\OEM\Claim;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use App\ClaimMaster;
+// use App\ClaimDetail;
+use App\BuyerDetail;
+use Auth;
+use DB;
+use Exception;
+use Carbon\Carbon;
+
+class ClaimGenerateController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // $bankDetail = BankDetail::where('user_id',Auth::user()->id)->first();resources\views\oem\claim\claimGenerate.blade.php
+        // return view('oem.claim.claimGenerate',compact('bankDetail'));
+        $modelMaster = DB::table('model_master')->where('oem_id',Auth::user()->id)->pluck('model_name','id');
+        $segMaster = DB::table('segment_master')->pluck('segment_name','id');
+        // $buyerDetail = DB::table('buyer_details')->where('oem_id',Auth::user()->id)->get();
+        // $buyerDetail = DB::select("select * from details_with_buyer_details where within_120_days = 'true' and claim_id is null and oem_id = ? order by id ASC",Auth::user()->id);
+        $buyerDetail = DB::table('buyer_details_within_120_days')->where('oem_id',Auth::user()->id)->where('within_120_days','true')->whereNull('claim_id')->get();
+
+        // dd($buyerDetail,Auth::user()->id);
+        
+        return view('oem.claim.claimGenerate',compact('buyerDetail','segMaster','modelMaster'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        // dd($request);
+        DB::transaction(function () use ($request) {
+            // $claimNumberFormat = getClaimNumberFormat(Auth::user()->name);
+            // $claimMast = ClaimMaster::create([
+            //     'claimnumberformat' => getClaimNumberFormat(Auth::user()->name),
+            //     'oem_id' => Auth::user()->id,
+            //     'created_by' => Auth::user()->id,
+            //     'created_at' => Carbon::now(),
+            // ]);
+
+                $claimMast= new ClaimMaster;
+                $claimMast->oem_id=Auth::user()->id;
+                $claimMast->created_by= Auth::user()->id;
+                $claimMast->created_at= Carbon::now();
+                $claimMast->vehicle_count= $request->vehicleCount;
+                $claimMast->tot_incamt= $request->totIncAmt;
+                $claimMast->save();
+
+                
+                foreach ($request->check as $key=>$check) {
+                    // dd($request->check);
+                    // $claimDetail= new ClaimDetail;
+                    // $claimDetail->claimid=$claimMast->id;
+                    // $claimDetail->buyer_id= $check;
+                    // $claimDetail->save();
+
+                    $buyerDetail = BuyerDetail::where('id',$check)->first();
+                    $buyerDetail->claim_id = $claimMast->id;
+                    $buyerDetail->save();
+                }
+                
+                $claimMaster=ClaimMaster::find($claimMast->id);
+                $claimNumberFormat=getClaimNumberFormat(Auth::user()->name,$claimMast->id);
+                $claimMaster->claimnumberformat = $claimNumberFormat;
+                $claimMaster->save();
+                
+            });
+
+
+        alert()->success('Claim Generation Successful', 'Success')->persistent('Close');
+        return redirect()->route('claimGenerate.index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    // public function show($id)
+    // {
+        
+    //     // $decodedData = urldecode($id);
+    //     // // $decodedData = rawurldecode($id);
+    //     // $key = 'your_secret_key';
+    //     // $decryptedData = Crypt::decrypt($decodedData);
+    //     // $decryptedArray = json_decode($decryptedData, true);
+
+
+        
+    //     $string = $id;
+    //     $array = explode(",", $string);
+
+    //     return view('oem.claim.claimGenerateShow',compact('array'));
+    
+
+    // }
+
+    public function show(Request $request)
+    {
+        // dd($request->check);
+        $array = [];
+        foreach($request->check as $key=>$check){
+            // $array[] =  $check;
+            array_push($array, $check);
+            
+            
+        }
+        $array = DB::table('buyer_details')->where('oem_id',Auth::user()->id)->whereIn('id',$array)->get();
+        // dd($array);
+        // $id = $request->input('ids');
+        // $array = explode(",", $id);
+    
+        return view('oem.claim.claimGenerateShow',compact('array'));
+    }
+    
+
+    public function search($modSeg, $modName)
+    {
+        //
+        // dd($modSeg, $modName=='null');
+
+        
+        if($modSeg=='null' || $modName=='null'){
+            alert()->warning('Please Select both Model Segment and Name', 'Warning')->persistent('Close');
+            return redirect()->route('claimGenerate.index');
+        }
+        $modSeg=decrypt($modSeg);
+        $modName=decrypt($modName);
+
+        $segMaster = DB::table('segment_master')->pluck('segment_name','id');
+        $modelMaster = DB::table('model_master')->where('oem_id',Auth::user()->id)->pluck('model_name','id');
+        // $buyerDetail = DB::table('buyer_details')->where('oem_id',Auth::user()->id)->get();
+        // $buyerDetail = DB::select("select * from details_with_buyer_details where within_120_days = 'true' and claim_id is null and oem_id = ? order by id ASC",Auth::user()->id);
+        // $buyerDetail = DB::table('buyer_details_within_120_days')->where('oem_id',Auth::user()->id)
+        // ->where('within_120_days','true')->whereNull('claim_id')->where('model_id',$modName)->where('segment_id',$modSeg)->get();
+
+        $buyerDetail = DB::table('buyer_details_within_120_days')->where('oem_id',Auth::user()->id)
+        ->where('within_120_days','true')->whereNull('claim_id')->where('model_id',$modName)->where('segment_id',$modSeg)->get();
+
+        // dd($buyerDetail,$modSeg,$modName);
+        return view('oem.claim.claimGenerate',compact('buyerDetail','segMaster','modelMaster','modSeg','modName'));
+    }
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}

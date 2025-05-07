@@ -1,0 +1,155 @@
+   <!-- Nav Bar Ends here -->
+   @extends('layouts.dashboard_master')
+   @section('title')
+       Admin - OEM Details
+   @endsection
+
+   @push('styles')
+   <style>
+    table th {
+    
+    white-space: nowrap;  /* Prevent text from breaking onto a new line */
+   
+}
+</style>
+   @endpush
+   @section('content')
+       <!-- Page Sidebar Ends-->
+       <div class="page-body">
+           <div class="container-fluid">
+               <div class="page-title">
+                   <div class="row">
+                       <div class="col-6">
+                           <h4>OEM Details</h4>
+                       </div>
+                       <div class="col-6">
+                           <ol class="breadcrumb">
+                               <li class="breadcrumb-item"><a href="#">
+                                       <svg class="stroke-icon">
+                                           <use href="assets/svg/icon-sprite.svg#stroke-home"></use>
+                                       </svg></a></li>
+                               <li class="breadcrumb-item">Manage OEM</li>
+                               <li class="breadcrumb-item active">OEM Details</li>
+                           </ol>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           <!-- Container-fluid starts-->
+           <div class="container-fluid">
+               <div class="row">
+                   <div class="col-sm-12">
+                       <div class="card">
+                           <div class="card-body">
+                               <div class="dt-ext table-responsive  custom-scrollbar">
+                                   <table class="display table-bordered table-striped" id="basic-12">
+                                       <thead>
+                                           <tr>
+                                               <th>S.No.</th>
+                                               <th>OEM Name</th>
+                                               {{-- <th>OEM Email Id </th>
+                                               <th>OEM Mobile No. </th> --}}
+                                               <th>Registration Certificate No.</th>
+                                               {{-- <th> Registration Certificate Copy </th> --}}
+                                               {{-- <th> Office Full Address </th> --}}
+                                               <th> Authorised Person Name </th>
+                                               <th> Authorised Person Designation </th>
+                                               {{-- <th> Authorised Person Email Id </th>
+                                               <th> Authorised Person Mobile No. </th> --}}
+                                               <th> Pre-Registration Approved By</th>
+                                               <th> Pre-Registration Approved At </th>
+                                               <th> Post Registration Status </th>
+                                               {{-- <th> Post Registration Action Date </th> --}}
+                                               <th> Post Registration Recommended By</th>
+                                               <th> Post Registration Recommended At</th>
+                                               <th> Post Registration Approved By</th>
+                                               <th> Post Registration Approved At</th>
+                                               <th> E-office Noting Number </th>
+                                               <th> E-office Computer Number </th>
+                                               <th> Action </th>
+                                           </tr>
+                                       </thead>
+                                       <tbody>
+                                        @foreach ($user as $key=>$item)
+                                            <tr>
+                                                <td>{{$key+1}}</td>
+                                                <td>{{$item->name}}</td>
+                                                {{-- <td>{{$item->email}}</td>
+                                                <td>{{$item->mobile}}</td> --}}
+                                                <td>{{$item->registration_no}}</td>
+                                                {{-- <td><a class="mt-2 btn btn-primary btn-sm"
+                                                    href="{{ route('doc.down', encrypt($item->registration_certificate_upload_id)) }}">
+                                                    <i class="fa fa-download"></i>  View 
+                                                 </a></td> --}}
+                                                {{-- <td>{{$item->address}},{{$item->district}},{{$item->city}},{{$item->state}},{{$item->pincode}}</td> --}}
+                                                <td>{{$item->auth_name}}</td>
+                                                <td>{{$item->auth_designation}}</td>
+                                                {{-- <td>{{$item->auth_email}}</td>
+                                                <td>{{$item->auth_mobile}}</td> --}}
+                                                <td> {{$approved_by->where('id',$item->approval_by)->first()->name}}</td>
+                                                <td>{{ $item->approval_at ? date('d-m-y', strtotime($item->approval_at)) : '' }} </td>
+                                                <td class="text-center" 
+                                                @if($item->post_registration_status == 'A') bgcolor="lightgreen" 
+                                                @elseif($item->post_registration_status == 'R') bgcolor="red" 
+                                                @elseif($item->post_registration_status == 'C') bgcolor="lightblue" 
+                                                @else bgcolor="orange" 
+                                                @endif>
+                                                {{ $item->post_registration_status == 'A' ? 'Approved' : ($item->post_registration_status == 'R' ? 'Rejected' : ($item->post_registration_status == 'C' ? 'Recommend' : 'Pending')) }}
+                                            </td>
+                                            
+                                                   {{-- <td class="text-center">
+                                                    {{ $item->post_approval_date ? date('d-m-y', strtotime($item->post_approval_date)) : '' }}
+                                                </td> --}}
+                                                <td class="text-center">
+                                                    {{ $approved_by->where('id', $item->recommended_by)->first() ? $approved_by->where('id', $item->recommended_by)->first()->name : '' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ $item->recommended_at ? date('d-m-y', strtotime($item->recommended_at)) : '' }}
+                                                </td>
+                                                {{-- <td class="text-center">
+                                                    {{ $approved_by->where('id', $item->post_registration_action_by)->first() ? $approved_by->where('id', $item->post_registration_action_by)->first()->name : '' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ $item->post_registration_at ? date('d-m-y', strtotime($item->post_registration_at)) : '' }}
+                                                </td> --}}
+                                                <td class="text-center">
+                                                    {{
+                                                        $item->post_registration_status == 'C' 
+                                                            ? '' 
+                                                            : ($approved_by->where('id', $item->post_registration_action_by)->first() 
+                                                                ? $approved_by->where('id', $item->post_registration_action_by)->first()->name 
+                                                                : '')
+                                                    }}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{
+                                                        $item->post_registration_status == 'C' 
+                                                            ? '' 
+                                                            : ($item->post_registration_at 
+                                                                ? date('d-m-y', strtotime($item->post_registration_at)) 
+                                                                : '')
+                                                    }}
+                                                </td>
+                                                
+                                                <td class="text-center">{{$item->e_office_noting_no}}</td>
+                                                <td class="text-center">{{$item->e_office_computer_no}}</td>
+                                                <td>
+                                                    <a href="{{ route('e-trucks.oemRegistration.edit',$item->id) }}" class="btn btn-sm btn-success">View</a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                           
+                                       </tbody>
+
+                                   </table>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+
+               </div>
+           </div>
+           <!-- Container-fluid Ends-->
+       </div>
+   @endsection

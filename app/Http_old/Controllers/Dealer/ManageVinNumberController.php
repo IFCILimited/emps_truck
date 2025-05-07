@@ -1,0 +1,360 @@
+<?php
+
+namespace App\Http\Controllers\Dealer;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\ReleaseVinDetails;
+use App\Models\BuyerDetail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
+
+class ManageVinNumberController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $isIndex = true;
+        return view('buyer.manage_vin_number', compact('isIndex'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $id = decrypt($id);
+        // dd($request->all(), $id);
+        if($request->type == "1") {
+            try{
+
+            
+            DB::transaction(function () use ($request, $id) {
+
+            
+                $details = DB::table('multi_buyer_details')->select(
+                    'id',
+                    'buyer_id',
+                    'status',
+                    'oem_status',
+                    'vin_count',
+                    'vin_map',
+                    'adh_verify',
+                    'auth_addr',
+                    'landmark',
+                    'pincode',
+                    'state',
+                    'district',
+                    'city',
+                    'mobile',
+                    'adhar_name',
+                    'dob',
+                    'gender',
+                    'custmr_id_no',
+                    'created_at',
+                    'updated_at',
+                    'submitted_at',
+                    'dealer_id',
+                    'created_by',
+                    'submited_by',
+                    'customer_name',
+                    'auth_prs_name'
+                )
+                ->find($id);
+
+                $detailsArray = json_decode(json_encode($details), true);
+                $detailsArray['remark'] = trim($request->remarks);
+                $detailsArray['released_by'] = Auth::user()->id;
+                $detailsArray['released_on'] = Carbon::now();
+                $detailsArray['action_at'] = Carbon::now();
+                    
+                //insert in multi_buyer_Details_release table
+                $createdId = DB::table('multi_buyer_details_release')->insertGetId($detailsArray);
+                
+                //fetch details from buyer details 
+                $buyer_detail = DB::table('buyer_details')->select(
+                        'oem_id',
+                        'dealer_id',
+                        'production_id',
+                        'custmr_typ',
+                        'custmr_name',
+                        "add",
+                        'landmark',
+                        'pincode',
+                        'state',
+                        'district',
+                        'city',
+                        'mobile',
+                        'email',
+                        'custmr_id',
+                        'custmr_id_no',
+                        'addi_cust_id',
+                        'cust_id_sec',
+                        'dlr_invoice_no',
+                        'vihcle_dt',
+                        'amt_custmr',
+                        'invoice_amt',
+                        'addmi_inc_amt',
+                        'tot_inv_amt',
+                        'tot_admi_inc_amt',
+                        'copy_file_uploadid',
+                        'sec_file_uploadeif',
+                        'claim_id',
+                        'invoice_dt',
+                        'gender',
+                        'vin_chassis_no',
+                        'segment_id',
+                        'status',
+                        'sec_file_uploadeid',
+                        'cst_ack_file',
+                        'invc_copy_file',
+                        'vhcl_reg_file',
+                        'vhcl_regis_no',
+                        'oem_remarks',
+                        'oem_status',
+                        'oem_status_at',
+                        'discount_given',
+                        'discount_amt',
+                        'empsbeforeafter',
+                        'dob',
+                        'child_id',
+                        'aadhaarconsent',
+                        'pma_status',
+                        'pma_process_by',
+                        'pma_process_at',
+                        'expiry_120',
+                        'buyer_id',
+                        'adh_verify',
+                        'buyer_submitted_at',
+                        'certificate_num',
+                        'temp_reg_no',
+                        'pan',
+                        'pancopy_id',
+                        'gstin',
+                        'gstin_id',
+                        'adhar_name'
+                )->where('buyer_id', $detailsArray["buyer_id"])->get();
+                $createdIds = [];
+
+                foreach($buyer_detail as $buy_det) {
+                    $buyerDetailsArray = json_decode(json_encode($buy_det), true);
+                    $buyerDetailsArray['remarks'] = "BULK VIN RELEASE";
+                    $buyerDetailsArray['user_action'] = trim($request->action);
+                    $buyerDetailsArray['action_by'] = Auth::user()->id;
+                    $buyerDetailsArray['created_at'] = Carbon::now();
+                    $buyerDetailsArray['action_at'] = Carbon::now();
+    
+                    $createdIds[] = ReleaseVinDetails::insertGetId($buyerDetailsArray);
+                }
+
+                BuyerDetail::where('buyer_id', $detailsArray["buyer_id"])->delete();
+                DB::table('multi_buyer_details')->where('buyer_id', $detailsArray["buyer_id"])->delete();
+
+
+                // $isError = true;
+                // $message = "Something went Wrong !";
+                // if($createdId && count($createdIds) > 0) {
+                //     BuyerDetail::where('buyer_id', $detailsArray["buyer_id"])->delete();
+                //     DB::table('multi_buyer_details')->where('buyer_id', $detailsArray["buyer_id"])->delete();
+                //     $isError = false;
+                // }
+                // if($isError){
+                //     alert()->error($message, 'Error')->persistent('Close');
+                // }else{
+                //     $message = "VIN released successfully !";
+                //     alert()->success($message, 'Success')->persistent('Close');
+                // }
+
+                $message = "VIN released successfully !";
+                alert()->success($message, 'Success')->persistent('Close');
+            });
+
+            return redirect()->route('manage_vin_number.index');
+
+        }catch(\Exception $ex){
+            return redirect()->back();
+        }
+            
+
+        }
+
+        $message = null;
+        $isError = false;
+            $detail = DB::table('buyer_details')->select(
+                    'oem_id',
+                    'dealer_id',
+                    'production_id',
+                    'custmr_typ',
+                    'custmr_name',
+                    "add",
+                    'landmark',
+                    'pincode',
+                    'state',
+                    'district',
+                    'city',
+                    'mobile',
+                    'email',
+                    'custmr_id',
+                    'custmr_id_no',
+                    'addi_cust_id',
+                    'cust_id_sec',
+                    'dlr_invoice_no',
+                    'vihcle_dt',
+                    'amt_custmr',
+                    'invoice_amt',
+                    'addmi_inc_amt',
+                    'tot_inv_amt',
+                    'tot_admi_inc_amt',
+                    'copy_file_uploadid',
+                    'sec_file_uploadeif',
+                    'claim_id',
+                    'invoice_dt',
+                    'gender',
+                    'vin_chassis_no',
+                    'segment_id',
+                    'status',
+                    'sec_file_uploadeid',
+                    'cst_ack_file',
+                    'invc_copy_file',
+                    'vhcl_reg_file',
+                    'vhcl_regis_no',
+                    'oem_remarks',
+                    'oem_status',
+                    'oem_status_at',
+                    'discount_given',
+                    'discount_amt',
+                    'empsbeforeafter',
+                    'dob',
+                    'child_id',
+                    'aadhaarconsent',
+                    'pma_status',
+                    'pma_process_by',
+                    'pma_process_at',
+                    'expiry_120',
+                    'buyer_id',
+                    'adh_verify',
+                    'buyer_submitted_at',
+                    'certificate_num',
+                    'temp_reg_no',
+                    'pan',
+                    'pancopy_id',
+                    'gstin',
+                    'gstin_id',
+                    'adhar_name'
+            )->find($id);
+
+            $detailsArray = json_decode(json_encode($detail), true);
+            $detailsArray['remarks'] = trim($request->remarks);
+            $detailsArray['user_action'] = trim($request->action);
+            $detailsArray['action_by'] = Auth::user()->id;
+            $detailsArray['created_at'] = Carbon::now();
+            $detailsArray['action_at'] = Carbon::now();
+
+            $createdId = ReleaseVinDetails::insertGetId($detailsArray);
+            $isError = true;
+            $message = "Something went Wrong !";
+
+            if($createdId) {
+                BuyerDetail::destroy($id);
+                $isError = false;
+            }
+            if($isError){
+                alert()->error($message, 'Error')->persistent('Close');
+            }else{
+                $message = "Customer updated successfully !";
+                if($request->action == "release") {
+                    $message = "VIN released successfully !";
+                }
+                alert()->success($message, 'Success')->persistent('Close');
+            }
+            return redirect()->route('manage_vin_number.index');
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+
+    public function getCustomerDetails(Request $request){
+        $buyerId = $request->vin_num;
+        $isIndex = false;
+
+        $details =DB::table('multi_buyer_details')
+        ->where('buyer_id', $buyerId)
+        ->where('dealer_id', Auth::user()->id)
+        ->first();
+        $isBulk = false;
+        if($details) {
+            $isBulk = true;
+            return view('buyer.manage_vin_number', compact('buyerId', 'details', 'isIndex', 'isBulk'));
+        }
+
+        $details = DB::table('buyer_details_view')
+        ->select('id', 'custmr_name', 'vin_chassis_no', 'segment_name', 'model_name', 'factory_price', 'oem_status', 'status')
+        ->where('buyer_id', $buyerId)
+        ->where('dealer_id', Auth::user()->id) // Corrected method call
+        // ->orWhere('buyer_id', (int)$vinNumber) // Ensure this is intended; might need grouping
+        ->first();
+
+        return view('buyer.manage_vin_number', compact('buyerId', 'details', 'isIndex', 'isBulk'));
+    }
+}

@@ -1,0 +1,243 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use DB;
+
+class AdvConnectorController extends Controller
+{
+
+    private string $advUsername = "sumit.kr88@gov.in";
+    private string $advPassword = "Pmedrive@123";
+    private string $advXKey = "9a94cda5-0fce-4a25-9550-2d0580820b52";
+    private string $authKey = "5778d755868443ed7c7a190531dc6899441b9a71362127d9e0c94afec0a33531";
+    private string $stagingUrl = "https://10.246.133.100/adv-api/1.1.4";
+
+    private string $prodAdvUsername = "sumit.kr88@gov.in";
+    private string $prodAdvPassword = "PmEdriVe@586";
+    private string $prodAdvXKey = "9a94cda5-0fce-4a25-9550-2d0580820b52";
+    private string $prodAuthKey = "5778d755868443ed7c7a190531dc6899441b9a71362127d9e0c94afec0a33531";
+    private string $productionUrl = "https://10.246.135.208/adv-api/1.1.4";
+
+    public function storeAadharNumber(Request $request) {
+        
+        // return $request->all();
+
+        $requestHeaders = $this->getCurlParams();
+        
+        if(array_key_exists('status', $requestHeaders) && $requestHeaders['status'] == 0) {
+            //return token generation error
+            return response()->json($requestHeaders, 500);
+        }
+        
+        //staging url
+        // $url = $this->stagingUrl."/Tokens/Tokenize";
+        // if(app()->environment('production')) {
+            //production url
+            $url = $this->productionUrl."/Tokens/Tokenize";
+        // }
+        $body = [
+            'kdata' => $request->aadhar_number,
+            'key' => $requestHeaders['key'],
+            'txn' => $requestHeaders['txnId'],
+        ];
+        $headers = $requestHeaders['headers'];
+        $curlResponse = $this->sendCurlRequest($url, $headers, $body, "post");
+        $validStatus = [1,2];
+        
+        if($curlResponse["status"] == 1 && in_array($curlResponse["message"]["status"], $validStatus)){
+            //checking rtoken exist in response or not
+            if(!isset($curlResponse["message"]["rtoken"])) {
+                return response()->json(['status' => 0, 'message' => 'rtoken not present in ADV API response', 'details' => $curlResponse["message"]], 500);
+            }
+            // return $curlResponse["message"];
+            //save response token in db
+            $ref_token = $curlResponse["message"]["rtoken"];
+            $txn_id = $curlResponse["message"]["txn"];
+
+            DB::table('adv_data_token')->insert([
+                "txn_id" => $txn_id,
+                "rtoken" => $ref_token,
+                "buyer_id" => $request->buyer_id
+            ]);
+            
+            return response()->json([
+                'status' => 1,
+                'message' => [
+                    'token' => $ref_token,
+                    'txn' => $txn_id,
+                ]
+            ], 200);
+        }
+        //return error array
+        return response()->json(['status' => 0, 'message' => 'Error while tokenizing aadhar number', 'details' => $curlResponse["message"]], 500);
+    }
+
+    public function fetchAadharNumber(Request $request) {
+        $requestHeaders = $this->getCurlParams();
+        if(array_key_exists('status', $requestHeaders) && $requestHeaders['status'] == 0) {
+            //return token generation error
+            return response()->json($requestHeaders, 500);
+        }
+
+        // $url = $this->stagingUrl."/Tokens/Detokenize";
+        // if(app()->environment('production')) {
+            //production url
+            $url = $this->productionUrl."/Tokens/Detokenize";
+        // }
+
+        $body = [
+            'kdata' => $request->rtoken,
+            'key' => $requestHeaders['key'],
+            'txn' => $requestHeaders['txnId'],
+            'uname' => $this->prodAdvUsername,
+            'upwd' => $this->prodAdvPassword
+        ];
+        $headers = $requestHeaders['headers'];
+        $curlResponse = $this->sendCurlRequest($url, $headers, $body, "post");
+        if($curlResponse["status"] == 1 && $curlResponse["message"]["status"] == 1){
+            //save response token in db
+            $adr_num = $curlResponse["message"]["ret_data"];
+            $txn_id = $curlResponse["message"]["txn"];
+            
+            return response()->json([
+                'status' => 1,
+                'message' => [
+                    'aadhar_number' => $adr_num,
+                    'txn' => $txn_id,
+                ]
+            ], 200);
+        }
+        return response()->json(['message' => 'Error while detokenizing aadhar number', 'details' => $curlResponse], 500);
+    }
+
+    private function getCurlParams() {
+        
+        $clientAuthKey = $this->prodAuthKey;
+        $bearerData = $this->getBearerToken();
+        // dd("bearer", $bearerData);
+        if (array_key_exists('status', $bearerData) && $bearerData['status'] == 0) {
+            //return error array
+            return ['status' => 0 , 'message' => 'Error while generating bearer token', 'info' => $bearerData['error']];
+        }
+        return [
+            "headers" => [
+                'Content-Type: application/json',
+                'accept: application/json',
+                'Authorization: Bearer '.$bearerData["token"], // Replace with your token if needed
+            ],
+            'key' => $clientAuthKey,
+            'txnId' => $bearerData['txn_id']
+        ];
+    }
+    public function tokenTest(){
+        return $this->getBearerToken();
+    }
+
+    private function getBearerToken(){
+        //staging url
+        // $url = $this->stagingUrl."/authenticate";
+        // if(app()->environment('production')) {
+            //production url
+            $url = $this->productionUrl."/authenticate";
+        // }
+
+        //<Application_id>-<YYYYMMDD>-<time_HHMMSS>-<6_digit_incrementing_num_000001_to_999999>
+        
+        $result = DB::select("SELECT LPAD(nextval('adv_txn_id_seq')::TEXT, 6, '0')");
+        $nextSequence = null;
+        if(isset($result[0])) {
+            $nextSequence = $result[0]->lpad;
+        }
+
+        if(!$nextSequence) {
+            return ['status' => 0, 'error' => 'Error while generating sequence'];
+        }
+
+        $currentDate = Carbon::now('Asia/Kolkata');
+        $addedHourDate =  $currentDate->copy()->addDay(1);
+        $date = $currentDate->format('Ymd');
+        $dateTime = $currentDate->format('His');
+        $app_id = "PMEDRIVE";
+        $txnId = $app_id."-".$date."-".$dateTime."-".$nextSequence;
+
+        
+        $fetchOldToken = DB::table('adv_auth_token')->select('token')->where('expire_at', '>', $currentDate)->orderBy('id', 'desc')->first();
+
+        if($fetchOldToken){
+            return ['token' => $fetchOldToken->token, 'txn_id' => $txnId];
+        }
+
+        $xKey = $this->prodAdvXKey;
+        $authKey = $this->prodAuthKey;
+        $username = $this->prodAdvUsername;
+        $password = $this->prodAdvPassword;
+
+        $body = [
+            'key' => $authKey,
+            'txn' => $txnId,
+            'username' => $username,
+            'password' => $password
+        ];
+
+        $headers = [
+            'x-api-key: '.$xKey,
+            'Content-Type: application/json'
+        ];
+        $token = $this->sendCurlRequest($url, $headers, $body, 'post');
+        // dd($token,$token["message"],$token["message"]['status'],$token["status"]);
+        if($token["status"] == 1 && $token["message"]["status"] == 1){
+            $tokenReceived = $token["message"]["ret_data"];
+            //insert JWT in db
+            DB::table('adv_auth_token')->insert([
+                'token' => $tokenReceived,
+                'created_at' => $currentDate,
+                'expire_at' => $addedHourDate
+            ]);
+
+            //return bearer token
+            return ['token' => $token["message"]["ret_data"], 'txn_id' =>  $token["message"]["txn"]];
+        }
+        //return error array
+        return $token;
+    }
+
+    private function sendCurlRequest($url, $headers, $body, $method) {
+        // Initialize cURL session
+        $ch = curl_init();
+        // Set the URL you want to send the request to
+        // $url = 'https://api.example.com/endpoint'; // Replace with your API endpoint
+        curl_setopt($ch, CURLOPT_URL, $url);
+        // Specify that you want to send a POST request
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // Return the response instead of outputting it
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //debuging messages
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+        //disable ssl verify
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        // Execute the request
+        $response = curl_exec($ch);
+
+        // Check for errors
+        if (curl_errno($ch)) {
+            return ['status' => 0 ,'error' => curl_error($ch)];
+        }
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Return the response
+        return ['status' => 1 ,'message' => json_decode($response, true)];
+    }
+
+}

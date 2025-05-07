@@ -1,0 +1,374 @@
+<?php
+
+namespace App\Http\Controllers\Dealer;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use DB;
+use Auth;
+use App\Models\ModelVerification;
+use App\Models\User;
+use App\Models\DocumentUpload;
+use App\Models\BuyerDetail;
+use Exception;
+use App\Models\SMS;
+use App\Http\Requests\OtpRequest;
+use Session;
+
+// use App\Http\request\BuyerDetailRequest;
+// use App\Http\Requests\BuyerDetailRequest;
+
+
+class BuyerDetailController extends Controller
+{
+    public function index()
+    {
+        try {
+            $bankDetail = DB::table('buyer_details_view')
+                ->where(function ($query) {
+                    $query->where('oem_status', '!=', 'R')
+                        ->orWhereNull('oem_status');
+                })
+                ->where('dealer_id', Auth::user()->id)
+                ->orderBy('buyer_details_view.id', 'DESC')
+                ->get();
+                
+                // dd($bankDetail);
+            return view('buyer.index', compact('bankDetail'));
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+
+    }
+
+    public function getcode($vin, $oemid)
+    {
+
+        $vinchasis = DB::table('vw_vin_details')->where('vin_chassis_no', $vin)->where('oem_id', $oemid)->get();
+
+
+        $count = DB::table('buyer_details')->where('vin_chassis_no', $vin)->count();
+
+        $tot_inc_amt = DB::select("SELECT total_incentive_amount('$vin') AS total_incentive_amount")[0]->total_incentive_amount;
+
+        $response = array(
+            'data1' => $vinchasis,
+            'data2' => $count,
+            'data3' => $tot_inc_amt,
+        );
+        // dd($response);
+
+        return $response;
+    }
+
+    
+    public function create()
+    {
+        try {
+            $user = User::where('id', Auth::user()->id)->first();
+            $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
+            $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+            $minDate = '2024-04-01';
+            $maxDate = '2024-09-30';
+
+            return view('buyer.create', compact('user', 'type', 'oemname', 'minDate', 'maxDate'));
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+    public function store(Request $request)
+    {
+        // dd($request);
+        try {
+
+
+            DB::transaction(function () use ($request) {
+
+                $file_copy_first_id = null;
+                if ($request->hasFile('custmr_file_copy')) {
+
+                    $file = $request->custmr_file_copy;
+                    $response = uploadFileWithCurl($file);
+                    $file_copy_first_id = $response;
+
+                }
+                $file_copy_sec_id = null;
+
+                if ($request->hasFile('cust_sec_file')) {
+
+                    $file = $request->cust_sec_file;
+                    $response = uploadFileWithCurl($file);
+                    $file_copy_sec_id = $response;
+
+                }
+                if ($request->custmr_typ == 1) {
+                    $lastFourDigits = substr($request->custmr_id_no, -4);
+
+                } else {
+                    $lastFourDigits = $request->custmr_id_no;
+                }
+                $BuyerDetail = new BuyerDetail;
+                $BuyerDetail->oem_id = $request->oem_id;
+                $BuyerDetail->dealer_id = $request->dealer_id;
+                $BuyerDetail->production_id = $request->production_id;
+                $BuyerDetail->custmr_typ = $request->custmr_typ;
+                $BuyerDetail->custmr_name = $request->custmr_name;
+                $BuyerDetail->add = $request->add;
+                $BuyerDetail->landmark = $request->landmark;
+                $BuyerDetail->pincode = $request->Pincode;
+                $BuyerDetail->state = $request->State;
+                $BuyerDetail->district = $request->District;
+                $BuyerDetail->city = $request->City;
+                $BuyerDetail->mobile = $request->mobile;
+                $BuyerDetail->email = $request->email;
+                $BuyerDetail->dob = $request->dob;
+                $BuyerDetail->custmr_id = $request->custmr_id;
+                $BuyerDetail->custmr_id_no = $lastFourDigits;
+                $BuyerDetail->addi_cust_id = $request->addi_cust_id;
+                $BuyerDetail->cust_id_sec = $request->cust_id_sec;
+                $BuyerDetail->dlr_invoice_no = $request->dlr_invoice_no;
+                $BuyerDetail->vihcle_dt = $request->vihcle_dt;
+                $BuyerDetail->amt_custmr = $request->amt_custmr;
+                $BuyerDetail->invoice_amt = $request->invoice_amt;
+                $BuyerDetail->addmi_inc_amt = $request->addmi_inc_amt;
+                $BuyerDetail->tot_inv_amt = $request->tot_inv_amt;
+                $BuyerDetail->tot_admi_inc_amt = $request->tot_admi_inc_amt;
+                // $BuyerDetail->copy_file_uploadid = $file_copy_first->id;
+                $BuyerDetail->copy_file_uploadid = $file_copy_first_id != null ? $file_copy_first_id : null;
+                // $BuyerDetail->copy_file_uploadid = $doc_id != null ? $doc_id : null;
+                // $BuyerDetail->sec_file_uploadeid = $file_copy_sec->id != null ? $file_copy_sec->id : null;
+                $BuyerDetail->sec_file_uploadeid = $file_copy_sec_id != null ? $file_copy_sec_id : null;
+                $BuyerDetail->gender = $request->gender;
+                $BuyerDetail->vin_chassis_no = $request->vin;
+                $BuyerDetail->segment_id = $request->segment_id;
+                $BuyerDetail->invoice_dt = $request->invoice_dt;
+                $BuyerDetail->status = 'D';
+                $BuyerDetail->discount_given = $request->discount;
+                $BuyerDetail->discount_amt = $request->discount == 1 ? $request->discountAmount : null;
+                $BuyerDetail->empsbeforeafter = $request->empsBeforeAfter;
+                $BuyerDetail->aadhaarconsent = $request->aadhaarConsent=='on' ? 'Y' : Null;
+                $BuyerDetail->save();
+
+                DB::table('buyers_aadhar')->insert([
+                    'buyer_id' => $BuyerDetail->id,
+                    'aadhar_number' => $request->custmr_id_no,
+                ]);
+            });
+            alert()->success('Data has been successfully save.', 'Success')->persistent('Close');
+            return redirect()->route('buyerdetail.index');
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+    }
+
+
+    public function edit($id)
+    {
+        try {
+            $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+            $user = User::where('id', Auth::user()->id)->first();
+            $bankDetail = DB::table('buyer_details_view as bd')
+                ->where('id', $id)->first();
+            $customerId = (int) $bankDetail->custmr_id;
+            $prodDet = DB::table('production_data')->where('id', $bankDetail->production_id)->first();
+            // dd($prodDet);
+            $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
+
+            $cat = DB::table('customer_doc_verf_type')
+                ->where('id', $customerId)
+                ->first();
+            $minDate = '2024-04-01';
+            $maxDate = '2024-09-30';
+
+            return view('buyer.buyer_edit', compact('bankDetail', 'prodDet', 'user', 'id', 'type', 'cat', 'oemname', 'minDate', 'maxDate'));
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+
+    }
+    public function type($val,$stats)
+    {
+        
+        if($val == 1 && $stats == 'ASSAM'){
+            $type = DB::table('customer_doc_verf_type')->wherein('id', [1,2])->get();
+            // dd($type,1);
+        }
+        elseif($val == 1) {
+            $type = DB::table('customer_doc_verf_type')->where('id', 1)->get();
+            // dd($type,2);
+        }
+        
+        else {
+            $type = DB::table('customer_doc_verf_type')->wherein('id', [2, 7])->get();
+            // dd($type,3);
+        }
+
+
+        return $type;
+    }
+
+    public function CheckAdhar($name, $adhar, $segid)
+    {
+        // $data = DB::select("select check_data_exists('".$adhar."','".$segid."','".$name."')");
+        // $data = DB::select('select check_data_exists(?, ?, ?)', [$adhar, $segid, $name]);
+
+        // add 18-07-2024 mobile
+        $data = DB::select('select check_data_exists_mobile(?, ?, ?)', [$adhar, $segid, $name]);
+        return ['data' => $data];
+    }
+
+   //11-07-2024
+public function sendOtp($mobile, $otp)
+    {
+ 
+        // for Mobile OTP  Aadhar Verification ################################
+ 
+        // $msg_mail = 'One Time Passowrd(OTP) for Login: ' . $otp . ' Do not share this OTP with anyone! IFCI Ltd';
+        // $smsResponse = sendSMSAPI($mobile, $msg_mail);
+ 
+        $portal_name=env('APP_NAME');
+        $msg_mail = $otp .' is the OTP to verify your mobile number with '. env('APP_NAME') .'-2024 portal. %0A%0AKindly share this code with your dealer.'.$portal_name.', IFCI LIMITED';
+        $smsResponse = sendSMS($mobile, $msg_mail);
+ 
+        // dd($smsResponse);
+        if ($smsResponse === 'false') {
+            $resp['error'] = 1;
+            $resp['message'] = 'SMS not sent';
+        } else {
+            Session::put('verifyOTP', $otp);
+ 
+            $resp['error'] = 0;
+            $resp['message'] = 'OTP generated and sent.';
+        }
+ 
+    }
+
+    public function verifybuyer(request $request, $otp)
+    {
+        $OTP = (int) $request->session()->get('verifyOTP');
+        $enteredOtp = (int) $otp;
+
+        // dd($OTP,$enteredOtp,($OTP === $enteredOtp));
+        if ($OTP === $enteredOtp) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+    public function update(Request $request, $id)
+    {
+        // dd($request);
+        try {
+            DB::transaction(function () use ($request, $id) {
+
+                $data = DB::table('buyer_details')->where('id', $id)->first();
+
+                $filedata = '';
+                $file = '';
+
+                if ($request->hasFile('custmr_file_copy')) {
+
+                    $file = $request->custmr_file_copy;
+                    $response = uploadFileWithCurl($file);
+                    $file_copy_first_id = $response;
+                }
+
+                if ($request->hasFile('cust_sec_file')) {
+
+                    $file = $request->cust_sec_file;
+                    $response = uploadFileWithCurl($file);
+                    $file_copy_sec_id = $response;
+                }
+
+
+                if ($request->custmr_typ == 1) {
+                    $lastFourDigits = substr($request->custmr_id_no, -4);
+
+                } else {
+                    $lastFourDigits = $request->custmr_id_no;
+                }
+
+                $BuyerDetail = BuyerDetail::find($id);
+
+                $BuyerDetail->production_id = $request->production_id == null ? $request->prod_id : $request->production_id;
+                $BuyerDetail->custmr_typ = $request->custmr_typ;
+                $BuyerDetail->custmr_name = $request->custmr_name;
+                $BuyerDetail->add = $request->add;
+                $BuyerDetail->landmark = $request->landmark;
+                $BuyerDetail->pincode = $request->Pincode;
+                $BuyerDetail->state = $request->State;
+                $BuyerDetail->district = $request->District;
+                $BuyerDetail->city = $request->City;
+                $BuyerDetail->mobile = $request->mobile;
+                $BuyerDetail->email = $request->email;
+                $BuyerDetail->dob = $request->dob;
+                $BuyerDetail->custmr_id = $request->custmr_id;
+                $BuyerDetail->custmr_id_no = $lastFourDigits;
+                $BuyerDetail->addi_cust_id = $request->addi_cust_id;
+                $BuyerDetail->cust_id_sec = $request->cust_id_sec;
+                $BuyerDetail->dlr_invoice_no = $request->dlr_invoice_no;
+                $BuyerDetail->vihcle_dt = $request->vihcle_dt;
+                $BuyerDetail->amt_custmr = $request->amt_custmr;
+                $BuyerDetail->invoice_amt = $request->invoice_amt;
+                $BuyerDetail->addmi_inc_amt = $request->addmi_inc_amt;
+                $BuyerDetail->tot_inv_amt = $request->tot_inv_amt;
+                $BuyerDetail->tot_admi_inc_amt = $request->tot_admi_inc_amt;
+                // $BuyerDetail->copy_file_uploadid = $file_copy_first->id;
+                if ($request->hasFile('custmr_file_copy')) {
+                    $BuyerDetail->copy_file_uploadid = $file_copy_first_id;
+                }
+                if ($request->hasFile('cust_sec_file')) {
+                    $BuyerDetail->sec_file_uploadeid = $file_copy_sec_id;
+                }
+                $BuyerDetail->gender = $request->gender;
+                // $BuyerDetail->vin_chassis_no =$request->vin != null? $data->vin_chassis_no;
+                $BuyerDetail->vin_chassis_no = $request->vin != null ? $request->vin : $data->vin_chassis_no;
+                $BuyerDetail->segment_id = $request->segment_id;
+                $BuyerDetail->invoice_dt = $request->invoice_dt;
+                $BuyerDetail->discount_given = $request->discount;
+                $BuyerDetail->discount_amt = $request->discount == 1 ? $request->discountAmount : null;
+                $BuyerDetail->empsbeforeafter = $request->empsBeforeAfter;
+                $BuyerDetail->aadhaarconsent = $request->aadhaarConsent=='on' ? 'Y' : Null;
+                $BuyerDetail->save();
+
+                DB::table('buyers_aadhar')->insert([
+                    'buyer_id' => $BuyerDetail->id,
+                    'aadhar_number' => $request->custmr_id_no,
+                ]);
+
+            });
+            alert()->success('Data has been successfully updated.', 'Success')->persistent('Close');
+
+            return redirect()->back();
+        } catch (Exception $e) {
+            errorMail($e, Auth::user()->id);
+            return redirect()->back();
+        }
+
+    }
+    
+    public function aadhar_api_data(request $request){
+
+        // dd($request->all());
+        // $customer = json_decode($cust);
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+
+        $apiStore = DB::table('aadhar_api_data')->insert([
+            'name' => $request->CustomerName,
+            'mobile'	=> $request->Mobile,
+            'aadharno'	=> $request->AadharNumber,
+            'ip'	=> $ipAddress,
+            'api_resp'	=> $request->rep,
+            'user_id'	=> Auth::user()->id,
+        ]);
+
+        return true;
+       
+
+    }
+
+}

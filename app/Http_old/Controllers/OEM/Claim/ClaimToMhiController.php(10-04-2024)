@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Http\Controllers\OEM\Claim;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\ClaimMaster;
+use App\ClaimLots;
+// use App\ClaimDetail;
+use App\BuyerDetail;
+use Auth;
+use DB;
+use Exception;
+use Carbon\Carbon;
+
+class ClaimToMhiController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+        // $segMaster = DB::table('segment_master')->pluck('segment_name');
+        // $modelMaster = DB::table('model_master')->where('oem_id',Auth::user()->id)->pluck('model_name','id');
+
+        $claimMaster = ClaimMaster::where('oem_id',Auth::user()->id)->whereNull('lot_id')->get();
+
+        // dd($segMaster,$buyerDetail,$modelMaster);
+        
+        return view('oem.claim.claimToMhi',compact('claimMaster'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+        DB::transaction(function () use ($request) {
+
+                $claimLot= new ClaimLots;
+                $claimLot->oem_id=Auth::user()->id;
+                $claimLot->created_by= Auth::user()->id;
+                $claimLot->created_at= Carbon::now();
+                $claimLot->save();
+
+                
+                foreach ($request->check as $key=>$check) {
+
+                    $claimMaster = ClaimMaster::where('id',$check)->first();
+                    $claimMaster->lot_id = $claimLot->id;
+                    $claimMaster->save();
+                    // dd($request,$buyerDetail);
+                }
+                
+            });
+
+
+        alert()->success('Claim Lot Generation Successful', 'Success')->persistent('Close');
+        return redirect()->route('claimToMhi.index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        //
+        $array = [];
+        foreach($request->check as $key=>$check){
+            // dd($request->check);
+            // $array[] =  $check;
+            array_push($array, $check);
+
+        }
+        // dd($array);
+        $claimMaster = DB::table('claim_master')->where('oem_id',Auth::user()->id)->whereIn('id',$array)->whereNull('lot_id')->get();
+        // dd($array,$claimMaster);
+        // $id = $request->input('ids');
+        // $array = explode(",", $id);
+    
+        return view('oem.claim.claimToMhiShow',compact('claimMaster'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}

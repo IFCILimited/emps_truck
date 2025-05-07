@@ -1,0 +1,147 @@
+   <!-- Nav Bar Ends here -->
+   @extends('layouts.dashboard_master')
+   @section('title')
+       Admin - Generate Vahan Report
+   @endsection
+
+   @push('styles')
+   @endpush
+   @section('content')
+       <div class="page-body">
+           <div class="container-fluid">
+                <div class="page-title">
+                   <div class="row">
+                       <div class="col-6">
+                           <h4>Generate Vahan Report</h4>
+                       </div>
+                       <div class="col-6">
+                           <ol class="breadcrumb">
+                               <li class="breadcrumb-item"><a href="#">
+                                       <svg class="stroke-icon">
+                                           <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-home') }}"></use>
+                                       </svg></a></li>
+                               <li class="breadcrumb-item active">Generate Vahan Report</li>
+                           </ol>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           <div class="container-fluid">
+
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            {{-- <button class="btn btn-primary" >print</button> --}}
+                            <table id="export-button" class="table table-stripped">
+                                <thead>
+                                    <tr>
+                                        <th>SL. No.</th>
+                                        <th>Indicator</th>
+                                        <th>Previous Month ({{\Carbon\Carbon::parse($previous_month)->format('M Y')}})</th>
+                                        <th>Current Month ({{\Carbon\Carbon::parse($current_month)->format('M Y')}})</th>
+                                        <th>Current Month previous FY ({{\Carbon\Carbon::parse($current_month_prev_year)->format('M Y')}})</th>
+                                        <th>Year to date (Current FY) ({{\Carbon\Carbon::parse($prev_financial_date)->format('d/m/Y')}} - {{\Carbon\Carbon::parse($lastDateOfMonth)->format('d/m/Y')}})</th>
+                                        <th>Year to Date (Previous FY i.e. {{\Carbon\Carbon::parse($previous_financial_starting_year_to_date)->format('d/m/Y')}} - {{\Carbon\Carbon::parse($previous_financial_ending_year_to_date)->format('d/m/Y')}}) </th>
+                                        <th>% Change in YTD from previous FY</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $currentYTD = $results->current_date_financial_total + $results_emps->current_date_financial_total;
+                                        $previousYTD = $results->current_date_previous_financial_total + $results_emps->current_date_previous_financial_total;
+
+                                        if($previousYTD == 0) {
+                                            $percentChange = 0;
+                                        }else{
+                                            $percentChange = ($currentYTD / $previousYTD ) * 100;
+                                        }
+
+                                        $currentVoucherYTD = $evoucher_issued->current_date_financial_evoucher_generated;
+                                        $previoudVoucherYTD = $evoucher_issued->current_date_financial_previous_evoucher_generated;
+
+                                        if($previoudVoucherYTD == 0){
+                                            $percentVoucherChange = 0;
+                                        }else{
+                                            $percentVoucherChange = ($currentVoucherYTD / $previoudVoucherYTD) * 100;
+                                        }
+                                        
+                                    @endphp
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Number of e-vehicles supported under PM E Drive Scheme*</td>
+                                        <td>{{number_format($results->prev_month_total + $results_emps->prev_month_total)}}</td>
+                                        <td>{{number_format($results->current_month_total + $results_emps->current_month_total)}}</td>
+                                        <td>{{number_format($results->current_month_previous_finance_total + $results_emps->current_month_previous_finance_total)}}</td>
+                                        <td>{{number_format($currentYTD)}}</td>
+                                        <td>{{number_format($previousYTD)}}</td>
+                                        <td>{{$percentChange < 100 ?  number_format($percentChange).'%' : '100%'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Number of e-vouchers issued for incentive disbursement under PM E-Drive*</td>
+                                        <td>{{number_format($evoucher_issued->previous_month_evoucher_generated)}}</td>
+                                        <td>{{number_format($evoucher_issued->current_month_evoucher_generated)}}</td>
+                                        <td>{{number_format($evoucher_issued->current_month_prev_year_evoucher_generated)}}</td>
+                                        <td>{{number_format($currentVoucherYTD)}}</td>
+                                        <td>{{number_format($previoudVoucherYTD)}}</td>
+                                        <td>{{$percentVoucherChange < 100 ?  number_format($percentVoucherChange).'%' : '100%'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            {{-- <div class="row">
+                                <div class="col-md-3">
+                                    <label for="segment">Select Segment</label>
+                                    <select class="form-control" id="segment" name="segment">
+                                        <option value="">Select Segment</option>
+                                        <option value="all">All</option>
+                                        <option value="1">e-2W</option>
+                                        <option value="2">e-3W</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="segment">From:</label>
+                                            <input class="form-control" type="date" name="from_date" placeholder="YYYY-MM-DD" onchange="addValidationIndate(this, 'min','to_date')"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="segment">To:</label>
+                                            <input class="form-control" type="date" name="to_date" placeholder="YYYY-MM-DD" onchange="addValidationIndate(this, 'max','from_date')"/>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-md-3 mt-2 d-flex align-items-center">
+                                    <button type="submit" class="btn btn-success w-100">Download</button>
+                                </div>
+                            </div> --}}
+                        </div>
+                    </div>
+                </div>
+           </div>
+
+
+       </div>
+   @endsection
+   @push('scripts')
+   <script>
+
+// function printSection() {
+//     var content = document.getElementById("table-data").innerHTML;
+//     var printWindow = window.open('', '', 'height=800,width=800');
+//     printWindow.document.write('<html><head><title>Print</title>');
+//     printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>'); // Optional styling
+//     printWindow.document.write('</head><body>');
+//     printWindow.document.write(content);
+//     printWindow.document.write('</body></html>');
+//     printWindow.document.close();
+//     printWindow.print();
+// }
+
+    function addValidationIndate(elem, atr, target)
+    {
+        $(`input[name=${target}]`).attr(atr, elem.value);
+    }
+
+   </script>
+   @endpush

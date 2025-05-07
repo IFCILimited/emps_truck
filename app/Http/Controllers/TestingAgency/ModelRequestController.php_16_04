@@ -1,0 +1,270 @@
+<?php
+
+namespace App\Http\Controllers\TestingAgency;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use DB;
+use Auth;
+use App\OemModelMaster;
+use App\OemModelDetail;
+use App\DocumentUpload;
+use Exception;
+use Carbon\Carbon;
+class ModelRequestController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $models = 
+
+        DB::table("model_master as mm")
+        ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+        ->join('users as u', 'u.id', '=', 'mm.oem_id')
+	->join('segment_master as sm', 'sm.id', '=', 'mm.segment_id')
+	->join('category_master as cm', 'cm.id', '=', 'mm.vehicle_cat_id')
+        ->where('omd.testing_agency_id',Auth::user()->id)
+        ->where('omd.status','S')
+        ->select('u.name','mm.*','omd.*','sm.segment_name','cm.category_name')
+        ->get();
+      
+  
+        
+        return view('testingagency.modelRequests',compact('models'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create($id)
+    {
+        $id = decrypt($id);
+
+        // $model = DB::table("model_master as mm")
+        // ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+        // ->join('users as u', 'u.id', '=', 'mm.oem_id')
+        // ->select('u.name','mm.*','omd.*')
+        // ->where('omd.testing_agency_id',Auth::user()->id)
+        // ->where('mm.id',$id)
+        // ->first();
+        // dd($model);
+
+        $model = DB::table('vw_model_details')->where('model_id', $id)->where('testing_agency_id',Auth::user()->id)->first();
+        // dd($model);
+        return view('testingagency.modelVerification',compact('model'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        // dd($request);
+        try{
+            DB::transaction(function () use ($request) {
+
+                if ($request->hasFile('certificate')) {
+
+                $fileContents = base64_encode(file_get_contents($request->file('certificate')->getRealPath()));
+                $img = $request->file('certificate');
+                $modelDoc = new DocumentUpload;
+                $modelDoc->app_id = 1;
+                $modelDoc->doc_id = 1;
+                $modelDoc->created_by = Auth::user()->id;
+                $modelDoc->file_name = $img->getClientOriginalName();
+                $modelDoc->mime = $img->getMimeType();
+                $modelDoc->file_size = $img->getSize();
+                $modelDoc->uploaded_file = $fileContents;
+                $modelDoc->save();
+
+
+                $model = OemModelDetail::find($request->mid);
+                $model->testing_factory_price = $request->factory_price;
+                $model->testing_spec_density = $request->spec_density;
+                $model->testing_life_cyc = $request->life_cyc;
+                $model->testing_min_ex_show_price = $request->min_ex_show_price;
+                $model->testing_range = $request->range;
+                $model->testing_max_elect_consumption = $request->max_elect_consumption;
+                $model->testing_min_max_speed = $request->min_max_speed;
+                $model->testing_min_acceleration = $request->min_acceleration;
+                $model->testing_meeting_tech_function = $request->meeting_tech_function;
+                $model->testing_meeting_qualif = $request->meeting_qualif;
+                $model->testing_vehicle_sub_to_test_agency_apprv = $request->vehicle_sub_to_test_agency_apprv;
+                $model->testing_doc_id = $modelDoc->id;
+                $model->testing_certificate_no = $request->certificate_no;
+                $model->testing_cmvr_date = $request->cmvr_date;
+                $model->testing_approval_date = $request->approval_date;
+                $model->testing_expiry_date = $request->expiry_date;
+                $model->testing_flag = $request->status;
+                // $model->testing_by = Auth::user()->id;
+                $model->testing_created_at = Carbon::now()->format('Y-m-d');
+                $model->save();
+
+                }
+                if($request->status == 'R'){
+                    $modelReject = OemModelDetail::find($request->mid);
+                    $modelReject->testing_flag = $request->status;
+                    $modelReject->testing_remarks = $request->remarks;
+                    $modelReject->testing_by = Auth::user()->id;
+                    $modelReject->testing_created_at = Carbon::now()->format('Y-m-d');
+                    $modelReject->save();
+                }
+
+            });
+            alert()->success('Data has been Saved')->persistent('Close');
+            return redirect()->route('modelRequests.index');
+        }
+        catch (\Exception $e) {
+            \Log::error($e->getMessage());
+            dd($e);
+            alert()->warning('Data has Failed')->persistent('Close');
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $id = decrypt($id);
+        // $model = DB::table("model_master as mm")
+        // ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+        // ->join('users as u', 'u.id', '=', 'mm.oem_id')
+        // ->select('u.name','mm.*','omd.*')
+        // ->where('omd.testing_agency_id',Auth::user()->id)
+        // ->where('mm.id',$id)
+        // ->first();
+
+        $model = DB::table('vw_model_details')->where('model_id', $id)->where('testing_agency_id',Auth::user()->id)->first();
+
+        // dd($model);
+        return view('testingagency.modelVerificationShow',compact('id','model'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        // $id = decrypt($id);
+        // $model = ModelVerification::where('oem_id',$id['oem_id'])->where('model_id',$id['model_id'])->first();
+
+        // // dd($model);
+        // return view('testingagency.modelVerificationEdit',compact('id','model'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        
+        // try{
+        //     $id = decrypt($id);
+        //     DB::transaction(function () use ($request,$id) {
+
+               
+        //         if ($request->hasFile('certificate')) {
+
+        //             $fileContents = base64_encode(file_get_contents($request->file('certificate')->getRealPath()));
+        //             $img = $request->file('certificate');
+        //             $modelDoc = new DocumentUpload;
+        //             $modelDoc->app_id = 1;
+        //             $modelDoc->doc_id = 1;
+        //             $modelDoc->created_by = Auth::user()->id;
+        //             $modelDoc->file_name = $img->getClientOriginalName();
+        //             $modelDoc->mime = $img->getMimeType();
+        //             $modelDoc->file_size = $img->getSize();
+        //             $modelDoc->uploaded_file = $fileContents;
+        //             $modelDoc->save();
+    
+    
+        //             $model = ModelVerification::find($id);
+        //             $model->oem_id = $request->oem_id;
+        //             $model->model_id = $request->model_id;
+        //             $model->oem_name = $request->oem_name;
+        //             $model->flag = ($request->status != '')?$request->status:'';
+        //             $model->status = ($request->status != '')?'S':'D';
+        //             $model->doc_id = $modelDoc->id;
+        //             $model->certificate_no = $request->certificate_no;
+        //             $model->cmvr_date = $request->cmvr_date;
+        //             $model->approval_date = $request->approval_date;
+        //             $model->expiry_date = $request->expiry_date;
+        //             $model->created_by = Auth::user()->id;
+        //             $model->save();
+    
+        //             }
+               
+        //         $model = ModelVerification::find($id);
+        //         $model->oem_id = $request->oem_id;
+        //         $model->model_id = $request->model_id;
+        //         $model->oem_name = $request->oem_name;
+        //         $model->flag = ($request->status != '')?$request->status:'';
+        //         $model->status = ($request->status != '')?'S':'D';
+        //         $model->certificate_no = $request->certificate_no;
+        //         $model->cmvr_date = $request->cmvr_date;
+        //         $model->approval_date = $request->approval_date;
+        //         $model->expiry_date = $request->expiry_date;
+        //         $model->created_by = Auth::user()->id;
+        //         $model->save();
+
+        //         if($request->status == 'R'){
+        //             $modelReject = ModelVerification::find($id);
+        //             $modelReject->oem_id = $request->oem_id;
+        //             $modelReject->model_id = $request->model_id;
+        //             $modelReject->oem_name = $request->oem_name;
+        //             $modelReject->flag = $request->status;
+        //             $modelReject->status = null;
+        //             $modelReject->remarks = $request->remarks;
+        //             $modelReject->created_by = Auth::user()->id;
+        //             $modelReject->remarks = $request->remarks;
+        //             $modelReject->save();
+        //         }
+
+
+               
+
+
+        //     });
+        //     alert()->success('Data has been Saved')->persistent('Close');
+        //     return redirect()->route('admin.modelRequests.index');
+        // }
+        // catch (\Exception $e) {
+        //     \Log::error($e->getMessage());
+        //     dd($e);
+        //     alert()->warning('Data has Failed')->persistent('Close');
+        //     return redirect()->back();
+        // }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}

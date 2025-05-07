@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\Http\Controllers\VahanDailyUpdatedController;
+use DB;
+
+class GetDailyModelCountUpdated extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'get:model-daily-count-up {--status= : status to be fetched}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Vahan api model count as per new format';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function handle()
+    {
+        $status = $this->option('status');
+        $toFetchApproved = true;
+        if($status){
+            $toFetchApproved = false;
+        }
+
+        $response = (new VahanDailyUpdatedController())->getModelCount($toFetchApproved);
+        //dd($response);
+        
+        if ($response) {
+            
+            //call procedure
+//             $summary_proc1 = DB::select('call vahan_dashboard_table_updated_new()');
+
+//  $summary_proc2 = DB::select('call CalculateAndInsertClaimFuelCO2()');
+
+            $data = json_decode($response->getContent(), true);
+            // Log::channel('custom')->info('Model count data retrieved', $data);
+            // dd("inserted");
+            $to = 'ajaharuddin.ansari@ifciltd.com';
+            $cc= 'sahil.jassal@ifciltd.com';
+            $bcc='';
+            $subject='Model Count from Vahan Scheduler';
+            $from = 'noreply.pmedrive@heavyindustry.gov.in';
+            $msg=view('emails.model_count_report_updated', ['results' => $data])->render();
+
+            $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+        }
+        return 0;
+    }
+}

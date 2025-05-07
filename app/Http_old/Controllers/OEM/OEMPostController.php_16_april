@@ -1,0 +1,208 @@
+<?php
+
+namespace App\Http\Controllers\OEM;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Http\Requests\PostRegisterRequest;
+use Illuminate\Support\Facades\Hash;
+use App\User;
+use App\PostRegistrationDetail;
+use App\OEMType;
+use App\ManufacturingInformation;
+use App\ManufacturingEVPlantDetail;
+use App\AuthorizedPersonDetail;
+use App\BankDetail;
+use App\OtherDetail;
+use App\RegisterOfficeDetail;
+use App\DocumentUpload;
+use DB;
+use Exception;
+
+class OEMPostController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        // return view('auth.post_register');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        // dd($request);
+        // dd($request,json_encode($request->state_of_dealer_presence));
+        // $request->id = 4;//for oem registration id is always 4
+        // $request->username = 'Test8773';
+        // dd($request, $request->password,Hash::make($request->password));
+        try {
+            DB::transaction(function () use ($request) {
+                $user = User::find($request->user_id);
+                $user->password = Hash::make($request->password);
+                $user->landmark = $request->registered_office_landmark;
+                $user->landline = $request->registered_office_landline_no;
+                $user->auth_address = $request->authorized_person_address;
+                $user->auth_pincode = $request->authorized_person_pincode;
+                $user->auth_state = $request->authorized_person_state;
+                $user->auth_district = $request->authorized_person_district;
+                $user->auth_city = $request->authorized_person_city;
+                $user->auth_landmark = $request->authorized_person_landmark;
+                $user->auth_mobile = $request->authorized_person_mobile;
+                $user->auth_email = $request->authorized_person_email;
+                $user->auth_fax = $request->authorized_person_fax;
+                $user->save();
+
+
+                foreach ($request->evplant as $value) {
+                    $manufacturing_plant = new ManufacturingEVPlantDetail;
+                    $manufacturing_plant->user_id = $user->id;
+                    $manufacturing_plant->plant_name = $value['plant_name'];
+                    $manufacturing_plant->address = $value['plant_address'];
+                    $manufacturing_plant->email = $value['plant_email'];
+                    $manufacturing_plant->state = $value['plant_state'];
+                    $manufacturing_plant->district = $value['plant_district'];
+                    $manufacturing_plant->city = $value['plant_city'];
+                    $manufacturing_plant->pincode = $value['plant_pincode'];
+                    $manufacturing_plant->landline_no = $value['plant_landline'];
+                    $manufacturing_plant->save();
+                }
+
+
+                $gstinRegistrationId = $this->handleFileUpload($request->file('gstin_registration_file'), $request->user_id);
+                $oemPanId = $this->handleFileUpload($request->file('oem_pan_file'), $request->user_id);
+                $rndFacilitiesId = $this->handleFileUpload($request->file('r_and_d_facilities_file'), $request->user_id);
+                $dealerListId = $this->handleFileUpload($request->file('dealer_list_file'), $request->user_id);
+
+
+                $post_regi = new PostRegistrationDetail;
+                $post_regi->user_id = $request->user_id;
+                $post_regi->gstin_no = $request->gstin_no;
+                $post_regi->gstin_registration_upload_id = $gstinRegistrationId;
+                $post_regi->oem_pan = $request->oem_pan;
+                $post_regi->oem_pan_upload_id = $oemPanId;
+                $post_regi->r_and_d_facilities_upload_id = $rndFacilitiesId;
+                $post_regi->annual_turnover = $request->annual_turnover;
+                $post_regi->account_holder_name = $request->account_holder_name;
+                $post_regi->account_no = $request->account_number;
+                $post_regi->ifsc_code = $request->ifsc_code;
+                $post_regi->micr_code = $request->micr_code;
+                $post_regi->account_type = $request->account_type;
+                $post_regi->bank_name = $request->bank_name;
+                $post_regi->branch_name = $request->branch_name;
+                $post_regi->branch_address = $request->bank_address;
+                $post_regi->branch_pincode = $request->branch_pincode;
+                $post_regi->branch_state = $request->branch_state;
+                $post_regi->branch_district = $request->branch_district;
+                $post_regi->branch_city = $request->branch_city;
+                $post_regi->dealer_mode = $request->dealer_mode;
+                $post_regi->dealer_no = $request->dealer_numbers;
+                $post_regi->no_of_dealers = $request->no_of_dealer;
+                $post_regi->dealer_state = json_encode($request->state_of_dealer_presence);
+                $post_regi->dealer_upload_id = $dealerListId;
+                $post_regi->save();
+
+            });
+
+            alert()->success('Post Registration Successfully Submit', 'Success')->persistent('Close');
+            return redirect()->route('home');
+        } catch (Exception $e) {
+            dd($e);
+            alert()->warning('Something went wrong, Please try agin..', 'Warning')->persistent('Close');
+            return redirect()->back();
+        }
+        #
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $id = decrypt($id);
+        $user = User::Where('id', $id)->first();
+        $states = DB::table('pincodecitystate')->distinct('state')->pluck('state')->toArray();
+        $oemType = OEMType::get();
+
+        return view('auth.post_register', compact('user', 'states', 'oemType'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+
+    // Modify the handleFileUpload method to accept user_id
+    private function handleFileUpload($file, $userId)
+    {
+        if ($file) {
+            $fileName = $file->getClientOriginalName();
+            $mime = $file->getMimeType();
+            $fileSize = $file->getSize();
+            $fileContent = fopen($file->getRealPath(), 'r');            
+
+            $documentUpload = new DocumentUpload();
+            $documentUpload->file_name = $fileName;
+            $documentUpload->mime = $mime;
+            $documentUpload->file_size = $fileSize;
+            $documentUpload->uploaded_file = $fileContent;
+            $documentUpload->created_by = $userId; // Assign user_id
+            $documentUpload->save();
+
+            return $documentUpload->id;
+        }
+
+        return null;
+    }
+
+}

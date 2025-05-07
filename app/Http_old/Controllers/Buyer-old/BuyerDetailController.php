@@ -1,0 +1,366 @@
+<?php
+
+namespace App\Http\Controllers\Buyer;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use DB;
+use Auth;
+use App\Models\ModelVerification;
+use App\Models\User;
+use App\Models\DocumentUpload;
+use App\Models\BuyerDetail;
+use Exception;
+
+// use App\Http\request\BuyerDetailRequest;
+// use App\Http\Requests\BuyerDetailRequest;
+
+
+class BuyerDetailController extends Controller
+{
+    public function index()
+    {
+        //  dd(Auth::user()->id);
+        $bankDetail = DB::table('buyer_details_view')
+            ->where(function ($query) {
+                $query->where('oem_status', '!=', 'R')
+                    ->orWhereNull('oem_status');
+            })
+            ->where('dealer_id', Auth::user()->id)
+            ->orderBy('buyer_details_view.id','DESC')
+            ->get();
+
+        // dd($bankDetail);
+
+        return view('buyer.index', compact('bankDetail'));
+
+    }
+
+    // public function index()
+    // {
+    //     $user = User::where('id', Auth::user()->id)->first();
+    //     $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+
+    //     return view('buyer.index', compact('user', 'type'));
+    // }
+
+
+
+    public function getcode($vin, $oemid)
+    {
+        // $vin = DB::table('production_data')->where('vin_chassis_no',$vin)->firs();
+        // $vinchasis = DB::table('production_data as pd')->join('model_master as mm', 'pd.model_master_id', 'mm.id')
+        //     ->join('oem_model_details as emd', 'pd.model_details_id', 'emd.id')
+        //     ->join('segment_master as sm','sm.id','mm.segment_id')
+        //     ->where('pd.vin_chassis_no', $vin)->select(
+        //         'pd.id',
+        //         'pd.vin_chassis_no',
+        //         'emd.factory_price',
+        //         'mm.model_name',
+        //         'mm.variant_name',
+        //         'mm.segment_id',
+        //         'mm.vehicle_cat',
+        //         'sm.segment_name as segment'
+        //     )->get();
+
+        $vinchasis = DB::table('vw_vin_details')->where('vin_chassis_no', $vin)->where('oem_id', $oemid)->get();
+
+        // dd($vinchasis);
+
+        $count = DB::table('buyer_details')->where('vin_chassis_no', $vin)->count();
+        //  dd($count);
+        $tot_inc_amt = DB::select("SELECT total_incentive_amount('$vin') AS total_incentive_amount")[0]->total_incentive_amount;
+        
+        $response = array(
+            'data1' => $vinchasis,
+            'data2' => $count,
+            'data3' => $tot_inc_amt,
+        );
+
+
+
+        return $response;
+    }
+
+    public function store(Request $request)
+    {
+        //  dd($request);
+
+
+        DB::transaction(function () use ($request) {
+
+            // if ($request->hasFile('custmr_file_copy')) {
+
+            //     $filename = $request->custmr_file_copy->getClientOriginalName();
+            //     $mime = $request->custmr_file_copy->getMimeType();
+            //     $filesize = $request->custmr_file_copy->getSize();
+            //     $filecontent = fopen($request->custmr_file_copy->getRealPath(), 'r');
+
+            //     // dd($mime );
+
+            //     $file_copy_first = new DocumentUpload();
+            //     $file_copy_first->file_name = $filename;
+            //     $file_copy_first->mime = $mime;
+            //     $file_copy_first->file_size = $filesize;
+            //     $file_copy_first->uploaded_file = $filecontent;
+            //     $file_copy_first->save();
+            //     $doc_id = $file_copy_first->id;
+            // }
+
+            if ($request->hasFile('custmr_file_copy')) {
+
+                $file = $request->custmr_file_copy;
+                $response = uploadFileWithCurl($file);
+                $file_copy_first_id = $response;
+
+            }
+
+
+            // if ($request->hasFile('cust_sec_file')) {
+            //     $filename = $request->cust_sec_file->getClientOriginalName();
+            //     $mime = $request->cust_sec_file->getMimeType();
+            //     $filesize = $request->cust_sec_file->getSize();
+            //     $filecontent = fopen($request->cust_sec_file->getRealPath(), 'r');
+
+            //     $file_copy_sec = new DocumentUpload();
+            //     $file_copy_sec->file_name = $filename;
+            //     $file_copy_sec->mime = $mime;
+            //     $file_copy_sec->file_size = $filesize;
+            //     $file_copy_sec->uploaded_file = $filecontent;
+            //     $file_copy_sec->save();
+            // }
+
+            if ($request->hasFile('cust_sec_file')) {
+
+                $file = $request->cust_sec_file;
+                $response = uploadFileWithCurl($file);
+                $file_copy_sec_id = $response;
+
+            }
+
+            // dd($lastFourDigits);
+            if ($request->custmr_typ == 1) {
+                $lastFourDigits = substr($request->custmr_id_no, -4);
+
+            } else {
+                $lastFourDigits = $request->custmr_id_no;
+            }
+            $lastFourDigits = substr($request->custmr_id_no, -4);
+            $BuyerDetail = new BuyerDetail;
+            $BuyerDetail->oem_id = $request->oem_id;
+            $BuyerDetail->dealer_id = $request->dealer_id;
+            $BuyerDetail->production_id = $request->production_id;
+            $BuyerDetail->custmr_typ = $request->custmr_typ;
+            $BuyerDetail->custmr_name = $request->custmr_name;
+            $BuyerDetail->add = $request->add;
+            $BuyerDetail->landmark = $request->landmark;
+            $BuyerDetail->pincode = $request->Pincode;
+            $BuyerDetail->state = $request->State;
+            $BuyerDetail->district = $request->District;
+            $BuyerDetail->city = $request->City;
+            $BuyerDetail->mobile = $request->mobile;
+            $BuyerDetail->email = $request->email;
+            $BuyerDetail->custmr_id = $request->custmr_id;
+            $BuyerDetail->custmr_id_no = $lastFourDigits;
+            $BuyerDetail->addi_cust_id = $request->addi_cust_id;
+            $BuyerDetail->cust_id_sec = $request->cust_id_sec;
+            $BuyerDetail->dlr_invoice_no = $request->dlr_invoice_no;
+            $BuyerDetail->vihcle_dt = $request->vihcle_dt;
+            $BuyerDetail->amt_custmr = $request->amt_custmr;
+            $BuyerDetail->invoice_amt = $request->invoice_amt;
+            $BuyerDetail->addmi_inc_amt = $request->addmi_inc_amt;
+            $BuyerDetail->tot_inv_amt = $request->tot_inv_amt;
+            $BuyerDetail->tot_admi_inc_amt = $request->tot_admi_inc_amt;
+            // $BuyerDetail->copy_file_uploadid = $file_copy_first->id;
+            $BuyerDetail->copy_file_uploadid =  $file_copy_first_id != null ? $file_copy_first_id : null;
+            // $BuyerDetail->copy_file_uploadid = $doc_id != null ? $doc_id : null;
+            // $BuyerDetail->sec_file_uploadeid = $file_copy_sec->id != null ? $file_copy_sec->id : null;
+            $BuyerDetail->sec_file_uploadeid = $file_copy_sec_id != null ? $file_copy_sec_id : null;
+            $BuyerDetail->gender = $request->gender;
+            $BuyerDetail->vin_chassis_no = $request->vin;
+            $BuyerDetail->segment_id = $request->segment_id;
+            $BuyerDetail->invoice_dt = $request->vihcle_dt;
+            $BuyerDetail->status = 'D';
+            $BuyerDetail->save();
+
+
+
+        });
+        alert()->success('Record Inserted', 'Success!')->persistent('Close');
+        return redirect()->route('buyerdetail.index');
+    }
+
+    public function create()
+    {
+        $user = User::where('id', Auth::user()->id)->first();
+        $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
+        // dd($oemname);
+        $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+
+        return view('buyer.create', compact('user', 'type', 'oemname'));
+    }
+    // public function create()
+    // {
+
+    //     $bankDetail = DB::table('buyer_details')->get();
+    //     return view('buyer.home', compact('bankDetail'));
+
+    // }
+
+    public function edit($id)
+    {
+        // dd($id);
+        $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
+        $user = User::where('id', Auth::user()->id)->first();
+        $bankDetail = DB::table('buyer_details_view as bd')
+            ->where('id', $id)->first();
+
+        $customerId = (int) $bankDetail->custmr_id;
+
+        $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
+
+        $cat = DB::table('customer_doc_verf_type')
+            ->where('id', $customerId)
+            ->first();
+        // dd($bankDetail);
+
+        return view('buyer.buyer_edit', compact('bankDetail', 'user', 'id', 'type', 'cat', 'oemname'));
+
+    }
+    public function type($val)
+    {
+        if ($val == 1) {
+            $type = DB::table('customer_doc_verf_type')->where('id', 1)->get();
+
+        } else {
+            $type = DB::table('customer_doc_verf_type')->wherein('id', [2, 7])->get();
+        }
+
+
+        return $type;
+    }
+
+    public function CheckAdhar($name, $adhar, $segid)
+    {
+        // dd($name,$adhar,$segid);
+
+        $data = DB::select("select check_data_exists('$adhar','$segid','$name')");
+
+        // DB::select("SELECT check_vin_chasis_no('$vin')");
+        // dd($data);
+        // return $data;
+        return ['data' => $data];
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        // dd($request);
+
+        DB::transaction(function () use ($request, $id) {
+
+            $data = DB::table('buyer_details')->where('id', $id)->first();
+
+            $filedata = '';
+            $file = '';
+            // if ($request->hasFile('custmr_file_copy')) {
+
+            //     $filecopy = $request->custmr_file_copy->getClientOriginalName();
+            //     $mim = $request->custmr_file_copy->getMimeType();
+            //     $filesize = $request->custmr_file_copy->getSize();
+            //     $content = fopen($request->custmr_file_copy->getRealPath(), 'r');
+
+            //     $filedata = DocumentUpload::find($data->copy_file_uploadid);
+            //     $filedata->file_name = $filecopy;
+            //     $filedata->mime = $mim;
+            //     $filedata->file_size = $filesize;
+            //     $filedata->uploaded_file = $content;
+            //     $filedata->save();
+
+            // }
+
+
+            if ($request->hasFile('custmr_file_copy')) {
+
+                $file = $request->custmr_file_copy;
+                $response = uploadFileWithCurl($file);
+                $file_copy_first_id = $response;
+            }
+
+            if ($request->hasFile('cust_sec_file')) {
+
+                $file = $request->cust_sec_file;
+                $response = uploadFileWithCurl($file);
+                $file_copy_sec_id = $response;
+            }
+
+            // dd($filedata);
+
+            // if ($request->hasFile('cust_sec_file')) {
+            //     $filename = $request->cust_sec_file->getClientOriginalName();
+            //     $mime = $request->cust_sec_file->getMimeType();
+            //     $filesize = $request->cust_sec_file->getSize();
+            //     $content = fopen($request->cust_sec_file->getRealPath(), 'r');
+
+            //     $file = DocumentUpload::find($data->sec_file_uploadeid);
+            //     $file->file_name = $filename;
+            //     $file->mime = $mime;
+            //     $file->file_size = $filesize;
+            //     $file->uploaded_file = $content;
+            //     $file->save();
+
+            // }
+
+            // dd(isset($filedata->id));
+
+
+            if ($request->custmr_typ == 1) {
+                $lastFourDigits = substr($request->custmr_id_no, -4);
+
+            } else {
+                $lastFourDigits = $request->custmr_id_no;
+            }
+
+            $BuyerDetail = BuyerDetail::find($id);
+
+            $BuyerDetail->oem_id = $request->oem_id;
+            $BuyerDetail->dealer_id = $request->dealer_id;
+            $BuyerDetail->production_id = $request->production_id;
+            $BuyerDetail->custmr_typ = $request->custmr_typ;
+            $BuyerDetail->custmr_name = $request->custmr_name;
+            $BuyerDetail->add = $request->add;
+            $BuyerDetail->landmark = $request->landmark;
+            $BuyerDetail->pincode = $request->Pincode;
+            $BuyerDetail->state = $request->State;
+            $BuyerDetail->district = $request->District;
+            $BuyerDetail->city = $request->City;
+            $BuyerDetail->mobile = $request->mobile;
+            $BuyerDetail->email = $request->email;
+            $BuyerDetail->custmr_id = $request->custmr_id;
+            $BuyerDetail->custmr_id_no = $lastFourDigits;
+            $BuyerDetail->addi_cust_id = $request->addi_cust_id;
+            $BuyerDetail->cust_id_sec = $request->cust_id_sec;
+            $BuyerDetail->dlr_invoice_no = $request->dlr_invoice_no;
+            $BuyerDetail->vihcle_dt = $request->vihcle_dt;
+            $BuyerDetail->amt_custmr = $request->amt_custmr;
+            $BuyerDetail->invoice_amt = $request->invoice_amt;
+            $BuyerDetail->addmi_inc_amt = $request->addmi_inc_amt;
+            $BuyerDetail->tot_inv_amt = $request->tot_inv_amt;
+            $BuyerDetail->tot_admi_inc_amt = $request->tot_admi_inc_amt;
+            // $BuyerDetail->copy_file_uploadid = $file_copy_first->id;
+            $BuyerDetail->copy_file_uploadid = isset($file_copy_first_id) != null? $file_copy_first_id : null;
+            $BuyerDetail->sec_file_uploadeid = isset($file_copy_sec_id) != null ? $file_copy_sec_id : null;
+            $BuyerDetail->gender = $request->gender;
+            // $BuyerDetail->vin_chassis_no =$request->vin != null? $data->vin_chassis_no;
+            $BuyerDetail->vin_chassis_no = $request->vin != null ? $request->vin : $data->vin_chassis_no;
+            $BuyerDetail->segment_id = $request->segment_id;
+            $BuyerDetail->invoice_dt = $request->invoice_dt;
+            $BuyerDetail->save();
+        });
+        alert()->success('Data has been Saved')->persistent('Close');
+
+        return redirect()->back();
+
+    }
+
+}

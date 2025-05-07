@@ -1,0 +1,142 @@
+<!-- Nav Bar Ends here -->
+@extends('layouts.dashboard_master')
+@section('title')
+    OEM Model Requests
+@endsection
+
+@push('styles')
+@endpush
+
+@section('content')
+    <!-- Page Sidebar Ends-->
+    <div class="page-body">
+        <div class="container-fluid">
+            <div class="page-title">
+                <div class="row">
+                    <div class="col-6">
+                        <h4>OEM Model Requests</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Container-fluid starts-->
+        <div class="container-fluid">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="dt-ext table-responsive  custom-scrollbar">
+                            <table class="display table-bordered  table-striped" id="export-button">
+                                <thead>
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>OEM Name</th>
+                                        <th>xEV Model Name</th>
+                                        <th>Variant Name </th>
+                                        <th>Vehicle Segment</th>
+                                        <th>Vehicle Category</th>
+                                        <th> OEM Submitted Date </th>
+                                        <th> CMVR Certificate </th>
+                                            <th> CMVR Date </th>
+                                            <th> Valid From </th>
+                                            <th> Valid Upto </th>
+                                        <th>Testing Agency Status</th>
+                                        <th>Status</th>
+                                        <th>Testing Agency Submitted Date</th>
+                                        <th>MHI Approved By</th>
+                                        <th>Remarks</th>
+                                        <th> Action </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($modelMaster as $model)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $model->oem_name }}</td>
+                                            <td> {{ $model->model_name }}</td>
+                                            <td>{{ $model->variant_name }} </td>
+                                            <td>{{ $model->segment }}</td>
+                                            <td>{{ $model->vehicle_cat }}</td>
+                                            @php 
+                                            $submitted_time = strtotime($model->submitted_at); 
+                                            $submitted_format = date('d-m-Y', $submitted_time);
+
+                                            $testing_cmvr_time = strtotime($model->testing_cmvr_date); 
+                                            $testing_cmvr_format = date('d-m-Y', $testing_cmvr_time);
+
+                                            $valid_from_time = strtotime($model->valid_from); 
+                                            $valid_from_format = date('d-m-Y', $valid_from_time);
+
+                                            $valid_upto_time = strtotime($model->valid_upto); 
+                                            $valid_upto_format = date('d-m-Y', $valid_upto_time);
+                                            
+                                        @endphp
+                                             <td data-sort={{$submitted_time}}>{{$submitted_format}}</td>
+                                            <td>{{ $model->testing_certificate_no }}</td>
+                                            <td data-sort={{$testing_cmvr_time}}>{{$testing_cmvr_format}}</td>
+                                            <td data-sort={{$valid_from_time}}>{{$valid_from_format}}</td>
+                                            <td data-sort={{$valid_upto_time}}>{{$valid_upto_format }}</td>
+                                            <td class="text-center"
+                                                @if ($model->testing_flag == 'A') bgcolor="lightgreen" @elseif($model->testing_flag == 'R') bgcolor="red" @else bgcolor="orange" @endif>
+                                                {{ $model->testing_flag == 'A' ? 'Approved' : ($model->testing_flag == 'R' ? 'Rejected' : 'Pending') }}
+                                            </td>
+                                            <td class="text-center"
+                                                @if ($model->mhi_flag == 'A') bgcolor="lightgreen" @elseif($model->mhi_flag == 'R') bgcolor="red" @else bgcolor="orange" @endif>
+                                                {{ $model->mhi_flag == 'A' ? 'Approved' : ($model->mhi_flag == 'R' ? 'Rejected' : ($model->testing_flag == 'R' ? '-' : 'Pending')) }}
+
+                                            </td>
+                                            @php 
+                                            $strToTimeDate = strtotime($model->testing_created_at); 
+                                            $formated = date('d-m-Y', $strToTimeDate);
+                                        @endphp
+                                           <td data-sort={{$strToTimeDate}}>{{$formated}}</td>  
+                                           <td>
+                                            {{-- {{dd($model->mhi_id)}} --}}
+                                               @if($model->mhi_id == null)
+                                                    -
+                                               @else
+                                               {{ $users->where('id', $model->mhi_id)->first()->name }}
+                                               @endif         
+                                            </td>                                          <td><b>{{ $model->exist }}</b></td>
+                                            <td>
+                                                <a href="{{ route('manageOEMApproval.show', encrypt($model->model_detail_id)) }}"
+                                                    class="btn btn-success">View</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Reject Model Approval</h5>
+                    <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action=" " method="POST" id="creApproval" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label for="reason">Reason for rejection</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Reject</button>
+                        </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+@endsection
+
+@push('scripts')
+    {!! JsValidator::formRequest('App\Http\Requests\ModelOEMApprovalRequest', '#creApproval') !!}
+@endpush

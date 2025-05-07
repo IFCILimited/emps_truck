@@ -1,0 +1,348 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Auth;
+use DB;
+
+class HomeController extends Controller
+{
+
+
+    public function index()
+    {
+        return view('landing.index');
+    }
+
+    // public function dashboard(){
+    //     return view('layouts.dashboard_master');
+    // }
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->route('home');
+    }
+    public function signin($roleid)
+    {
+        $role_id = decrypt($roleid);
+        session(['role_id' => $role_id]);
+        return redirect()->route('login');
+    }
+
+    public function contact()
+    {
+        return view('landing.contact');
+    }
+    public function about_us()
+    {
+        return view('landing.about_us');
+    }
+    public function feedback()
+    {
+        return view('landing.feedback');
+    }
+    public function impotrant_links()
+    {
+        return view('landing.important_links');
+    }
+    public function press_release()
+    {
+        return view('landing.press_release');
+    }
+    public function FAQs()
+    {
+        return view('landing.faq');
+    }
+    public function policy_document()
+    {
+        return view('landing.policy_doc');
+    }
+    public function policy_procedure()
+    {
+        return view('landing.policy_procedure');
+    }
+    public function suggestion()
+    {
+        return view('landing.suggestion');
+    }
+    public function support()
+    {
+        return view('landing.support');
+    }
+    public function who()
+    {
+        return view('landing.who');
+    }
+    public function dashboard()
+    {
+//         $claims = DB::select('SELECT claim_data() as claim_data')[0]->claim_data;
+
+//         $stringArray = trim($claims, '{}');
+
+//         // Explode the string into an array
+//         $indexedArray = explode(',', $stringArray);
+
+//         // dd($indexedArray);
+//         // Extract values from the indexed array
+//         $claim = $indexedArray[0];
+//         $amount = $indexedArray[1];
+//         $claime2 = $indexedArray[2];
+//         $claime3 = $indexedArray[4];
+
+//         $dashboard = DB::table('dashboard_view')->get();
+
+//         $model = DB::table('vw_model_details')->where('mhi_flag', 'A')->distinct('model_id')->count('model_id');
+
+//         // total vehicles sold
+//         $buyerse2w1 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->count();
+//         $buyerse2w2 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->count();
+
+//         $buyerse2w = $buyerse2w1 + $buyerse2w2;
+
+
+
+
+//         $buyerse3w = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->count();
+
+//         $buyerse3wL5 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->count();
+
+
+//         // claim generated but not submitted
+
+//         $claime2w1 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+//         $claime2w2 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+
+
+//         $claime2w1Amt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+//         $claime2w2Amt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+
+//         $claimse2w = $claime2w1 + $claime2w2;
+//         $claimse2wAmt = $claime2w1Amt + $claime2w2Amt;
+
+//         $claimse3w = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+//         $claimse3wL5 = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNull('lot_id')->count();
+
+//         $claimse3wAmt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+//         $claimse3wL5Amt = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNull('lot_id')->sum('addmi_inc_amt');
+
+
+//         //Claims generated
+
+//         $claime2w1sub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+//         $claime2w2sub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+
+//         $claime2w1Amtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '1')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+//         $claime2w2Amtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '1')->where('vehicle_cat_id', '2')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+
+//         $claimse2wsub = $claime2w1sub + $claime2w2sub;
+//         $claimse2wAmtsub = $claime2w1Amtsub + $claime2w2Amtsub;
+
+
+//         $claimse3wsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+//         $claimse3wL5sub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNotNull('lot_id')->count();
+
+//         $claimse3wAmtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '3')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+//         $claimse3wL5Amtsub = DB::table('buyer_details_view')->where('oem_status', 'A')->where('segment_id', '2')->where('vehicle_cat_id', '4')->whereNotNull('claim_id')->whereNotNull('lot_id')->sum('addmi_inc_amt');
+
+//       // Add submit count on 22-07-2024
+
+// // Calculate the submit counts for e2w vehicle categories 1 and 2
+// $buyerse2w1Submit = DB::table('sales_details_total_vw')
+// ->whereIn('status', ['S','A'])
+// //->whereNotIn('oem_status', ['A'])
+// ->where('segment_id', '1')
+// ->where('vehicle_cat_id', '1')
+// ->distinct('vin_chassis_no')
+// ->count('vin_chassis_no');
+
+
+// $buyerse2w2Submit = DB::table('sales_details_total_vw')
+// ->whereIn('status', ['S','A'])
+// //->whereNotIn('oem_status', ['A'])
+// ->where('segment_id', '1')
+// ->where('vehicle_cat_id', '2')
+// ->distinct('vin_chassis_no')
+// ->count('vin_chassis_no');
+
+
+// // Sum of e2w vehicle category submit counts
+// $buyerse2wSubmit = $buyerse2w1Submit + $buyerse2w2Submit;
+
+// // Calculate the submit count for e3w vehicle category 3
+// $buyerse3wSubmit = DB::table('sales_details_total_vw')
+// ->whereIn('status', ['S','A'])
+// //->whereNotIn('oem_status', ['A'])
+// ->where('segment_id', '2')
+// ->where('vehicle_cat_id', '3')
+// ->distinct('vin_chassis_no')
+// ->count('vin_chassis_no');
+
+
+// // Calculate the submit count for e3w L5 vehicle category 4
+// $buyerse3wL5Submit = DB::table('sales_details_total_vw')
+// ->whereIn('status', ['S','A'])
+// //->whereNotIn('oem_status', ['A'])
+// ->where('segment_id', '2')
+// ->where('vehicle_cat_id', '4')
+// ->distinct('vin_chassis_no')
+// ->count('vin_chassis_no');
+
+
+//         $fuel_co2 = DB::table('vw2_fuel_saved_co2')
+//         ->selectRaw('SUM(fuelsaved_perday) as total_fuelsaved_perday, SUM(totalfuelsaved) as total_fuel_saved, SUM(co2perday) as co2perday, SUM(co2total) as co2total')
+//         ->get();
+//         // dd($fuel_co2);
+
+//         return view('landing.dashboard', compact("fuel_co2","claimse2w", "claimse2wAmt", "claimse3wAmt", "claimse3wL5Amt", "claimse3w", "claimse3wL5", "dashboard", "claim", "amount", "claime2", "claime3", "model", "buyerse2w", "buyerse3w", "buyerse3wL5", "claimse2wsub",
+//         "claimse2wAmtsub", "claimse3wsub", "claimse3wL5sub", "claimse3wAmtsub", "claimse3wL5Amtsub","buyerse2wSubmit","buyerse3wSubmit","buyerse3wL5Submit"));
+
+// $segment_sale=DB::table('segment_wise_sales')->get();
+
+//         return view('landing.dashboard', compact('segment_sale'));
+//     }
+
+// $salesSum = DB::table('segment_year_final_sales_vw')
+//     ->select(
+//         'segment_name',
+//         'vehicle_cat',
+//         DB::raw('SUM(invoice_sales) as invoiceSalesSum'),
+//         DB::raw('SUM(evoucher_sales) as evoucherSalesSum'),
+//         DB::raw('SUM(target_sales) as targetSalesSum'),
+//         DB::raw('SUM(salesbyoem) as salesbyoem'),
+//         DB::raw('SUM(voucher_upload) as voucherupload')
+//     )
+//     ->groupBy('segment_name', 'vehicle_cat')
+//     ->get();
+    // dd($salesSum);
+        $salesSum = DB::table('segment_sales_summary_consolidated')
+            ->get();
+    // $salesSum = [];
+
+
+        $portal_summary_edrive = DB::table('buyer_data_summary')
+                ->select(
+                    DB::raw('SUM(actual_count) as count'),
+                    'vehicle_cat as cat_nm'
+                )
+                ->groupBy('vehicle_cat')
+                ->get();
+
+
+            $vahan_summary = DB::table('vahan_api_data_summary as vads')
+                ->select(
+                    DB::raw('SUM(vads.total_count) as count'),
+                    'vads.portal_category_name as cat_nm'
+                )
+                ->groupBy('portal_category_name')
+                ->get();
+
+            $emps_summary = DB::table('emps_data_summary as eds')
+            ->select(
+                DB::raw('SUM(eds.total_count) as count'),
+                'eds.cat_nm as cat_nm'
+            )
+            ->groupBy('cat_nm')
+            ->get();
+
+            $emps_buyer_summary = getEmpsDataSummary();
+            $combinedSummary = [
+                'L1+L2' => 0,
+                'e-rickshaw & e-cart' => 0,
+                'L5' => 0
+            ];
+
+            if($emps_buyer_summary || $emps_buyer_summary != 0)
+            {
+               
+                $distinctOemsMaster = DB::table('oem_model_master_vahan_use')
+                ->distinct()
+                ->pluck('MORTH_OEM', 'oem_id');
+                
+                foreach($emps_buyer_summary as $empsData)
+                {
+                    if(isset($distinctOemsMaster[$empsData["oem_id"]]))
+                    {
+                        if($empsData["vehicle_cat"] == 'L1' || $empsData["vehicle_cat"] == 'L2')
+                        {
+                            $combinedSummary['L1+L2'] +=  (int)$empsData["actual_count"];
+                        }elseif($empsData["vehicle_cat"] == 'L5')
+                        {
+                            $combinedSummary['L5'] +=  (int)$empsData["actual_count"];
+                        }else{
+                            $combinedSummary['e-rickshaw & e-cart'] +=  (int)$empsData["actual_count"];
+                        }
+                    }
+                }
+            }
+            $emps_buyer_summary_total = $combinedSummary;
+        
+
+    $segment_sale=DB::table('segment_year_final_sales_vw')->get();
+    // $segment_sale = [];
+    // dd($salesSum);
+    // dd($totalPortal, $salesSum, $emps_buyer_summary_total, $emps_summary, $vahan_summary, $portal_summary_edrive);
+
+
+    $totals = [];
+    foreach($salesSum as $sale)
+    {
+        $PortalTotal = 0;
+        $vahanTotal = 0;
+        if($sale->vehicle_cat == 'L1+L2')
+        {
+            //portal summary
+                //emps portal summary
+                $PortalTotal += $emps_buyer_summary_total[$sale->vehicle_cat];
+                
+                //pmedrive portal summary
+                $PortalTotal += $portal_summary_edrive->whereIn('cat_nm', ['L1','L2'])->sum('count');
+            //vahan summary
+                $vahanTotal += $vahan_summary->whereIn('cat_nm', ['L1','L2'])->sum('count');
+                $vahanTotal += $emps_summary->whereIn('cat_nm', ['L1','L2'])->sum('count');
+
+            $totals[$sale->vehicle_cat] = [
+                'vahan' => $vahanTotal,
+                'portal' => $PortalTotal
+            ];
+        }else{
+            //portal summary
+                //emps portal summary
+                $PortalTotal += $emps_buyer_summary_total[$sale->vehicle_cat];
+                
+                //pmedrive portal summary
+                $PortalTotal += $portal_summary_edrive->whereIn('cat_nm', $sale->vehicle_cat)->sum('count');
+            //vahan summary
+                $vahanTotal += $vahan_summary->whereIn('cat_nm', $sale->vehicle_cat)->sum('count');
+                $vahanTotal += $emps_summary->whereIn('cat_nm', $sale->vehicle_cat)->sum('count');
+
+            $totals[$sale->vehicle_cat] = [
+                'vahan' => $vahanTotal,
+                'portal' => $PortalTotal
+            ];
+        }
+    }
+
+    // dd($totals);
+
+        $maxDateOfVahan = DB::table('vahan_api_model_data')->max('api_to_date');
+       
+        return view('landing.dashboard', compact('totals','segment_sale','salesSum', 'emps_buyer_summary_total', 'emps_summary', 'vahan_summary', 'portal_summary_edrive', 'maxDateOfVahan'));
+    }
+
+
+
+    public function ClaimSubmissionAnnouncements()
+    {
+        return view('landing.ClaimSubmissionAnnouncements');
+    }
+    public function draftPMPGuidelines()
+    {
+        return view('landing.draft_guideline');
+    }
+    public function empsSales()
+    {
+        dd(empsSale());
+        return view('landing.draft_guideline');
+    }
+}

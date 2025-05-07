@@ -1,0 +1,617 @@
+﻿
+   <!-- Nav Bar Ends here -->
+   @extends('layouts.dashboard_master')
+   @section('title')
+   Admin - Dashboard
+@endsection
+
+@push('styles')
+  <style>
+    
+  </style>
+@endpush
+@section('content')
+<div class="page-body">
+  <div class="container-fluid">
+    <div class="page-title">
+      <div class="row">
+        <div class="col-6">
+          <h4>Dashboard</h4>
+        </div>
+        <div class="col-6"> 
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">                                       
+                <svg class="stroke-icon">
+                  <use href="admin/svg/icon-sprite.svg#stroke-home"></use>
+                </svg></a></li>
+            {{-- <li class="breadcrumb-item">Dashboard</li> --}}
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Container-fluid starts-->
+  <div class="container-fluid"> 
+    <div class="row size-column">
+      <div class="col-xxl-9 box-col-12">
+        <div class="row"> 
+          @if (Auth::user()->hasRole('MHI-AS') || Auth::user()->hasRole('MHI-DS') || Auth::user()->hasRole('MHI-OnlyView'))
+          
+          <div class="col-lg-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-Progress border-b-warning border-2"> <span class="f-light f-w-500 f-14">OEM Pre-Register</span>
+                <div class="project-details">
+                  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 pt-2"><a href="{{route('preRegister','P')}}">Pending With DS:- {{$dashboard->where('rid',4)->where('approval_for_post_reg',null)->count()}}</a></h6><span class="f-12 f-w-400"> </span>
+                    <h6 class="f-w-600 pb-2"><a href="{{route('preRegister','A')}}">Approved By DS:- {{$dashboard->where('rid',4)->where('approval_for_post_reg','A')->count()}}</a></h6><span class="f-12 f-w-400"> </span>
+                    <h6 class="f-w-600"><a href="{{route('preRegister','R')}}">Rejected By DS:- {{$dashboard->where('rid',4)->where('approval_for_post_reg','R')->count()}}</a></h6><span class="f-12 f-w-400"> </span>
+                  </div>
+                  
+                  <div class="product-sub bg-warning-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-task')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles">
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-Complete border-b-secondary border-2"><span class="f-light f-w-500 f-14">OEM Registration</span>
+                <div class="project-details">
+                  <div class="project-counter">
+                    {{-- <h2 class="f-w-600">{{$dashboard->where('rid',4)->where('post_registration_status','A')->count()}}</h2><span class="f-12 f-w-400"> </span> --}}
+                    <h6 class="f-w-600 pb-2 pt-2"><a href="{{route('postRegister','P')}}">Pending With DS:- {{$PostData->where('post_registration_status',null)->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="{{route('postRegister','C')}}">Recommended By DS:-{{$PostData->where('post_registration_status','C')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 "><a href="{{route('postRegister','A')}}">Approved by AS:-{{$PostData->where('post_registration_status','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    
+                  </div>
+                  <div class="product-sub bg-secondary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-form')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-Complete border-b-secondary border-2"><span class="f-light f-w-500 f-14">Models Data</span>
+               
+                <div class="project-details">
+                 
+                {{--  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 "><a href="">Pending at TA:- {{$models->where('testing_flag',null)->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="">Approved by TA:-{{$models->where('testing_flag','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600"><a href="">Rejected by TA:-{{$models->where('testing_flag','R')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    
+                  </div>--}}
+                  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 "><a href="{{route('modelsView','P')}}">Pending at MHI:- {{$models->where('mhi_flag',null)->where('testing_flag','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="{{route('modelsView','A')}}">Approved by MHI:-{{$models->where('mhi_flag','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600"><a href="{{route('modelsView','R')}}">Rejected by MHI:-{{$models->where('mhi_flag','R')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    
+                  </div>
+                  <div class="product-sub bg-secondary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-form')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+         {{-- <div class="col-xl-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-Complete border-b-secondary border-2"><span class="f-light f-w-500 f-14">Production Data</span>
+               
+                <div class="project-details">
+                  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 "><a href="{{route('modelsView','P')}}">Vehicle Submitted:- {{$vehicleSub}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="{{route('modelsView','A')}}">Approved by OEM:-{{$vehicleApp}}</a></h6><span class="f-12 f-w-400"></span>
+                  </div>
+                  <div class="product-sub bg-secondary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-form')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                </ul>
+              </div>
+            </div>
+          </div>--}}
+
+ <div class="col-xl-3 col-sm-6">
+            <a href="{{route('dealers')}}">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-project border-b-primary border-2"><span class="f-light f-w-500 f-14">No. Of Dealers</span>
+                <div class="project-details"> 
+                  <div class="project-counter"> 
+                    <h2 class="f-w-600">{{$dealerReg->count()}}</h2><span class="f-12 f-w-400"></span>
+                    
+                  </div>
+                  <div class="product-sub bg-primary-light">
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-user') }}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles">
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </a>
+          </div>
+
+          
+             {{--<div class="col-xl-3 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-upcoming"><span class="f-light f-w-500 f-14">No. Of Test Agency</span>
+                <div class="project-details"> 
+                  <div class="project-counter">
+                    <h2 class="f-w-600">0</h2><span class="f-12 f-w-400"> </span>
+                  </div>
+                  <div class="product-sub bg-primary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-editors')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div> --}}
+          {{--<div class="col-xl-3 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-upcoming"><span class="f-light f-w-500 f-14">No. Of Submitted Sales</span>
+                <div class="project-details"> 
+                  <div class="project-counter">
+                    <h2 class="f-w-600">0</h2><span class="f-12 f-w-400"> </span>
+                  </div>
+                  <div class="product-sub bg-primary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-editors')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div>--}}
+          {{-- <div class="col-xl-3 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-upcoming"><span class="f-light f-w-500 f-14">No. Of Saved Sales</span>
+                <div class="project-details"> 
+                  <div class="project-counter">
+                    <h2 class="f-w-600">{{$dashboard->where('rid',5)->count()}}</h2><span class="f-12 f-w-400"> </span>
+                  </div>
+                  <div class="product-sub bg-primary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-editors')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div> --}}
+         {{-- <div class="col-xl-3 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-upcoming"><span class="f-light f-w-500 f-14">Total Rejected Sales</span>
+                <div class="project-details"> 
+                  <div class="project-counter">
+                    <h2 class="f-w-600">0</h2><span class="f-12 f-w-400"> </span>
+                  </div>
+                  <div class="product-sub bg-primary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-editors')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div>--}}
+          {{-- <div class="col-xl-3 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-upcoming"><span class="f-light f-w-500 f-14">Under Verification Sales</span>
+                <div class="project-details"> 
+                  <div class="project-counter">
+                    <h2 class="f-w-600">{{$dashboard->where('rid',5)->count()}}</h2><span class="f-12 f-w-400"> </span>
+                  </div>
+                  <div class="product-sub bg-primary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-editors')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div> --}}
+          {{-- <div class="col-xl-3 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-upcoming"><span class="f-light f-w-500 f-14">Total Sales Records</span>
+                <div class="project-details"> 
+                  <div class="project-counter">
+                    <h2 class="f-w-600">{{$dashboard->where('rid',5)->count()}}</h2><span class="f-12 f-w-400"> </span>
+                  </div>
+                  <div class="product-sub bg-primary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-editors')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </div> --}}
+<div class="col-xl-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+                <div class="card-body OEM-data border-b-primary border-2">
+                    <span class="f-light f-w-500 f-14">Sale Details (EVs) (Nos.)</span>
+                    <div class="OEM-data-details">
+                        <div class="OEM-data-counter">
+                            <h6 class="f-w-600 pb-2">
+                              <a href="{{ route('claimDetails', 'AV') }}">
+                                Vehicle Approved by OEM: {{ $claimData->where('oem_status', 'A')->count() }}
+                            </a>
+                            </h6>
+                            <span class="f-12 f-w-400"></span>
+                            <h6 class="f-w-600 pb-2">
+                              <a href="{{ route('claimDetails', 'CG') }}">
+                                Claim Generated by OEM: {{ $claimData ->whereNotNull('claim_id')
+                                 ->whereNull('lot_id')
+                                ->where('oem_status', 'A')->count() }}
+                            </a>
+                            </h6>
+                            <span class="f-12 f-w-400"></span>
+                            <h6 class="f-w-600">
+                              <a href="{{ route('claimDetails', 'CS') }}">
+                                Claim Submitted by OEM: {{ $claimData  ->whereNotNull('claim_id')
+                                 ->whereNotNull('lot_id')
+                                ->where('oem_status', 'A')->count() }}
+                            </a>
+                            </h6>
+                          </div>
+                    </div>
+                    <ul class="bubbles">
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                        <li class="bubble"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+          @elseif(Auth::user()->hasRole('OEM'))
+          <div class="col-xl-3 col-sm-6">
+            <a href="{{route('manageDealer.index')}}">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-project border-b-primary border-2"><span class="f-light f-w-500 f-14">No. Of Dealers</span>
+                <div class="project-details"> 
+                  <div class="project-counter"> 
+                    <h2 class="f-w-600">{{$dealerReg->where('oem_id', Auth::user()->id)->count()}}</h2><span class="f-12 f-w-400"></span>
+                   
+                  </div>
+                  <div class="product-sub bg-primary-light">
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-user') }}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles">
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </a>
+          </div>
+          @elseif(Auth::user()->hasRole('PMA'))
+          <div class="col-xl-3 col-sm-6">
+            <a href="{{route('dealers')}}">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-project border-b-primary border-2"><span class="f-light f-w-500 f-14">No. Of Dealers</span>
+                <div class="project-details"> 
+                  <div class="project-counter"> 
+                    <h2 class="f-w-600">{{$dealerReg->count()}}</h2><span class="f-12 f-w-400"></span>
+                    
+                  </div>
+                  <div class="product-sub bg-primary-light">
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-user') }}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles">
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                </ul>
+              </div>
+            </div>
+          </a>
+          </div>
+          <div class="col-xl-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-Complete border-b-secondary border-2"><span class="f-light f-w-500 f-14">Models Data</span>
+               
+                <div class="project-details">
+                 
+                {{--  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 "><a href="">Pending at TA:- {{$models->where('testing_flag',null)->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="">Approved by TA:-{{$models->where('testing_flag','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600"><a href="">Rejected by TA:-{{$models->where('testing_flag','R')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    
+                  </div>--}}
+                  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 "><a href="{{route('modelsView','P')}}">Pending at MHI:- {{$models->where('mhi_flag',null)->where('testing_flag','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="{{route('modelsView','A')}}">Approved by MHI:-{{$models->where('mhi_flag','A')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600"><a href="{{route('modelsView','R')}}">Rejected by MHI:-{{$models->where('mhi_flag','R')->count()}}</a></h6><span class="f-12 f-w-400"></span>
+                    
+                  </div>
+                  <div class="product-sub bg-secondary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-form')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          {{--<div class="col-xl-4 col-sm-6">
+            <div class="card o-hidden small-widget">
+              <div class="card-body total-Complete border-b-secondary border-2"><span class="f-light f-w-500 f-14">Models Data</span>
+               
+                <div class="project-details">
+                  <div class="project-counter">
+                    <h6 class="f-w-600 pb-2 "><a href="{{route('modelsView','P')}}">Vehicle Submitted:- {{$vehicleSub}}</a></h6><span class="f-12 f-w-400"></span>
+                    <h6 class="f-w-600 pb-2"><a href="{{route('modelsView','A')}}">Approved by OEM:-{{$vehicleApp}}</a></h6><span class="f-12 f-w-400"></span>
+               
+                    
+                  </div>
+                  <div class="product-sub bg-secondary-light"> 
+                    <svg class="invoice-icon">
+                      <use href="{{ asset('admin/svg/icon-sprite.svg#fill-form')}}"></use>
+                    </svg>
+                  </div>
+                </div>
+                <ul class="bubbles"> 
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                  <li class="bubble"></li>
+                  <li class="bubble"></li>
+                  <li class="bubble"> </li>
+                </ul>
+              </div>
+            </div>
+          </div>--}}
+
+{{-- 0n 16-07-2024 to download file --}}
+
+<div class="col-xl-4 col-sm-6">
+                              <div class="card o-hidden small-widget">
+                                  <div class="card-body OEM-data border-b-primary border-2">
+                                      <span class="f-light f-w-500 f-14">Sale Details (EVs) (Nos.)</span>
+                                      <div class="OEM-data-details">
+                                          <div class="OEM-data-counter">
+                                              <div class="d-flex align-items-center justify-content-between pb-2">
+                                                  <div>
+                                                      <h6 class="f-w-600">
+                                                          <a href="{{ route('claimDetails', 'AV') }}">
+                                                              Vehicle Approved by OEM:
+                                                              {{ $claimData->where('oem_status', 'A')->count() }}
+                                                          </a>
+                                                      </h6>
+                                                  </div>
+                                                  <div>
+                                                      <a href="{{ route('claimDetails.download', 'AV') }}" ><i class="fa fa-download"></i></a>
+                                                  </div>
+                                              </div>
+                                              <div class="d-flex align-items-center justify-content-between pb-2">
+                                                  <div>
+                                                      <h6 class="f-w-600">
+                                                          <a href="{{ route('claimDetails', 'CG') }}">
+                                                              Claim Generated by OEM:
+                                                              {{ $claimData->whereNotNull('claim_id')->whereNull('lot_id')->where('oem_status', 'A')->count() }}
+                                                          </a>
+                                                      </h6>
+                                                  </div>
+                                                  <div>
+                                                      <a href="{{ route('claimDetails.download', 'CG') }}" ><i class="fa fa-download"></i></a>
+                                                  </div>
+                                              </div>
+                                              <div class="d-flex align-items-center justify-content-between">
+                                                  <div>
+                                                      <h6 class="f-w-600">
+                                                          <a href="{{ route('claimDetails', 'CS') }}">
+                                                              Claim Submitted by OEM:
+                                                              {{ $claimData->whereNotNull('claim_id')->whereNotNull('lot_id')->where('oem_status', 'A')->count() }}
+                                                          </a>
+                                                      </h6>
+                                                  </div>
+                                                  <div>
+                                                      <a href="{{ route('claimDetails.download', 'CS') }}" ><i class="fa fa-download"></i></a>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <ul class="bubbles">
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                          <li class="bubble"></li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </div>
+
+{{-- end--}}
+
+
+
+
+          @endif
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Container-fluid Ends-->
+</div>
+@endsection
