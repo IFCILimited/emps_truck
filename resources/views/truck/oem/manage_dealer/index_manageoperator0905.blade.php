@@ -1,7 +1,7 @@
 <!-- Nav Bar Ends here -->
 @extends('layouts.e_truck_dashboard_master')
 @section('title')
-    Manage Dealer
+    Manage Operator
 @endsection
 
 @push('styles')
@@ -14,7 +14,7 @@
             <div class="page-title">
                 <div class="row">
                     <div class="col-6">
-                        <h4>Manage Dealer</h4>
+                        <h4>Manage Operator</h4>
                     </div>
                     <div class="col-6">
                         <ol class="breadcrumb">
@@ -24,7 +24,7 @@
                                     </svg></a></li>
                             {{-- <li class="breadcrumb-item">Manage OEM</li>
                             <li class="breadcrumb-item active">OEM Post-Registration</li> --}}
-                            <li class="breadcrumb-item">Manage Dealer</li>
+                            <li class="breadcrumb-item">Manage Operator</li>
                         </ol>
                     </div>
                 </div>
@@ -33,12 +33,12 @@
         <!-- Container-fluid starts-->
         <div class="container-fluid">
             <div class="row">
-                <span class="pull-right">
+                {{-- <span class="pull-right">
                     <button class="btn btn-primary" type="button">
-                        <a href="{{ route('e-trucks.manageDealer.create') }}" class="text-light" style="text-decoration: none;"><i class="fa fa-user"></i>  Add Single Dealer</a>
+                        <a href="{{ route('manageDealer.create') }}" class="text-light" style="text-decoration: none;"><i class="fa fa-user"></i>  Add Single Dealer</a>
                     </button>
                     <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#AddBulkDearlers"><i class="fa fa-users"></i>  Add Dealers in Bulk</button>
-                </span>
+                </span> --}}
                 &nbsp;
                 <div class="col-sm-12">
                     <div class="card">
@@ -49,52 +49,34 @@
                                         <tr>
                                             <th>S.No.</th>
                                             <th>Dealer Name</th>
-                                            <th>Dealer Code</th>
-                                            <th>GSTIN Number</th>
+                                            {{-- <th>Dealer Code</th> --}}
+                                            <th>Operator Name</th>
+                                            <th>Operator Code</th>
+                                            {{-- <th>GSTIN Number</th> --}}
                                             <th>Mobile Number</th>
                                             <th>Username</th>
-                                            <th>Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($dealerReg as $key => $dealerRegs)
+                                        @foreach ($operator as $key => $dealerRegs)
                                             <tr>
                                                 <td>{{ $key+1 }}</td>
+                                                {{-- <td>{{ $dealer->where('parent_id', $dealerRegs->parent_id)->first()->name }}</td> --}}
                                                 <td>{{ $dealerRegs->name }}</td>
+                                                {{-- <td>{{ $dealerRegs->dealer_code }}</td> --}}
+                                                <td>{{ $dealerRegs->auth_name }}</td>
                                                 <td>{{ $dealerRegs->dealer_code }}</td>
-                                                <td>{{ $dealerRegs->dealer_gstin_no }}</td>
+                                                {{-- <td>{{ $dealerRegs->dealer_gstin_no }}</td> --}}
                                                 <td>{{ $dealerRegs->mobile }}</td>
                                                 <td>{{ $dealerRegs->username }}</td>
                                                 <td>
-
-                                                    @if($dealerRegs->isactive == 'Y' && $dealerRegs->isapproved == 'Y')
-                                                        
-                                                        <a href="{{ route('e-trucks.updateDealer', ['status' => 'Y', 'did' => $dealerRegs->id]) }}" 
-                                                            class="btn btn-success" 
-                                                            onclick="AcDec(event, 'Y')"> 
-                                                            Activate
-                                                            </a>
-                                                    @elseif($dealerRegs->isactive == 'N' && $dealerRegs->isapproved == 'N')
-                                                    <a href="{{ route('e-trucks.updateDealer', ['status' => 'N', 'did' => $dealerRegs->id]) }}" 
-                                                        class="btn btn-info" 
-                                                        onclick="AcDec(event, 'N')"> 
-                                                        Deactivate
-                                                        </a>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($dealerRegs->isactive == 'Y' && $dealerRegs->isapproved == 'Y')
-                                                        <ul class="action">
-                                                            <li class=""><a href="{{ route('e-trucks.manageDealer.show', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">View</a></li>&nbsp;
-                                                            <li class=""><a href="{{ route('e-trucks.manageDealer.resendMail', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">Resend Mail</a></li>
-                                                        </ul>
-                                                    @else
-                                                    -
-                                                    @endif
+                                                    <ul class="action">
+                                                        <li class=""><a href="{{ route('e-trucks.manageDealer.show', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">View</a></li>&nbsp;
+                                                        <li class=""><a href="{{ route('e-trucks.manageDealer.resendMail', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">Resend Mail</a></li>
+                                                    </ul>
                                                 </td>
                                             </tr>
-                                            
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -116,7 +98,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('e-trucks.upload-excel') }}" method="POST" enctype="multipart/form-data" class="class='form-horizontal prevent-multiple-submit">
+                    <form action="{{ route('upload-excel') }}" method="POST" enctype="multipart/form-data" class="class='form-horizontal prevent-multiple-submit">
                         @csrf
                         <div class="form-group">
                             <label for="excel_file">Choose Excel File:</label>
@@ -134,47 +116,5 @@
 @endsection
 
 @push('scripts')
-
-<script>
-    function AcDec(event, status) {
-    event.preventDefault(); // Prevent direct navigation
-
-    if(status == 'N'){
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'You are about to change the dealer status to Activate. Do you want to proceed?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, proceed!',
-        cancelButtonText: 'No, cancel',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect after confirmation
-            window.location.href = event.target.href;
-        }
-    });
-}
-else if(status == 'Y'){
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'You are about to change the dealer status to Deactivate. Do you want to proceed?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, proceed!',
-        cancelButtonText: 'No, cancel',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect after confirmation
-            window.location.href = event.target.href;
-        }
-    });
-}
-
-}
-
-
-</script>
 @include('partials.js.prevent')
 @endpush

@@ -116,7 +116,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('e-trucks.upload-excel') }}" method="POST" enctype="multipart/form-data" class="class='form-horizontal prevent-multiple-submit">
+                    <form action="{{ route('upload-excel') }}" method="POST" enctype="multipart/form-data" class="class='form-horizontal prevent-multiple-submit">
                         @csrf
                         <div class="form-group">
                             <label for="excel_file">Choose Excel File:</label>

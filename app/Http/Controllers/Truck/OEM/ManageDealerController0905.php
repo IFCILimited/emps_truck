@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\OEM;
-
+namespace App\Http\Controllers\Truck\OEM;
 use DB;
 use Exception;
 use App\Models\DealerRegistration;
@@ -45,11 +44,45 @@ class ManageDealerController extends Controller
 
                
 
-            return view('oem.manage_dealer.index_managedealer', compact('dealerReg'));
+            return view('truck.oem.manage_dealer.index_managedealer', compact('dealerReg'));
         } catch (\Exception $e) {
             errorMail($e, $pid);
             return redirect()->back();
         }
+    }
+
+    public function operator(){
+
+        $pid = getParentId();
+        
+        // try {
+            $operator = DB::table('users')
+                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                ->whereIn('model_has_roles.role_id', [6])
+                ->where('oem_id', $pid)
+                ->wherenotnull('parent_id')
+                ->select('users.*', 'roles.name as  role')
+                ->get();
+
+                // $dealer = DB::table('users')
+                // ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                // ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                // ->whereIn('model_has_roles.role_id', [6])
+                // ->where('oem_id', $pid)
+                // // ->wherenotnull('parent_id')
+                // ->select('users.*', 'roles.name as  role')
+                // ->get();
+                
+                // dd($dealer);
+
+            return view('truck.oem.manage_dealer.index_manageoperator',
+            compact('operator'));
+        // } catch (\Exception $e) {
+        //     errorMail($e, $pid);
+        //     return redirect()->back();
+        // }
+
     }
 
     /**
@@ -62,7 +95,7 @@ class ManageDealerController extends Controller
         $pid = getParentId();
         try {
             Auth::id();
-            return view('oem.manage_dealer.create_managedealer');
+            return view('truck.oem.manage_dealer.create_managedealer');
         } catch (\Exception $e) {
             errorMail($e, $pid);
             return redirect()->back();
@@ -124,17 +157,17 @@ class ManageDealerController extends Controller
                 //     $message->to($userMail['email'])->subject($userMail['status']);
                 // });
                 $to = $userMail['email'];
-                $cc= '';
-                $bcc='';
-                $subject=$userMail['status'];
-                $from = 'noreply.pmedrive@heavyindustry.gov.in';
-                $msg=view('emails.Credential', ['user' => $userMail])->render();
-
-                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+                $cc = '';
+                $bcc = 'ajaharuddin.ansari@ifciltd.com';
+                $subject = $userMail['status'];
+                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                $msg = view('emails.Credential', ['user' => $userMail])->render();
+        
+                $send = sendMail($to, $cc, $bcc, $subject, $msg);
             });
             if (is_null($exception)) {
                 alert()->success('Dealer has been successfully created.', 'Success')->persistent('Close');
-                return redirect()->route('manageDealer.index');
+                return redirect()->route('e-trucks.manageDealer.index');
             } else {
                 throw new Exception;
             }
@@ -144,7 +177,7 @@ class ManageDealerController extends Controller
                 $errorMessage = "A record with the same value already exists.";
             }
             alert()->warning('Something Went Wrong: ' . $errorMessage, 'Danger')->persistent('Close');
-            return redirect()->route('manageDealer.index')->withErrors(['error' => $errorMessage]);
+            return redirect()->route('e-trucks.manageDealer.index')->withErrors(['error' => $errorMessage]);
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('An error occurred: ' . $e->getMessage());
@@ -153,7 +186,7 @@ class ManageDealerController extends Controller
             alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
     
             // Redirect to a specific route
-            return redirect()->route('manageDealer.index');
+            return redirect()->route('e-trucks.manageDealer.index');
         }
     }
 
@@ -193,7 +226,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
         } catch (Exception $e) {
             // dd($e,2);
             errorMail($e, Auth::user()->id); // Handle exception (e.g., log or send email)
-            return redirect()->route('manageDealer.index'); // Redirect after handling exception
+            return redirect()->route('e-trucks.manageDealer.index'); // Redirect after handling exception
         }
     }
 
@@ -205,7 +238,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
 
             $dealerReg = User::where("id", $id)->first();
 
-            return view('oem.manage_dealer.view_managedealer', compact('dealerReg'));
+            return view('truck.oem.manage_dealer.view_managedealer', compact('dealerReg'));
         } catch (\Exception $e) {
             errorMail($e, $pid);
             return redirect()->back();
@@ -226,7 +259,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
 
             $dealerReg = User::where("id", $id)->first();
 
-            return view("oem.manage_dealer.edit_managedealer", compact("dealerReg"));
+            return view("truck.oem.manage_dealer.edit_managedealer", compact("dealerReg"));
         } catch (\Exception $e) {
             errorMail($e, $pid);
             return redirect()->back();
@@ -283,17 +316,17 @@ ini_set('max_execution_time', 3600);        // dd($request);
                 // });
                 $to = $userMail['email'];
                 $cc= '';
-                $bcc='';
+                $bcc='ajaharuddin.ansari@ifciltd.com';
                 $subject=$userMail['status'];
-                $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
                 $msg=view('emails.Credential', ['user' => $userMail])->render();
 
-                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+                $send = sendMail($to, $cc, $bcc, $subject, $msg);
 
 
             });
             alert()->success('Data has been successfully updated.', 'Success')->persistent('Close');
-            return redirect()->route('manageDealer.index');
+            return redirect()->route('e-trucks.manageDealer.index');
         } catch (Exception $e) {
             errorMail($e, $pid);
             return redirect()->back();
@@ -336,12 +369,12 @@ ini_set('max_execution_time', 3600);        // dd($request);
 
         $to = $userMail['email'];
         $cc = '';
-        $bcc = '';
+        $bcc = 'ajaharuddin.ansari@ifciltd.com';
         $subject = $userMail['status'];
-        $from = 'noreply.pmedrive@heavyindustry.gov.in';
+        // $from = 'noreply.pmedrive@heavyindustry.gov.in';
         $msg = view('emails.Credential', ['user' => $userMail])->render();
 
-        $response = sendEmailNic($to, $cc, $bcc, $subject, $from, $msg);
+        $send = sendMail($to, $cc, $bcc, $subject, $msg);
 
         alert()->success('Email has been successfully resent.', 'Success')->persistent('Close');
     } catch (Exception $e) {
@@ -354,6 +387,31 @@ ini_set('max_execution_time', 3600);        // dd($request);
 
     return redirect()->back();
     // return redirect()->route('manageDealer.index');
+}
+
+public function updateDealer($status,$did) {
+    try {
+    if($status == 'N'){
+        DB::table('users')->where('id',$did)->update([
+            'isactive'=>'N',
+            'isapproved'=>'N',
+        ]);
+
+    }
+    elseif($status == 'Y'){
+        DB::table('users')->where('id',$did)->update([
+            'isactive'=>'Y',
+            'isapproved'=>'Y',
+        ]);
+    }
+    alert()->success('Dealer Deactivated Successfully ', 'Success')->persistent('Close');
+    return redirect()->back();
+} catch (Exception $e) {
+  
+    alert()->warning('Something Went Wrong ', 'Danger')->persistent('Close');
+    return redirect()->back();
+}
+    
 }
 
 

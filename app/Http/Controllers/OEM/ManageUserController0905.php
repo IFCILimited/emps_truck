@@ -96,10 +96,10 @@ class ManageUserController extends Controller
                 $cc= '';
                 $bcc='';
                 $subject=$userMail['status'];
-                $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
                 $msg=view('emails.Credential', ['user' => $userMail])->render();
 
-                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+                $response = sendMail($to,$cc,$bcc,$subject,$msg);
             });
             if (is_null($exception)) {
                 alert()->success('User has been successfully created.', 'Success')->persistent('Close');

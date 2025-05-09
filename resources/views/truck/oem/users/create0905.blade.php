@@ -25,10 +25,9 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <form action="{{ route('e-trucks.manageUser.update', $users->id) }}" id="creUser" role="form" method="POST"
+                    <form action="{{ route('e-trucks.manageUser.store') }}" id="creUser" role="form" method="POST"
                         class='form-horizontal prevent-multiple-submit' files=true enctype='multipart/form-data' accept-charset="utf-8">
                         @csrf
-                        {{ method_field('Patch') }}
                         <div class="card">
                             <div class="card-body">
                                 <div class=" row">
@@ -41,50 +40,52 @@
                                     <div class="col-md-4">
                                         <label for="dealer_name" class="col-form-label text-md-right">Auth Name<span
                                                 class="text-danger">*</span></label>
-                                            <input type="text" name="auth_name"  value="{{$users->auth_name}}" class="form-control">
+                                            <input type="text" name="auth_name" value="" class="form-control">
                                     </div>
                                     <div class="col-md-4">
                                     <label for="dealer_code" class="col-form-label text-md-right">Email<span
                                             class="text-danger">*</span></label>
-                                        <input type="email" name="email" id="email" value="{{$users->email}}" class="form-control">
+                                        <input type="email" name="email" id="email" class="form-control">
                                     </div>
                                     <div class="col-md-4">
                                         <label for="dealer_name" class="col-form-label text-md-right">Mobile<span
                                                 class="text-danger">*</span></label>
-                                            <input type="number" name="mobile" value="{{$users->mobile}}" class="form-control">
+                                            <input type="number" name="mobile" value="" class="form-control">
                                         </div>
 
-
+                                      
                                         <div class="col-md-4">
                                             <label for="dealer_name" class="col-form-label text-md-right">Designation<span
                                                     class="text-danger">*</span></label>
-                                                <input type="text" name="designation" value="{{$users->auth_designation}}" class="form-control">
+                                                <input type="text" name="designation" value="" class="form-control">
                                         </div>
-
-                                        {{-- <div class="col-md-4">
-                                            <label for="dealer_name" class="col-form-label text-md-right">Status<span
-                                                    class="text-danger">*</span></label>
-                                                    <select class="form-control" name="isactive" id="">
-                                                        <option disabled selected>Select</option>
-                                                        <option value="Y" {{($users->isactive == 'Y') ? 'selected' : ''}}>Activate</option>
-                                                        <option value="N" {{($users->isactive == 'N') ? 'selected' : ''}} >Deactivate</option>
-                                                    </select>
-                                        </div> --}}
-
                                         <div class="col-md-4">
-                                            <label for="dealer_name" class="col-form-label text-md-right">Is active<span
+                                            <label for="dealer_name" class="col-form-label text-md-right">Is Approved<span
                                                     class="text-danger">*</span></label>
-                                                    <select class="form-control" name="isactive" id="">
+                                                    <select class="form-control" name="isapproved" id="">
                                                         <option disabled selected>Select</option>
-                                                        <option value="Y" {{($users->isactive == 'Y') ? 'selected' : ''}}>Activate</option>
-                                                        <option value="N" {{($users->isactive == 'N') ? 'selected' : ''}} >Deactivate</option>
+                                                        <option value="Y">Yes</option>
+                                                        <option value="N">No</option>
                                                     </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="remarks" class="col-form-label text-md-right">Remarks<span class="text-danger">*</span></label>
-                                            <textarea name="remarks" class="form-control" rows="3">{{$users->remarks}}</textarea>
+                                            <label for="dealer_name" class="col-form-label text-md-right">Is Active<span
+                                                    class="text-danger">*</span></label>
+                                                    <select class="form-control" name="isactive" id="">
+                                                        <option disabled selected>Select</option>
+                                                        <option value="Y">Yes</option>
+                                                        <option value="N">No</option>
+                                                    </select>
                                         </div>
                                 </div>
+                              
+                                
+                                
+                                
+                                
+                                
+                                
+                                
                             </div>
                         </div>
                         <div class="row col-12">
@@ -92,10 +93,10 @@
                                 <a href="{{ route('e-trucks.manageUser.index') }}" class="btn btn-warning">Back</a>
                             </div>
                             <div class="col-md-4 text-center">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Update</button>
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save Application</button>
                             </div>
                         </div>
-
+                        
                     </form>
                 </div>
             </div>
@@ -109,7 +110,7 @@
 <script>
      $('#email').on('blur', function() {
                 var email = $(this).val();
-
+ 
                 // Send AJAX request to the server to check if the email exists
                 $.ajax({
                     type: 'POST',

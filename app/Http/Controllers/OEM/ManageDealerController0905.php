@@ -158,13 +158,13 @@ class ManageDealerController extends Controller
                 //     $message->to($userMail['email'])->subject($userMail['status']);
                 // });
                 $to = $userMail['email'];
-                $cc= '';
-                $bcc='';
-                $subject=$userMail['status'];
-                $from = 'noreply.pmedrive@heavyindustry.gov.in';
-                $msg=view('emails.Credential', ['user' => $userMail])->render();
-
-                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+                $cc = '';
+                $bcc = 'ajaharuddin.ansari@ifciltd.com';
+                $subject = $userMail['status'];
+                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                $msg = view('emails.Credential', ['user' => $userMail])->render();
+        
+                $send = sendMail($to, $cc, $bcc, $subject, $msg);
             });
             if (is_null($exception)) {
                 alert()->success('Dealer has been successfully created.', 'Success')->persistent('Close');

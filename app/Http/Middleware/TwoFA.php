@@ -36,9 +36,9 @@ class TwoFA
         // }
 
 
-         if ($user->mobile_verified_at) {
+        //  if ($user->mobile_verified_at) {
             // if ($user->isotpverified) {
-                // if (1) {
+                if (1) {
                      if (1) {
                 return $next($request);
             } else {

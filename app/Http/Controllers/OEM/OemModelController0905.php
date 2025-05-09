@@ -330,6 +330,28 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                     $oemModelmaster->status = 'S';
                     $oemModelmaster->submitted_at = Carbon::now();
                     $oemModelmaster->save();
+
+
+                    $ta_name = DB::table('users')->where('id',$oemModelmaster->testing_agency_id)->first();
+                    $oem = DB::table('users')->where('id',$user_id)->first();
+                    $detail = DB::table('vw_model_details')->where('model_detail_id',$request->id)->first();
+                    // dd($oem,$detail);
+            $to = $oem->email;
+            $cc =  ['emps-2024@ifciltd.com'];
+            $bcc = ['ajaharuddin.ansari@ifciltd.com'];
+            $subject = 'Model submitted successfully';
+            $body = view('emails.model_submitted_by_oem', ['user' => $ta_name, 'detail'=>$oem,'exfp'=>$request->ex_factory_price, 'model'=>$detail])->render();
+
+            $send = sendMail($to,$cc,$bcc,$subject,$body);
+            
+            $to1 = $ta_name->email;
+            $cc1 =  [$oem->email,'emps-2024@ifciltd.com'];
+            $bcc1 = ['ajaharuddin.ansari@ifciltd.com'];
+            $subject1 = 'Model submitted successfully by OEM';
+            $body1 = view('emails.model_submitted_by_oem_toTa', ['user' => $ta_name, 'detail'=>$oem, 'model'=>$detail])->render();
+            
+            $send1 = sendMail($to1,$cc1,$bcc1,$subject1,$body1);
+
                 }
             });
 
@@ -361,11 +383,14 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
     public function final_submit($id)
     {
+        $pid = getParentId();
         try {
             $oemModelmaster = OemModelDetail::find($id);
             $oemModelmaster->status = 'S';
             $oemModelmaster->submitted_at = Carbon::now();
             $oemModelmaster->save();
+
+            
             return redirect()->route('oemModel.index');
         } catch (\Exception $e) {
 alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
