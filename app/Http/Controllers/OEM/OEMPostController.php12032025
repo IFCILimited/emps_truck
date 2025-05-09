@@ -45,9 +45,7 @@ class OEMPostController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
-         ini_set('memory_limit', '7048M');
-        ini_set('max_execution_time', 7600);
+        // dd($request);
         try {
             DB::transaction(function () use ($request) {
                 $userPostData = PostRegistrationDetail::where('user_id', $request->user_id)->first();
@@ -282,14 +280,14 @@ class OEMPostController extends Controller
                     'password' => $request->password
                 );
 
-          
-            $to =  $userMail['email'];
-            $cc= ['emps-2024@ifciltd.com'];
-            $bcc=['ajaharuddin.ansari@ifciltd.com'];
-            $subject='Your registration process has been initiated';
-            // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-            $msg=view('emails.post_registration_submitted_by_oem', ['user' => $userData])->render();
-            $send = sendMail($to,$cc,$bcc,$subject,$msg);
+            $to = $userMail['email'];
+            $cc= '';
+            $bcc='';
+            $subject=$userMail['status'];
+            $from = 'noreply.pmedrive@heavyindustry.gov.in';
+            $msg=view('emails.Postregistration', ['user' => $userMail])->render();
+ 
+            $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
 
 
             $dsUsers = DB::table('users')
@@ -299,13 +297,14 @@ class OEMPostController extends Controller
             ->get();
 
            foreach($dsUsers as $dsUser){
-            $to =  $dsUser->email;
-            $cc= ['emps-2024@ifciltd.com'];
-            $bcc=['ajaharuddin.ansari@ifciltd.com'];
-            $subject='Oem has successfully submitted the post registration form';
-            // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-            $msg=view('emails.post_registration_submitted_by_oem_toDs', ['duser' => $dsUser ,'user'=>$userData])->render();
-            $send = sendMail($to,$cc,$bcc,$subject,$msg);
+            $to = $dsUser->email;
+            $cc= '';
+            $bcc='';
+            $subject=env('APP_NAME').'Portal - Registration';
+            $from = 'noreply.pmedrive@heavyindustry.gov.in';
+            $msg=view('emails.oem_ds_as_postregister', ['dsUser' => $dsUser, 'user' => $userData])->render();
+
+            $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
 
            }
             });
@@ -313,7 +312,6 @@ class OEMPostController extends Controller
             alert()->success('Post Registration Successfully Submit', 'Success')->persistent('Close');
             return redirect()->route('home');
         } catch (Exception $e) {
-            dd($e);
            alert()->success('Something Went Wrong', 'Error')->persistent('Close');
             return redirect()->back();
         }

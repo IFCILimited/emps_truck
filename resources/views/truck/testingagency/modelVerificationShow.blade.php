@@ -678,9 +678,9 @@
                                         </div>
                                 @elseif($model->pma_status == 'A')
                                 <div class="col-12 text-center mt-2">
-                                        @if(!Auth::user()->hasRole('TESTINGAGENCY'))
+                                        {{-- @if(!Auth::user()->hasRole('TESTINGAGENCY'))
                                             <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#revert">Revert</button>
-                                        @endif
+                                        @endif --}}
                                         <a href="{{ url()->previous() }}" class="btn btn-warning">Back</a>
                                     </div>
                                 @endif

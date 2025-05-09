@@ -81,7 +81,7 @@ class ModelRequestController extends Controller
             // dd($model);
             return view('truck.testingagency.modelVerification', compact('model', 'testing_agency_name'));
         } catch (\Exception $e) {
-            errorMail($e, Auth::user()->id);
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
@@ -294,6 +294,7 @@ class ModelRequestController extends Controller
      */
     public function show($id)
     {
+        
         try {
             $parentUser = session('parent_user') != null ? session('parent_user') : null;
 
@@ -313,16 +314,16 @@ class ModelRequestController extends Controller
                 $model = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->where('testing_agency_id', $pid)->first();
                 $testing_agency_name = Auth::user()->name;
             } elseif (Auth::user()->hasRole('PMA')) {
-                $model = DB::table('vw_model_details')->where('model_detail_id', $id)->first();
+                $model = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->first();
                 $testing_agency_name = DB::table('users')->where('id', $model->testing_agency_id)->first()->name;
             } elseif (Auth::user()->hasRole('MHI-DS|MHI-AS|MHI|MHI-OnlyView')) {
-                $model = DB::table('vw_model_details')->where('model_detail_id', $id)->where('testing_flag', 'A')->first();
+                $model = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->where('testing_flag', 'A')->first();
                 $testing_agency_name = DB::table('users')->where('id', $model->testing_agency_id)->first()->name;
             }
 
             return view('truck.testingagency.modelVerificationShow', compact('id', 'model', 'testing_agency_name'));
         } catch (\Exception $e) {
-            errorMail($e, Auth::user()->id);
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
@@ -354,14 +355,14 @@ class ModelRequestController extends Controller
     public function modelRevert(Request $request)
     {
 
-        $model = DB::table('oem_model_details')->where('id', $request->mid)->first();
+        $model = DB::table('truck_oem_model_details')->where('id', $request->mid)->first();
 
         try {
             DB::transaction(function () use ($model, $request) {
 
 
 
-                DB::table('oem_model_details_auditor')->insert([
+                DB::table('oem_model_details_auditor_trucks')->insert([
                     'oem_model_details_id' => $model->id,
                     'oem_id' => $model->oem_id,
                     'model_id' => $model->model_id,
@@ -456,7 +457,7 @@ class ModelRequestController extends Controller
 
                 ]);
 
-                DB::table('oem_model_details')->where('id', $model->id)->update([
+                DB::table('truck_oem_model_details')->where('id', $model->id)->update([
                     'testing_flag' => 'D',
                     'pma_status' => null,
                     'pma_remarks' => null,
@@ -480,14 +481,14 @@ class ModelRequestController extends Controller
     public function modelRevertMHI(Request $request)
     {
 
-        $model = DB::table('oem_model_details')->where('id', $request->mid)->first();
+        $model = DB::table('truck_oem_model_details')->where('id', $request->mid)->first();
 
         try {
             DB::transaction(function () use ($model, $request) {
 
 
 
-                DB::table('oem_model_details_auditor')->insert([
+                DB::table('oem_model_details_auditor_trucks')->insert([
                     'oem_model_details_id' => $model->id,
                     'oem_id' => $model->oem_id,
                     'model_id' => $model->model_id,
@@ -587,7 +588,7 @@ class ModelRequestController extends Controller
 
                 ]);
 
-                DB::table('oem_model_details')->where('id', $model->id)->update([
+                DB::table('truck_oem_model_details')->where('id', $model->id)->update([
                     'pma_status' => null,
                     'pma_remarks' => null,
                     'mhi_flag' => null,
@@ -626,12 +627,12 @@ class ModelRequestController extends Controller
             }
             $id = decrypt($id);
 
-            $model = DB::table('vw_model_details')->where('model_detail_id', $id)->first();
+            $model = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->first();
             $testing_agency_name = DB::table('users')->where('id', $model->testing_agency_id)->first()->name;
 
             return view('truck.testingagency.modelVerificationShow', compact('id', 'model', 'testing_agency_name'));
         } catch (\Exception $e) {
-            errorMail($e, Auth::user()->id);
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }

@@ -13,6 +13,7 @@ class HomeController extends Controller
 
     public function index()
     {
+        // Auth::logout();
         $counter = Counter::firstOrCreate([], ['count' => 0]);
             // Increment the counter
         $counter->increment('count');
@@ -33,6 +34,14 @@ class HomeController extends Controller
         $role_id = decrypt($roleid);
         session(['role_id' => $role_id]);
         return redirect()->route('login');
+    }
+
+
+    public function signup($utype)
+    {
+        $utype = decrypt($utype);
+        session(['utype' => $utype]);
+        return redirect()->route('register');
     }
 
     public function contact()

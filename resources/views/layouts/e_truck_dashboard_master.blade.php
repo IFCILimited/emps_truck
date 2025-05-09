@@ -50,7 +50,7 @@
             <div class="loader4"></div>
         </div>
     </div>
-
+  
     <!-- loader ends-->
     <!-- tap on top starts-->
     <div class="tap-top"><i data-feather="chevrons-up"></i></div>
@@ -137,8 +137,7 @@
                                 </div>
                             </li>
                             <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
-                                    class="sidebar-link sidebar-title link-nav"
-                                    href="{{ route('e-trucks.dashboard') }}">
+                                    class="sidebar-link sidebar-title link-nav" href="{{ route('e-trucks.dashboard') }}">
                                     <svg class="stroke-icon">
                                         <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-home') }}"></use>
                                     </svg>
@@ -412,36 +411,8 @@
                                         </a>
                                     </li>
                                 @endif
-                            @elseif(Auth::user()->hasRole('TESTINGAGENCY'))
-                                {{-- <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
-                                        style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
-                                        href="{{ route('modelRequests.index') }}">
-                                        <svg class="stroke-icon">
-                                            <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
-                                            </use>
-                                        </svg>
-                                        <svg class="fill-icon">
-                                            <use
-                                                href="{{ asset('admin/svg/icon-sprite.svg#fill-stroke-knowledgebase') }}">
-                                            </use>
-                                        </svg><span>Model Request Received</span>
-                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                    </a></li> --}}
-                                    <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
-                                        style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
-                                        href="{{ route('modelRequests.index') }}">
-                                        <svg class="stroke-icon">
-                                            <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
-                                            </use>
-                                        </svg>
-                                        <svg class="fill-icon">
-                                            <use
-                                                href="{{ asset('admin/svg/icon-sprite.svg#fill-stroke-knowledgebase') }}">
-                                            </use>
-                                        </svg><span>Truck Model Request Received</span>
-                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                    </a></li>
-                            @elseif(Auth::user()->hasRole('DEALER-Truck'))
+                           
+                                @elseif(Auth::user()->hasRole('DEALER-Truck'))
                                 @if (getParentId() == Auth::user()->id)
                                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                             class="sidebar-link sidebar-title link-nav"
@@ -479,7 +450,8 @@
                                         style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('e-trucks.checkEligibility.index') }}">
                                         <svg class="stroke-icon">
-                                            <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
+                                            <use
+                                                href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
                                             </use>
                                         </svg>
                                         <svg class="fill-icon">
@@ -500,10 +472,8 @@
                                             </use>
                                         </svg><span>Customer Information </span></a>
                                     <ul class="sidebar-submenu">
-                                        <li><a href="{{ route('e-trucks.buyerdetail.index') }}">Individual Customer
-                                            </a></li>
-                                        <li><a href="{{ route('e-trucks.buyerdetail.multi_buyers') }}">Bulk
-                                                Customer</a></li>
+                                        <li><a href="{{ route('e-trucks.buyerdetail.index') }}">Individual Customer </a></li>
+                                        <li><a href="{{ route('e-trucks.buyerdetail.multi_buyers') }}">Bulk Customer</a></li>
                                     </ul>
                                 </li>
                                 <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
@@ -619,5 +589,4 @@
     @include('sweetalert::alert')
     <script src="{{ asset('admin/js/script.js') }}"></script>
 </body>
-
 </html>

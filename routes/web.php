@@ -60,6 +60,7 @@ Route::get('refresh-captcha', function () {
 
 Route::get('/', 'HomeController@index')->name('home');
 Route::get('signin/{roleid}', 'HomeController@signin')->name('signin');
+Route::get('signup/{utype}', 'HomeController@signup')->name('signup');
 Route::get('contact-us/', 'HomeController@contact')->name('contact-us');
 Route::get('support/', 'HomeController@support')->name('support');
 Route::get('about-us/', 'HomeController@about_us')->name('about-us');
@@ -153,7 +154,16 @@ Route::group(['middleware' => ['role:MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA', 'verif
     Route::get('postRegister/{status}', 'Admin\ManageOemController@postRegister')->name('postRegister');
     Route::get('oemPostRegistration', 'Admin\ManageOemController@oemPostRegistration')->name('oemPostRegistration');
     Route::post('PreApproveReject', 'Admin\ManageOemController@PreApproveReject')->name('PreApproveReject');
+    
 
+    // Truck & Buses
+
+    Route::resource('truckoemRegistration', 'Truck\Admin\ManageOemController');
+    Route::get('truckpreRegister/{status}', 'Truck\Admin\ManageOemController@preRegister')->name('truckpreRegister');
+    Route::get('truckpostRegister/{status}', 'Truck\Admin\ManageOemController@postRegister')->name('truckpostRegister');
+    Route::post('truckPreApproveReject', 'Truck\Admin\ManageOemController@PreApproveReject')->name('truckPreApproveReject');
+    Route::get('truckoemPostRegistration', 'Truck\Admin\ManageOemController@oemPostRegistration')->name('truckoemPostRegistration');
+   
     // Bank Approval
     Route::resource('bankApproval', 'Admin\ManageBankApprovalController');
 
@@ -161,7 +171,7 @@ Route::group(['middleware' => ['role:MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA', 'verif
 });
 
 // OEM
-Route::group(['middleware' => ['role:OEM|PMA|DEALER', 'verified', 'TwoFA', 'IsApproved']], function () {
+Route::group(['middleware' => ['role:OEM|OEM-Truck|PMA|DEALER', 'verified', 'TwoFA', 'IsApproved']], function () {
 
 
     Route::get('unactiveUser', 'OEM\ManageUserDeactivationController@index')->name('unactiveUser');
@@ -380,7 +390,7 @@ Route::group(['middleware' => ['role:MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA|AUDITOR'
     Route::get('claimEvaluation/submit/{claim_id}/{auditor_id}', 'PMA\ClaimEvaluationController@claimsubmit')->name('claimEvaluation.submit');
     Route::get('claimEvaluation/download/{id}', 'PMA\ClaimEvaluationController@downloadUploadedFile')->name('claimEvaluation.download');
     Route::get('buyDetailView/{claimId?}', 'PMA\ClaimEvaluationController@buyDetailView')->name('claimEvaluation.buyDetailView');
-    Route::post('claimEvaluation/claimstagesubmit/{claim_id}/{stage_id}', 'PMA\ClaimEvaluationController@claimstagesubmit')->name('claimEvaluation.claimstagesubmit');
+
     Route::resource('oemChartDetails', 'Admin\FlowChart\OemDetailController');
 
     Route::resource('modelChartDetails', 'Admin\FlowChart\ModelChartDetailController');

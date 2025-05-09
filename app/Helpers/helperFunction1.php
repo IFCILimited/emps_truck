@@ -378,55 +378,56 @@ function generatePassword()
 }
 
 
-function errorMail($e, $id)
-{
-    \Log::error($e->getMessage());
-    report($e);
+// function errorMail($e, $id)
+// {
+//     \Log::error($e->getMessage());
+//     report($e);
 
-    $mail_details = DB::table('error_mail')->get();
-    $dev_data = $mail_details->where('email_type', 'to')->first();
-    // dd($dev_data);
-    $cc_details = $mail_details->where('email_type', 'cc');
-    $user_data = DB::table('users')->where('id', $id)->first();
-    // dd($cc_details);
-    foreach ($cc_details as $k => $val) {
-        $cc[] = $val->email;
-        $cc_per_name[] = $val->name;
-    }
-    // dd($cc);
-    $data = array(
-        'name' => $dev_data->name,
-        // 'to_email' => $dev_data->email,
-        'to_email' => 'ajaharuddin.ansari@ifciltd.com',
-        'error' => $e->getMessage(),
-        // 'cc_email' => $cc,
-        'cc_email' => 'ajaharuddin.ansari@ifciltd.com',
-        'cc_name' => $cc_per_name,
-        'app_name' => $user_data->name,
-        'mobile' => $user_data->mobile,
-        'contact_person' => $user_data->auth_name
-    );
-    $emailString = implode(',', $data['cc_email']);
-    // dd($emailString);
-    $ccemail = json_encode($data['cc_email']);
-    $to = $data['to_email'];
-    // $cc = $emailString;
-    $cc = '';
-    $bcc = '';
-    $subject = 'Error Log || EMPS';
-    $from = 'noreply.emps.heavyindustry@gov.in';
-    $msg = view('emails.exception', ['data' => $data])->render();
+//     $mail_details = DB::table('error_mail')->get();
+//     $dev_data = $mail_details->where('email_type', 'to')->first();
+//     // dd($dev_data);
+//     $cc_details = $mail_details->where('email_type', 'cc');
+//     $user_data = DB::table('users')->where('id', $id)->first();
+//     // dd($cc_details);
+//     foreach ($cc_details as $k => $val) {
+//         $cc[] = $val->email;
+//         $cc_per_name[] = $val->name;
+//     }
+//     // dd($cc);
+//     $data = array(
+//         'name' => $dev_data->name,
+//         // 'to_email' => $dev_data->email,
+//         'to_email' => 'ajaharuddin.ansari@ifciltd.com',
+//         'error' => $e->getMessage(),
+//         // 'cc_email' => $cc,
+//         'cc_email' => 'ajaharuddin.ansari@ifciltd.com',
+//         'cc_name' => $cc_per_name,
+//         'app_name' => $user_data->name,
+//         'mobile' => $user_data->mobile,
+//         'contact_person' => $user_data->auth_name
+//     );
+//     $emailString = implode(',', $data['cc_email']);
+//     // dd($emailString);
+//     $ccemail = json_encode($data['cc_email']);
+//     $to = $data['to_email'];
+//     // $cc = $emailString;
+//     $cc = '';
+//     $bcc = '';
+//     $subject = 'Error Log || EMPS';
+//     $from = 'noreply.emps.heavyindustry@gov.in';
+//     $msg = view('emails.exception', ['data' => $data])->render();
 
-    $response = sendEmailNic($to, $cc, $bcc, $subject, $from, $msg);
+//     $response = sendEmailNic($to, $cc, $bcc, $subject, $from, $msg);
 
-    // dd($response);
-    // Mail::send('emails.exception', $data, function($message) use($data) {
-    // $message->to($data['to_email'],$data['name'])->subject
-    // ("Error Log || EMPS");
-    // $message->cc($data['cc_email'],$data['cc_name']);
-    // });
-    alert()->warning('Something went wrong,Please try again.', 'Warning')->persistent('Close');
-}
+//     // dd($response);
+//     // Mail::send('emails.exception', $data, function($message) use($data) {
+//     // $message->to($data['to_email'],$data['name'])->subject
+//     // ("Error Log || EMPS");
+//     // $message->cc($data['cc_email'],$data['cc_name']);
+//     // });
+//     alert()->warning('Something went wrong,Please try again.', 'Warning')->persistent('Close');
+// }
+
 
 function sendEmailNic($to, $cc, $bcc, $subject, $from, $msg)
 {
