@@ -364,7 +364,7 @@
                                         <div class="col-4 mb-3 ">
                                             <label class="form-label" for="vehicle_category">Vehicle Category (as per
                                                 CMVR):</label>
-                                            <select class="form-select" name="vehicle_category" id="vehicle_category">
+                                            <select class="form-select" name="vehicle_category" id="">
                                                 <option selected disabled value="">Choose...</option>
                                                 @foreach ($categories as $category)
                                                     <option value="{{ $category->id }}"
