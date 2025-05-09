@@ -163,13 +163,13 @@ Route::group(['middleware' => ['role:OEM-Truck|PMA|DEALER-Truck', 'verified', 'T
 });
 
 // Testing Agency
-Route::group(['middleware' => ['role:OEM-Truck', 'verified', 'TwoFA', 'IsApproved']], function () {
-    Route::resource('modelRequests', 'TestingAgency\ModelRequestController');
-    Route::get('modelRequests/create/{id}', 'TestingAgency\ModelRequestController@create')->name('modelRequests.create');
-    Route::post('modelPreview', 'TestingAgency\ModelRequestController@modelPreview')->name('modelPreview');
-    Route::post('modelRevert', 'TestingAgency\ModelRequestController@modelRevert')->name('modelRevert');
-    Route::post('modelRevertMHI', 'TestingAgency\ModelRequestController@modelRevertMHI')->name('modelRevertMHI');
-    Route::get('modelRequestsChart/{id}', 'TestingAgency\ModelRequestController@modelChart')->name(name: 'modelChart.show');
+Route::group(['middleware' => ['role:OEM-Truck|TESTINGAGENCY', 'verified', 'TwoFA', 'IsApproved']], function () {
+    Route::resource('modelRequests', 'Truck\TestingAgency\ModelRequestController');
+    Route::get('modelRequests/create/{id}', 'Truck\TestingAgency\ModelRequestController@create')->name('modelRequests.create');
+    Route::post('modelPreview', 'Truck\TestingAgency\ModelRequestController@modelPreview')->name('modelPreview');
+    Route::post('modelRevert', 'Truck\TestingAgency\ModelRequestController@modelRevert')->name('modelRevert');
+    Route::post('modelRevertMHI', 'Truck\TestingAgency\ModelRequestController@modelRevertMHI')->name('modelRevertMHI');
+    Route::get('modelRequestsChart/{id}', 'Truck\TestingAgency\ModelRequestController@modelChart')->name(name: 'modelChart.show');
 });
 
 

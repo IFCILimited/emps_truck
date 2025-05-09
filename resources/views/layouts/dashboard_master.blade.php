@@ -585,6 +585,20 @@
                                         </svg><span>Model Request Received</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a></li>
+                                    <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
+                                        style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
+                                        href="{{ route('e-trucks.modelRequests.index') }}">
+                                        <svg class="stroke-icon">
+                                            <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
+                                            </use>
+                                        </svg>
+                                        <svg class="fill-icon">
+                                            <use
+                                                href="{{ asset('admin/svg/icon-sprite.svg#fill-stroke-knowledgebase') }}">
+                                            </use>
+                                        </svg><span>Truck Model Request Received</span>
+                                        <div class="according-menu"><i class="fa fa-angle-right"></i></div>
+                                    </a></li>
                                   
                             @elseif(Auth::user()->hasRole('DEALER'))
                                 @if (getParentId() == Auth::user()->id)
