@@ -32,32 +32,36 @@ class ClaimEvaluationController extends Controller
         $segMaster = DB::table('segment_master')->pluck('segment_name', 'id', 'segMaster');
 
         if (Auth::user()->hasRole('AUDITOR')) {
-            $data = DB::table('claim_evaluation_stages')
-                ->select('claim_id', 'auditor_id')
-                ->where('visible_status', '1')
-                ->where('status', 'S')
-                ->where('auditor_id', Auth::user()->id)
-                ->groupBy('claim_id', 'auditor_id')
-                ->get();
+            // $data = DB::table('claim_evaluation_stages')
+            //     ->select('claim_id', 'auditor_id')
+            //     ->where('visible_status', '1')
+            //     ->where('status', 'S')
+            //     ->where('auditor_id', Auth::user()->id)
+            //     ->groupBy('claim_id', 'auditor_id')
+            //     ->get();
             // $claimMaster = DB::table('claim_master_view as cmv')
-            //     ->join('claim_evaluation_stages as ces', 'ces.claim_id', 'cmv.claim_id')
-            //     ->join('users as u', 'u.id', 'ces.auditor_id' )
+            //     ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
+            //     ->join('users as u', 'u.id', '=', 'ces.auditor_id')
+            //     ->leftJoin('claim_eval_master_vw as cem', 'cem.claim_id', '=', 'cmv.claim_id')
+            //     ->select('cmv.*', 'u.name as auditor_name', 'cem.pma_amount')
             //     ->where('ces.stage_id', '1')
             //     ->where('ces.visible_status', '1')
             //     ->where('ces.status', 'S')
-            //     ->whereIn('cmv.claim_id', $data->pluck('claim_id')) // Filter by claim_id
-            //     ->whereIn('ces.auditor_id', $data->pluck('auditor_id')) // Filter by auditor_id
+            //     ->whereIn('cmv.claim_id', $data->pluck('claim_id')) // $data is a pluck with claim_id as keys
+            //     ->whereIn('ces.auditor_id', $data->pluck('auditor_id')) // $data values are auditor_id
             //     ->get();
-            $claimMaster = DB::table('claim_master_view as cmv')
-                ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
-                ->join('users as u', 'u.id', '=', 'ces.auditor_id')
-                ->select('cmv.*', 'u.name as auditor_name')
-                ->where('ces.stage_id', '1')
-                ->where('ces.visible_status', '1')
-                ->where('ces.status', 'S')
-                ->whereIn('cmv.claim_id', $data->pluck('claim_id')) // $data is a pluck with claim_id as keys
-                ->whereIn('ces.auditor_id', $data->pluck('auditor_id')) // $data values are auditor_id
-                ->get();
+
+            $claimMaster = DB::table('claim_eval_master_vw as cmv')
+            ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
+            ->where('ces.visible_status', true)
+            ->where('ces.status', 'S')
+            ->where('ces.stage_id', 1)
+            ->where('ces.auditor_id', Auth::user()->id)
+            ->whereRaw('? = (SELECT MAX(stage_id) FROM claim_evaluation_stages WHERE visible_status = true AND status = ?)', [1, 'S'])
+            ->select('cmv.*', 'ces.stage_id')
+            ->get();
+
+            return view('pma.claimevaluation.AuditorEvaluationHome', compact('claimMaster', 'oemDetails', 'segMaster'));
         } elseif (Auth::user()->hasRole('PMA')) {
             $data = DB::table('claim_evaluation_stages')
                 ->select('claim_id')
@@ -65,13 +69,6 @@ class ClaimEvaluationController extends Controller
                 ->where('status', 'S')
                 ->groupBy('claim_id')
                 ->pluck('claim_id');
-
-
-
-            // $claimMaster = DB::table('claim_master_view')
-            // ->get();
-
-
             $claimMaster = DB::table('claim_master_view as cmv')
                 ->leftJoin('claim_evaluation_stages as ces', function ($join) {
                     $join->on('ces.claim_id', '=', 'cmv.claim_id')
@@ -80,10 +77,53 @@ class ClaimEvaluationController extends Controller
                         ->where('ces.status', '=', 'S');
                 })
                 ->leftJoin('users as u', 'u.id', '=', 'ces.auditor_id')
-                ->select('cmv.*', 'u.name as auditor_name') // Optional: alias to make clearer in Blade
+                ->leftJoin('claim_eval_master_vw as cem', 'cem.claim_id', '=', 'cmv.claim_id')
+                ->whereNotNull('cmv.pma_process_at')
+                ->select('cmv.*', 'u.name as auditor_name', 'cem.pma_amount', 'ces.stage_id') // Optional: alias to make clearer in Blade
                 ->get();
+            $claimMasterauditor = DB::table('claim_eval_master_vw as cmv')
+                ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
+                ->where('ces.visible_status', true) // boolean, not '1'
+                ->where('ces.status', 'S')          // string, quoted
+                ->where('ces.stage_id', 1)
+                ->whereRaw('1 = (SELECT MAX(stage_id) FROM claim_evaluation_stages WHERE visible_status = true AND status = \'S\')')
+                ->select('cmv.*', 'ces.stage_id')
+                ->get();
+            $auditortopma = DB::table('claim_eval_master_vw as cmv')
+                ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
+                ->where('ces.visible_status', true)
+                ->where('ces.status', 'S')
+                ->where('ces.stage_id', 10)
+                ->whereRaw('? = (SELECT MAX(stage_id) FROM claim_evaluation_stages WHERE visible_status = true AND status = ?)', [10, 'S'])
+                ->select('cmv.*', 'ces.stage_id')
+                ->get();
+
+            $claimMastermhi = DB::table('claim_eval_master_vw as cmv')
+                ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
+                ->where('ces.visible_status', true)
+                ->where('ces.status', 'S')
+                ->where('ces.stage_id', 20)
+                ->whereRaw('? = (SELECT MAX(stage_id) FROM claim_evaluation_stages WHERE visible_status = true AND status = ?)', [20, 'S'])
+                ->select('cmv.*', 'ces.stage_id')
+                ->get();
+
+
+            return view('pma.claimevaluation.claimEvaluationHome', compact('auditortopma', 'claimMasterauditor', 'claimMastermhi', 'claimMaster', 'oemDetails', 'segMaster', 'data'));
+        } elseif (Auth::user()->hasRole('MHI')) {
+
+
+            $claimMaster = DB::table('claim_eval_master_vw as cmv')
+                ->join('claim_evaluation_stages as ces', 'ces.claim_id', '=', 'cmv.claim_id')
+                ->where('ces.visible_status', true)
+                ->where('ces.status', 'S')
+                ->where('ces.stage_id', 20)
+                ->whereRaw('? = (SELECT MAX(stage_id) FROM claim_evaluation_stages WHERE visible_status = true AND status = ?)', [20, 'S'])
+                ->select('cmv.*', 'ces.stage_id')
+                ->get();
+
+
+            return view('pma.claimevaluation.AuditorEvaluationHome', compact('claimMaster', 'oemDetails', 'segMaster'));
         }
-        return view('pma.claimevaluation.claimEvaluationHome', compact('claimMaster', 'oemDetails', 'segMaster', 'data'));
     }
     public function search($oem_user_id, $segm)
     {
@@ -118,9 +158,6 @@ class ClaimEvaluationController extends Controller
         } elseif (Auth::user()->hasRole('MHI-AS|MHI-DS')) {
             $claimMaster = DB::table('claim_master_view')->whereNotNull('lot_id')->whereNotNull('pma_process_at')->whereNotNull('pma_claim_submitted_at')->wherenull('mhi_claim_submitted_at')->where('oem_id', $oem_user_id)->where('segment_name', $seg->segment_name)->get();
         }
-
-
-
         return view('pma.claimevaluation.claimEvaluationHome', compact('claimMaster', 'oemDetails', 'segMaster', 'oem_user_id', 'segm'));
     }
 
@@ -134,12 +171,7 @@ class ClaimEvaluationController extends Controller
             ->where('claim_id', $claimId)
             ->get();
 
-        // getStageIdcheck
-        // $data = $this->getStageIdcheck($claimId,$stage_id);
-        // if (!Auth::user()->hasRole('AUDITOR') || !$stage || $stage->status != 'S') {
-        //     alert()->error('Cannot access this page')->persistent('Close');
-        //     return redirect()->back();
-        // }
+
         $auditors = DB::table('users as u')
             ->join('model_has_roles as mhr', 'mhr.model_id', '=', 'u.id')
             ->join('roles as r', 'r.id', '=', 'mhr.role_id')
@@ -148,14 +180,16 @@ class ClaimEvaluationController extends Controller
             ->get();
 
         if (count($stage) > 0) {
-            $buyerDetails = DB::table('claim_evaluation_summary_vw')->where('claim_id', $claimId)->get();
+            $buyerDetails = DB::table('claim_evaluation_summary_vw')->where('claim_id', $claimId)
+                ->orderby('vin_chassis_no')
+                ->get();
             $remarks = DB::table('remarks')->get();
             $pmaStatus = DB::table('claim_evaluation_status')->get();
-          
         } else {
             $buyerDetails = DB::table('tblclaimvahanresult_vw')->where('claim_id', $claimId)->get();
             $remarks = DB::table('remarks')->get();
-            $pmaStatus = DB::table('claim_evaluation_status')->get();
+            $pmaStatus = DB::table('claim_evaluation_status')
+                ->get();
             // dd($buyerDetails);
         }
 
@@ -475,8 +509,6 @@ class ClaimEvaluationController extends Controller
                 $rawIds = trim($row[11]); // e.g., "1,2"
                 $idArray = explode(',', $rawIds); // ['1', '2']
                 $jsonIds = json_encode($idArray);
-
-                // Fetch the corresponding data from the claim_evaluation_data table
                 $data_vin = DB::table('claim_evaluation_data')
                     ->where('vin_chassis_no', $vin)
                     ->first();
@@ -485,7 +517,6 @@ class ClaimEvaluationController extends Controller
                     // If VIN is not found in claim_evaluation_data, throw an exception
                     throw new \Exception("VIN '{$vin}' not found in claim_evaluation_data table.");
                 }
-
                 // Add data to the approvalData array
                 $approvalData[] = [
                     'claim_id'        => $claim_id,
@@ -590,12 +621,13 @@ class ClaimEvaluationController extends Controller
 
     private function getStageIdByRole($user)
     {
+
         if ($user->hasRole('PMA')) {
             return 1;
         } elseif ($user->hasRole('AUDITOR')) {
-            return 2;
+            return 10;
         } elseif ($user->hasRole('MHI')) {
-            return 4;
+            return 20;
         }
 
         return null; // Default case if no role matches
@@ -613,15 +645,18 @@ class ClaimEvaluationController extends Controller
         //
     }
 
-    public function claimsubmit($claimid, $auditor_id)
+    public function claimsubmit($claimid, $auditor_id, Request $request)
     {
-
         $stage_id = $this->getStageIdByRole(Auth::user());
+
+        $workflow_stages = DB::table('workflow_stages')->where('stage_order', $stage_id)->first();
         $evl_stage = DB::table('claim_evaluation_stages')
             ->where('claim_id', $claimid)
             ->where('stage_id', $stage_id)
             ->first();
-
+        if ($auditor_id == 0) {
+            $auditor_id = null;
+        }
         DB::table('claim_evaluation_stages')
             ->where('id', $evl_stage->id)
             ->update([
@@ -629,7 +664,48 @@ class ClaimEvaluationController extends Controller
                 'auditor_id' => $auditor_id,
                 'updated_at' => now(),
             ]);
-        alert()->success('Data Have been Submitted to Auditor.', 'Success')->persistent('Close');
+        alert()->success('Data Have been Submitted ' . $workflow_stages->forward_status . '.', 'Success')->persistent('Close');
+        return redirect()->back();
+    }
+
+    public function claimstagesubmit($claimid, $stage_id, Request $request)
+    {
+        if ($stage_id == 'R') {
+            // $workflow_stages = DB::table('workflow_stages')->where('stage_order', $stage_id)->first();
+            $evl_stage_id = DB::table('claim_evaluation_stages')->insertGetId([
+                'claim_id'        => $claimid,
+                'stage_id'        => 20,
+                'status'          => 'S',
+                'visible_status'  => 0,
+                'revert_remarks'  => $request->remarks,
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+            DB::table('claim_evaluation_stages')
+                ->where('stage_id', '!=', '1')
+                ->where('claim_id', $claimid)
+                ->update([
+                    'visible_status'  => 0,
+                    'updated_at' => now(),
+                ]);
+            alert()->success('Data Have been Submitted ', 'Success')->persistent('Close');
+            return redirect()->back();
+        }
+        $workflow_stages = DB::table('workflow_stages')->where('stage_order', $stage_id)->first();
+        $evl_stage = DB::table('claim_evaluation_stages')
+            ->where('claim_id', $claimid)
+            ->where('stage_id', $stage_id)
+            ->first();
+        $evl_stage_id = DB::table('claim_evaluation_stages')->insertGetId([
+            'claim_id'        => $claimid,
+            'stage_id'        => $stage_id,
+            'status'          => 'S',
+            'visible_status'  => 1,
+            'revert_remarks'  => $request->remarks,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]);
+        alert()->success('Data Have been Submitted ' . $workflow_stages->forward_status . '.', 'Success')->persistent('Close');
         return redirect()->back();
     }
 
@@ -657,7 +733,6 @@ class ClaimEvaluationController extends Controller
 
         // Extract headers from the uploaded Excel file
         $uploadedFileHeaders = $this->getExcelHeaders($uploadedFile);
-
         // Trim spaces from both headers before comparing
         $staticHeaders = array_map('trim', $staticHeaders);
         $uploadedFileHeaders = array_map('trim', $uploadedFileHeaders);
@@ -697,11 +772,4 @@ class ClaimEvaluationController extends Controller
             return false;
         }
     }
-
-    // public function downloadUploadedFile($uploaded_doc_id)
-    // {
-    //     $upload_id = decrypt($uploaded_doc_id);
-    //     $file = downloadFile($upload_id);
-    //     return redirect()->back();
-    // }
 }

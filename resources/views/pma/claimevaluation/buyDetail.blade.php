@@ -131,7 +131,7 @@
                                                </div>
                                            </div>
 
-
+                                           @if (!Auth::user()->hasRole('MHI'))
                                            {{-- Auditor Status --}}
                                            <div class="col-md-6 mb-3">
                                                <div class="border p-3 rounded bg-dark">
@@ -183,13 +183,14 @@
                                                    </div>
                                                </div>
                                            </div>
+                                           @endif
                                        </div> {{-- End Row --}}
                                    </div>
                                </div>
                            </div>
                        </div>
                        {{-- ✅ Auditor Role Section --}}
-                       @if ($stage->where('status', 'S')->where('stage_id', 2)->count() < 1)
+                       @if ($stage->where('status', 'S')->where('stage_id', 10)->count() < 1)
                            @role('AUDITOR')
                                <div class="row">
                                    <div class="col-md-8 d-flex justify-content-end">
@@ -199,9 +200,9 @@
                                        </a>
                                    </div>
                                    @php
-                                       $stage_upload_id = $stage->where('status', 'D')->where('stage_id', 2)->first();
+                                       $stage_upload_id = $stage->where('status', 'D')->where('stage_id', 10)->first();
                                    @endphp
-                                   @if ($stage->where('status', 'D')->where('stage_id', 2)->count() > 0)
+                                   @if ($stage->where('status', 'D')->where('stage_id', 10)->count() > 0)
                                        <div class="col-md-4 d-flex justify-content-end">
                                            {{-- <a href="{{ downloadFile('686')}}" --}}
                                            <a href="{{ route('doc.down', encrypt($stage_upload_id->upload_id)) }}"
@@ -244,22 +245,23 @@
                                                        <div class="col-md-2 offset-md-8">
                                                            <button type="submit" class="btn btn-success w-100 btn-sm"
                                                                id="uploadBtn">
-                                                               @if ($stage->where('status', 'D')->where('stage_id', 2)->count() > 0)
+                                                               @if ($stage->where('status', 'D')->where('stage_id', 10)->count() > 0)
                                                                    Reupload Excel
                                                                @else
                                                                    Upload Excel
                                                                @endif
                                                            </button>
                                                        </div>
-                                                       @if ($stage->where('status', 'D')->where('stage_id', 2)->count() > 0)
+                                                       @if ($stage->where('status', 'D')->where('stage_id', 10)->count() > 0)
                                                            <div class="col-md-2">
-                                                               <button type="button"
-                                                                   class="btn btn-warning w-100 btn-sm btnApp"
-                                                                   data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                   title="Freezing the data will prevent further modifications."
-                                                                   id="freezeDataBtn">
+
+                                                               <button type="button" class="btn btn-warning action-btn1"
+                                                                   data-title="Freeze Data - Cannot be changed after submission"
+                                                                   data-type="F" data-confirm="Yes, Submit">
                                                                    Freeze Data
                                                                </button>
+
+
                                                            </div>
                                                        @endif
 
@@ -271,10 +273,6 @@
                                </div>
                            @endrole
                        @endif
-
-
-
-
                        <div class="row">
                            <div class="col-xl-12">
                                <div class="col-6 mb-3">
@@ -310,7 +308,7 @@
                                                                    Amount</th>
                                                                <th scope="col">PMA Status</th>
                                                                <th scope="col">PMA Remark</th>
-
+                                                               @if (!Auth::user()->hasRole('MHI'))
                                                                @if (Auth::user()->hasRole('AUDITOR') || count($stage) > 1)
                                                                    <th scope="col" style="white-space: nowrap">Auditor
                                                                        Approved
@@ -324,6 +322,7 @@
                                                                    <th scope="col">Auditor Status</th>
                                                                    <th scope="col">Auditor Remark</th>
                                                                    <th scope="col">Date Of Payment</th>
+                                                               @endif
                                                                @endif
 
                                                            </tr>
@@ -354,14 +353,15 @@
                                                                            {{ $buyerDetail->remark ?? 'NA' }}</td>
 
                                                                        @if ($stage->where('status', 'D')->where('stage_id', '1')->count() == 1 || $stage->count() == 0)
-                                                                          
-                                                                       @php
-                                                                       $approved_incentive = $buyerDetail->pma_amount ?? $buyerDetail->approved_incentive;
-                                                                   @endphp
-                                                                       <td class="text-end">
+                                                                           @php
+                                                                               $approved_incentive =
+                                                                                   $buyerDetail->pma_amount ??
+                                                                                   $buyerDetail->approved_incentive;
+                                                                           @endphp
+                                                                           <td class="text-end">
                                                                                <input type="number"
                                                                                    name="data[{{ $sn }}][approved_amt]"
-                                                                                   value="{{ $approved_incentive}}"
+                                                                                   value="{{ $approved_incentive }}"
                                                                                    class="form-control-sm text-end"
                                                                                    placeholder="PMA Approved Amount"
                                                                                    id="pmaApproved"
@@ -384,26 +384,29 @@
                                                                                    id="pmaWithheld">
                                                                            </td>
                                                                            <td class="text-start">
-                                                                            <select class="form-select"
-                                                                                name="data[{{ $sn }}][pma_status]"
-                                                                                style="width: 100px;" required
-                                                                                onchange="upVal(this)">
-                                                                                <option value="" disabled selected>Please Select</option>
-                                                                        
-                                                                                @php
-                                                                                    $syst_status_id = $buyerDetail->pma_status_id ?? $buyerDetail->syst_status_id;
-                                                                                @endphp
-                                                                        
-                                                                                @foreach ($pmaStatus as $stat)
-                                                                                    <option
-                                                                                        value="{{ $stat->id }}|{{ $stat->name }}"
-                                                                                        {{ $stat->id == $syst_status_id ? 'selected' : '' }}>
-                                                                                        {{ $stat->name }}
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            </select>
-                                                                        </td>
-                                                                        
+                                                                               <select class="form-select"
+                                                                                   name="data[{{ $sn }}][pma_status]"
+                                                                                   style="width: 100px;" required
+                                                                                   onchange="upVal(this)">
+                                                                                   <option value="" disabled
+                                                                                       selected>Please Select</option>
+
+                                                                                   @php
+                                                                                       $syst_status_id =
+                                                                                           $buyerDetail->pma_status_id ??
+                                                                                           $buyerDetail->syst_status_id;
+                                                                                   @endphp
+
+                                                                                   @foreach ($pmaStatus as $stat)
+                                                                                       <option
+                                                                                           value="{{ $stat->id }}|{{ $stat->name }}"
+                                                                                           {{ $stat->id == $syst_status_id ? 'selected' : '' }}>
+                                                                                           {{ $stat->name }}
+                                                                                       </option>
+                                                                                   @endforeach
+                                                                               </select>
+                                                                           </td>
+
                                                                            <td class="text-start">
 
                                                                                <textarea rows="3" cols="30" disabled>{{ $buyerDetail->pma_remarks ?? '' }}</textarea>
@@ -435,7 +438,7 @@
                                                                            <td class="text-start">
                                                                                {{ $buyerDetail->pma_remarks }}</td>
                                                                        @endif
-
+                                                                       @if (!Auth::user()->hasRole('MHI'))
                                                                        @if (count($stage) < 2)
                                                                            @if (Auth::user()->hasRole('AUDITOR'))
                                                                                <td>-</td>
@@ -463,6 +466,7 @@
                                                                                {{ $buyerDetail->auditor_date_of_payment }}
                                                                            </td>
                                                                        @endif
+                                                                       @endif
 
                                                                    </tr>
                                                                @endforeach
@@ -488,18 +492,52 @@
                                                        </div>
                                                    @endif
                                                @endif
+
+                                           </div>
+                                       </div>
+
+                                   </form>
+
+                                   <form id="actionForm" method="POST" action="">
+                                       @csrf
+                                       <div class="card">
+                                           <div class="card-body">
+                                               @if ($stage->where('stage_id', 10)->count() > 0 && $stage->max('stage_id') == 10)
+                                                   @if (Auth::user()->hasRole('PMA'))
+                                                       <div class="col-12 mt-2">
+                                                           <div class="form-group">
+                                                               <label for="remarks">Remarks</label>
+                                                               <textarea name="remarks" id="hiddenRemarks" class="form-control" rows="3"
+                                                                   placeholder="Enter your remarks here..." required></textarea>
+                                                           </div>
+                                                           <div class="text-center mt-2">
+                                                               <button type="button" class="btn btn-warning action-btn"
+                                                                   data-title="Revert to Auditor" data-type="R"
+                                                                   data-confirm="Yes, Submit">
+                                                                   Revert to Auditor
+                                                               </button>
+
+                                                               <button type="button" class="btn btn-primary action-btn"
+                                                                   data-title="Forward to MHI" data-type="20"
+                                                                   data-confirm="Yes, Forward">
+                                                                   Submit To
+                                                                   MHI
+                                                               </button>
+
+                                                           </div>
+                                                       </div>
+                                                   @endif
+                                               @endif
                                            </div>
                                        </div>
                                    </form>
                                </div>
                            </div>
                        </div>
-                   </div> {{-- page-title --}}
-               </div> {{-- container-fluid --}}
-           </div> {{-- page-body --}}
-       @endsection
-
-       @push('scripts')
+                   </div>
+               </div>
+           </div>
+           @endsection @push('scripts')
            <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
            <script>
                $(document).ready(function() {
@@ -510,40 +548,73 @@
                        width: 'resolve'
                    });
                });
+               $('.action-btn1').click(function(e) {
+                   e.preventDefault();
 
-               //    $('.btnApp').click(function(e) {
-               //        e.preventDefault(); // Prevent default form submission
-               //        Swal.fire({
-               //            title: 'Are you sure?',
-               //            text: 'You are about to submit the form. Are you sure you want to proceed?',
-               //            icon: 'warning',
-               //            showCancelButton: true,
-               //            confirmButtonText: 'Yes, submit!',
-               //            cancelButtonText: 'No, cancel',
-               //            reverseButtons: true
-               //        }).then((result) => {
-               //            if (result.isConfirmed) {
-               //                // Disable the button to prevent multiple submissions
-               //                $(this).addClass('disabled');
-               //                $(this).prop('disabled', true);
+                   const $button = $(this);
+                   const title = $button.data('title');
+                   const confirmText = $button.data('confirm');
 
-               //                // Submit the form
-               //                var link = '/claimEvaluation/submit/' + {{ $claimId }};
-               //                window.location.href = link;
-               //                // $('#formReject').submit();
-               //            } else {
-               //                // If user clicks cancel, enable the button
-               //                $(this).removeClass('disabled');
-               //                $(this).prop('disabled', false);
-               //            }
-               //        });
-               //    });
+                   Swal.fire({
+                       title: title,
+                       html: `<p class="mt-2 text-left">Kindly confirm the selected auditor before proceeding with the claim evaluation.</p>`,
+                       icon: 'question',
+                       showCancelButton: true,
+                       confirmButtonText: confirmText,
+                       cancelButtonText: 'Cancel',
+                       reverseButtons: true,
+                       focusConfirm: false,
+                   }).then((result) => {
+                       if (result.isConfirmed) {
+                           $('#freezeDataBtn').addClass('disabled').prop('disabled', true);
+                           const claimId = {{ $claimId }};
+                           const link = `/claimEvaluation/submit/${claimId}/${0}`;
+                           window.location.href = link;
+                       }
+                   });
+               });
 
+               $('.action-btn').click(function(e) {
+                   e.preventDefault();
 
+                   const $button = $(this);
+                   const title = $button.data('title');
+                   const type = $button.data('type');
+                   const confirmText = $button.data('confirm');
+                   const remarks = $('#hiddenRemarks').val();
+                   const claimId = {{ $claimId }};
+
+                   if (!remarks) {
+                       Swal.fire('Remarks Required', 'Please enter your remarks before submitting.', 'warning');
+                       return;
+                   }
+                   Swal.fire({
+                       title: title,
+                       html: `<p class="mt-2 text-left">Kindly confirm the selected auditor before proceeding with the claim evaluation.</p>`,
+                       icon: 'question',
+                       showCancelButton: true,
+                       confirmButtonText: confirmText,
+                       cancelButtonText: 'Cancel',
+                       reverseButtons: true,
+                       focusConfirm: false,
+                   }).then((result) => {
+                       if (result.isConfirmed) {
+                           $button.addClass('disabled').prop('disabled', true);
+
+                           // Set remarks in hidden input
+                           $('#hiddenRemarks').val(remarks);
+
+                           // Set form action URL with claimId and type
+                           $('#actionForm').attr('action', `/claimEvaluation/claimstagesubmit/${claimId}/${type}`);
+
+                           // Submit form
+                           $('#actionForm').submit();
+                       }
+                   });
+               });
 
                $('.btnApp').click(function(e) {
                    e.preventDefault();
-
                    Swal.fire({
                        title: 'Forward to Auditor',
                        html: `
@@ -584,11 +655,6 @@
                        }
                    });
                });
-
-
-
-
-
                // Function to handle PMA status change
                function upVal(selectElement) {
                    let selectedValue = selectElement.value;
@@ -604,35 +670,15 @@
                        inputField.val(oldValue);
                        inputField1.val(0);
                        inputField2.val(0);
+                   } else if (selectedId === "2") {
+                       inputField1.val(oldValue);
+                       inputField2.val(0);
+                       inputField.val(0);
+                   } else if (selectedId === "3") {
+                       inputField2.val(oldValue);
+                       inputField.val(0);
+                       inputField1.val(0);
                    }
-                   else if (selectedId === "2") {
-                    inputField1.val(oldValue);
-                    inputField2.val(0);
-                    inputField.val(0);
-                   }
-                   else if (selectedId === "3") {
-                    inputField2.val(oldValue);
-                    inputField.val(0);
-                    inputField1.val(0);
-                   }
-                //     else if (["2", "3"].includes(selectedId)) {
-                //        inputField.val(0);
-                //    }
                }
-
-               // Function to handle Auditor status change
-               //    function AuditorVal(selectElement) {
-               //        let selectedValue = selectElement.value;
-               //        let [selectedId, selectedText] = selectedValue.split("|").map(val => val.trim());
-               //        let row = $(selectElement).closest('tr');
-               //        let inputField = row.find('input[name^="data"][name$="[auditor_approved_amt]"]');
-               //        let oldValue = inputField.attr('data-auditor-value');
-
-               //        if (selectedId === "1" && selectedText === "Maybe Approved") {
-               //            inputField.val(oldValue);
-               //        } else if (["2", "3"].includes(selectedId)) {
-               //            inputField.val(0);
-               //        }
-               //    }
            </script>
        @endpush

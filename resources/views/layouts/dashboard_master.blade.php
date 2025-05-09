@@ -1094,24 +1094,7 @@
                                     </a>
                                 </li>
                                 @if (Auth::user()->id == 6096)
-                                    <li class="sidebar-list">
-                                        <a class="sidebar-link sidebar-title link-nav"
-                                            href="{{ route('claimEvaluation.index') }}">
-                                            <i class="fa fa-thumb-tack"></i>
-                                            <svg class="stroke-icon">
-                                                <use
-                                                    href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
-                                                </use>
-                                            </svg>
-                                            <svg class="fill-icon">
-                                                <use
-                                                    href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
-                                                </use>
-                                            </svg>
-                                            <span>Claim Evaluation</span>
-                                            <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                        </a>
-                                    </li>
+                                  
                                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                             class="sidebar-link sidebar-title" href="#">
                                             <svg class="stroke-icon">
