@@ -119,7 +119,7 @@ class OtpController extends Controller
 
     public function formOTP($email, $mobile)
     {
-        return response()->json(['status' => 'success', 'message' => 'OTP sent successfully']);
+       
         $formOTP = Session::get('formOTP');
 
         if (is_null($formOTP)) {
@@ -153,18 +153,18 @@ class OtpController extends Controller
         // $portal_name=env('APP_NAME') .'-2024';
         // $msg_mail = 'One-time password (OTP) for login is ' . $otp . '%0A%0ADo not share this OTP with anyone.%0A%0A'.$portal_name.', IFCI LIMITED';
         // $smsResponse = sendSMS($mobile, $msg_mail);
-        $smsResponse = $smsResponse=OTPSMS($mobile, $otp);
-        return response()->json(['status' => 'success', 'message' => 'OTP sent successfully']);
+        // $smsResponse = $smsResponse=OTPSMS($mobile, $otp);
+        // return response()->json(['status' => 'success', 'message' => 'OTP sent successfully']);
 
-        if ($smsResponse === 'false') {
-            $resp['error'] = 1;
-            $resp['message'] = 'SMS not sent';
-        } else {
-            Session::put('verifyOTP', $otp);
+        // if ($smsResponse === 'false') {
+        //     $resp['error'] = 1;
+        //     $resp['message'] = 'SMS not sent';
+        // } else {
+        //     Session::put('verifyOTP', $otp);
 
-            $resp['error'] = 0;
-            $resp['message'] = 'OTP generated and sent.';
-        }
+        //     $resp['error'] = 0;
+        //     $resp['message'] = 'OTP generated and sent.';
+        // }
         // Return a JSON response indicating success
         return response()->json(['status' => 'success', 'message' => 'OTP sent successfully']);
     }
