@@ -14,7 +14,7 @@
             <div class="page-title">
                 <div class="row">
                     <div class="col-6">
-                        <h4>Manage Dealer</h4>
+                        <h4>Manage Operator</h4>
                     </div>
                     <div class="col-6">
                         <ol class="breadcrumb">
@@ -24,7 +24,7 @@
                                     </svg></a></li>
                             {{-- <li class="breadcrumb-item">Manage OEM</li>
                             <li class="breadcrumb-item active">OEM Post-Registration</li> --}}
-                            <li class="breadcrumb-item">Manage Dealer</li>
+                            <li class="breadcrumb-item">Manage Operator</li>
                         </ol>
                     </div>
                 </div>
@@ -35,9 +35,9 @@
             <div class="row">
                 <span class="pull-right">
                     <button class="btn btn-primary" type="button">
-                        <a href="{{ route('e-trucks.manageDealer.create') }}" class="text-light" style="text-decoration: none;"><i class="fa fa-user"></i>  Add Single Dealer</a>
+                        <a href="{{ route('e-trucks.manageOperator.create') }}" class="text-light" style="text-decoration: none;"><i class="fa fa-user"></i>  Add Operator</a>
                     </button>
-                    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#AddBulkDearlers"><i class="fa fa-users"></i>  Add Dealers in Bulk</button>
+                    {{-- <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#AddBulkDearlers"><i class="fa fa-users"></i>  Add Dealers in Bulk</button> --}}
                 </span>
                 &nbsp;
                 <div class="col-sm-12">
@@ -48,9 +48,8 @@
                                     <thead>
                                         <tr>
                                             <th>S.No.</th>
-                                            <th>Dealer Name</th>
-                                            <th>Dealer Code</th>
-                                            <th>GSTIN Number</th>
+                                            <th>Operator Name</th>
+                                            <th>Operator Code</th>
                                             <th>Mobile Number</th>
                                             <th>Username</th>
                                             <th>Status</th>
@@ -63,38 +62,44 @@
                                                 <td>{{ $key+1 }}</td>
                                                 <td>{{ $dealerRegs->name }}</td>
                                                 <td>{{ $dealerRegs->dealer_code }}</td>
-                                                <td>{{ $dealerRegs->dealer_gstin_no }}</td>
                                                 <td>{{ $dealerRegs->mobile }}</td>
                                                 <td>{{ $dealerRegs->username }}</td>
                                                 <td>
-
-                                                    @if($dealerRegs->isactive == 'Y' && $dealerRegs->isapproved == 'Y')
-                                                        
-                                                        <a href="{{ route('e-trucks.updateDealer', ['status' => 'Y', 'did' => $dealerRegs->id]) }}" 
-                                                            class="btn btn-success" 
-                                                            onclick="AcDec(event, 'Y')"> 
-                                                            Activate
-                                                            </a>
-                                                    @elseif($dealerRegs->isactive == 'N' && $dealerRegs->isapproved == 'N')
-                                                    <a href="{{ route('e-trucks.updateDealer', ['status' => 'N', 'did' => $dealerRegs->id]) }}" 
-                                                        class="btn btn-info" 
-                                                        onclick="AcDec(event, 'N')"> 
-                                                        Deactivate
-                                                        </a>
-                                                    @endif
+                                                    <ul class="action">
+                                                        @if($dealerRegs->isactive == 'Y' && $dealerRegs->isapproved == 'Y')
+                                                            <li>
+                                                                <a href="javascript:void(0);"
+                                                                   class="btn btn-sm btn-primary"
+                                                                   onclick="confirmAction('{{ route('e-trucks.updateOperator.update', encrypt($dealerRegs->id)) }}', 'deactivate')">
+                                                                   Login Activate
+                                                                </a>
+                                                            </li>
+                                                        @elseif($dealerRegs->isactive == 'N' && $dealerRegs->isapproved == 'N')
+                                                            <li>
+                                                                <a href="javascript:void(0);"
+                                                                   class="btn btn-sm btn-danger"
+                                                                   onclick="confirmAction('{{ route('e-trucks.updateOperator.update', encrypt($dealerRegs->id)) }}', 'activate')">
+                                                                   Login Deactivate
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
                                                 </td>
+
                                                 <td>
-                                                    @if($dealerRegs->isactive == 'Y' && $dealerRegs->isapproved == 'Y')
-                                                        <ul class="action">
-                                                            <li class=""><a href="{{ route('e-trucks.manageDealer.show', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">View</a></li>&nbsp;
-                                                            <li class=""><a href="{{ route('e-trucks.manageDealer.resendMail', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">Resend Mail</a></li>
-                                                        </ul>
-                                                    @else
-                                                    -
-                                                    @endif
+                                                    <ul class="action">
+                                                        @if($dealerRegs->isactive == 'Y' && $dealerRegs->isapproved == 'Y')
+                                                            <!-- Deactivate Button -->
+                                                            <li><a href="{{ route('e-trucks.manageOperator.edit', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-warning">Edit</a></li>&nbsp;
+                                                            <li><a href="{{ route('e-trucks.manageDealer.resendMail', encrypt($dealerRegs->id)) }}" class="btn btn-sm btn-success">Resend Mail</a></li>
+                                                        @elseif($dealerRegs->isactive == 'N' && $dealerRegs->isapproved == 'N')
+                                                            <!-- Activate Button -->
+                                                            <li><a href="#" class="btn btn-sm btn-warning disabled" style="pointer-events: none; opacity: 0.6;">Edit</a></li>&nbsp;
+                                                            <li><a href="#" class="btn btn-sm btn-success disabled" style="pointer-events: none; opacity: 0.6;">Resend Mail</a></li>
+                                                        @endif
+                                                    </ul>
                                                 </td>
                                             </tr>
-                                            
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -134,47 +139,26 @@
 @endsection
 
 @push('scripts')
+@include('partials.js.prevent')
 
 <script>
-    function AcDec(event, status) {
-    event.preventDefault(); // Prevent direct navigation
+    function confirmAction(url, actionType) {
+        let actionText = actionType === 'deactivate' ? 'deactivate' : 'activate';
+        let confirmButtonColor = actionType === 'deactivate' ? '#d33' : '#28a745';
 
-    if(status == 'N'){
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'You are about to change the dealer status to Activate. Do you want to proceed?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, proceed!',
-        cancelButtonText: 'No, cancel',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect after confirmation
-            window.location.href = event.target.href;
-        }
-    });
-}
-else if(status == 'Y'){
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'You are about to change the dealer status to Deactivate. Do you want to proceed?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, proceed!',
-        cancelButtonText: 'No, cancel',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Redirect after confirmation
-            window.location.href = event.target.href;
-        }
-    });
-}
-
-}
-
-
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to " + actionText + " this operator!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: confirmButtonColor,
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, " + actionText + "!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url; // Redirect to update route
+            }
+        });
+    }
 </script>
-@include('partials.js.prevent')
 @endpush

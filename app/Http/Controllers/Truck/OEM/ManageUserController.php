@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Truck\OEM;
+
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Imports\SalesDataImport;
@@ -23,15 +24,14 @@ class ManageUserController extends Controller
     public function index()
     {
         $users = DB::table('users')
-        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-        ->whereIn('model_has_roles.role_id', [4])
-        ->where('parent_id', Auth::user()->id)
-        ->select('users.*', 'roles.name as  role')
-        ->get();
+            ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->whereIn('model_has_roles.role_id', [13])
+            ->where('parent_id', Auth::user()->id)
+            ->select('users.*', 'roles.name as  role')
+            ->get();
 
-            return view('truck.oem.users.index',compact('users'));
-
+        return view('truck.oem.users.index', compact('users'));
     }
 
     /**
@@ -52,6 +52,7 @@ class ManageUserController extends Controller
      */
     public function store(Request $request)
     {
+       
         $password = generatePassword();
 
         try {
@@ -75,11 +76,11 @@ class ManageUserController extends Controller
                 $manageUser->save();
 
 
-                $manageUser->assignRole('OEM');
+                $manageUser->assignRole('OEM-Truck');
 
                 $userData = $manageUser->where('id', $manageUser->id)->first();
 
-                $userMail = array (
+                $userMail = array(
                     'name' => $manageUser->name,
                     'email' => $manageUser->email,
                     'status' => 'Login Credential Successfully Create',
@@ -92,13 +93,13 @@ class ManageUserController extends Controller
                 //     $message->to($userMail['email'])->subject($userMail['status']);
                 // });
                 $to = $userMail['email'];
-                $cc= '';
-                $bcc='';
-                $subject=$userMail['status'];
+                $cc = '';
+                $bcc = '';
+                $subject = $userMail['status'];
                 // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-                $msg=view('emails.Credential', ['user' => $userMail])->render();
+                $msg = view('emails.Credential', ['user' => $userMail])->render();
 
-                $response = sendMail($to,$cc,$bcc,$subject,$msg);
+                $response = sendMail($to, $cc, $bcc, $subject, $msg);
             });
             if (is_null($exception)) {
                 alert()->success('User has been successfully created.', 'Success')->persistent('Close');
@@ -108,10 +109,8 @@ class ManageUserController extends Controller
             }
         } catch (Exception $e) {
             // dd($e);
-alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+            alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
-           // dd($e);
-            //errorMail($e, Auth::user()->id);
             return redirect()->route('e-trucks.manageUser.index');
         }
     }
@@ -137,17 +136,16 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
     {
         $id = decrypt($id);
 
-
         $users = DB::table('users')
-        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-        ->whereIn('model_has_roles.role_id', [4])
-        ->where('parent_id', Auth::user()->id)
-        ->where('users.id', $id)
-        ->select('users.*', 'roles.name as  role')
-        ->first();
+            ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->whereIn('model_has_roles.role_id', [13])
+            ->where('parent_id', Auth::user()->id)
+            ->where('users.id', $id)
+            ->select('users.*', 'roles.name as  role')
+            ->first();
 
-        return view('truck.oem.users.edit',compact('users'));
+        return view('truck.oem.users.edit', compact('users'));
     }
 
     /**
@@ -162,7 +160,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
 
         try {
-            $exception = DB::transaction(function () use ($request,$id) {
+            $exception = DB::transaction(function () use ($request, $id) {
                 $username = generateUsername($request->auth_name, $request->mobile_no);
                 $manageUser = User::find($id);
                 $manageUser->name = Auth::user()->name;
@@ -176,11 +174,9 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
                 $manageUser->save();
 
 
-                $manageUser->assignRole('OEM');
+                $manageUser->assignRole('OEM-Truck');
 
                 $userData = $manageUser->where('id', $manageUser->id)->first();
-
-
             });
             if (is_null($exception)) {
                 alert()->success('User has been successfully updated.', 'Success')->persistent('Close');
@@ -191,7 +187,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         } catch (Exception $e) {
             alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
-           // dd($e);
+            // dd($e);
             //errorMail($e, Auth::user()->id);
             return redirect()->route('e-trucks.manageUser.index');
         }
@@ -208,25 +204,37 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         //
     }
 
-    public function projectionReport(){
+    public function projectionReport()
+    {
 
         $pid = getParentId();
         // $proj = DB::table('projection_report')->where('oem_id',$pid)->count();
         // dd($proj);
-        $projection = DB::table('projection_report')->where('oem_id',$pid)->get();
+        $projection = DB::table('projection_report')->where('oem_id', $pid)->get();
 
-        return view('truck.oem.users.projectionReport',compact('projection'));
+        return view('truck.oem.users.projectionReport', compact('projection'));
     }
-    public function storeReport(request $request){
+    public function storeReport(request $request)
+    {
         // dd($request);
         try {
-        $pid = getParentId();
-        foreach ($request->production as $key => $check) {
-            if (isset($check['id'])) {
-                // Update the existing record
-                DB::table('projection_report')
-                    ->where('id', $check['id'])
-                    ->update([
+            $pid = getParentId();
+            foreach ($request->production as $key => $check) {
+                if (isset($check['id'])) {
+                    // Update the existing record
+                    DB::table('projection_report')
+                        ->where('id', $check['id'])
+                        ->update([
+                            'month' => $check['month'],
+                            'production' => $check['production'],
+                            'sales' => $check['sales'],
+                            'created_by' => $pid,
+                            'created_at' => now(),
+                            'oem_id' => $pid,
+                        ]);
+                } else {
+                    // Insert a new record
+                    DB::table('projection_report')->insert([
                         'month' => $check['month'],
                         'production' => $check['production'],
                         'sales' => $check['sales'],
@@ -234,48 +242,39 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
                         'created_at' => now(),
                         'oem_id' => $pid,
                     ]);
-            } else {
-                // Insert a new record
-                DB::table('projection_report')->insert([
-                    'month' => $check['month'],
-                    'production' => $check['production'],
-                    'sales' => $check['sales'],
-                    'created_by' => $pid,
-                    'created_at' => now(),
-                    'oem_id' => $pid,
-                ]);
+                }
             }
+
+            alert()->success('Projection Report Data has been successfully saved.', 'Success')->persistent('Close');
+            return redirect()->route('e-trucks.projectionReport');
+        } catch (Exception $e) {
+            // dd($e);
+            alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+
+            // dd($e);
+            //errorMail($e, Auth::user()->id);
+            return redirect()->route('e-trucks.projectionReport');
         }
-
-        alert()->success('Projection Report Data has been successfully saved.', 'Success')->persistent('Close');
-                return redirect()->route('e-trucks.projectionReport');
-    } catch (Exception $e) {
-        // dd($e);
-        alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
-
-       // dd($e);
-        //errorMail($e, Auth::user()->id);
-        return redirect()->route('e-trucks.projectionReport');
-    }
     }
 
-    public function uploadSales() {
+    public function uploadSales()
+    {
 
         $catSeg = DB::table('segment_master as sm')
-        ->join('category_master as cm', 'sm.id', '=', 'cm.segment_id')
-        ->select('sm.segment_name',"sm.id as sid", 'cm.category_name',"cm.id as cid") // Adjust the columns you want to select
-        ->get();
+            ->join('category_master as cm', 'sm.id', '=', 'cm.segment_id')
+            ->select('sm.segment_name', "sm.id as sid", 'cm.category_name', "cm.id as cid") // Adjust the columns you want to select
+            ->get();
         // dd($catSeg);
-        return view('truck.oem.users.uploadSales',compact('catSeg'));
+        return view('truck.oem.users.uploadSales', compact('catSeg'));
     }
 
     public function uploadSalesData(Request $request)
     {
         // dd($request);
 
-    ini_set('memory_limit', '2048M');
+        ini_set('memory_limit', '2048M');
 
-    ini_set('max_execution_time', 3600);
+        ini_set('max_execution_time', 3600);
         $request->validate([
             'excel_file' => 'required|mimes:xlsx,xls|max:20480',
         ]);
@@ -308,10 +307,11 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         return Excel::download(new SalesDataExport($data), 'sales_data.xlsx');
     }
 
-    public function uploadSalesReport()  {
+    public function uploadSalesReport()
+    {
         $prev_date = Carbon::yesterday()->format('d-m-Y');
         $curr_date = Carbon::today()->format('d-m-Y');
         $oemSalesData = DB::table('oem_sales_report_view')->get();
-        return view('pma.oem_sale_report',compact('oemSalesData','prev_date','curr_date'));
+        return view('pma.oem_sale_report', compact('oemSalesData', 'prev_date', 'curr_date'));
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\OEM;
-
+namespace App\Http\Controllers\Truck\OEM;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Imports\SalesDataImport;
@@ -30,9 +29,9 @@ class ManageUserController extends Controller
         ->where('parent_id', Auth::user()->id)
         ->select('users.*', 'roles.name as  role')
         ->get();
-           
-            return view('oem.users.index',compact('users'));
-        
+
+            return view('truck.oem.users.index',compact('users'));
+
     }
 
     /**
@@ -42,7 +41,7 @@ class ManageUserController extends Controller
      */
     public function create()
     {
-        return view('oem.users.create');
+        return view('truck.oem.users.create');
     }
 
     /**
@@ -72,7 +71,7 @@ class ManageUserController extends Controller
                 $manageUser->auth_designation = $request->designation;
                 $manageUser->approval_for_post_reg = 'A';
                 $manageUser->post_registration_status = 'A';
-                
+
                 $manageUser->save();
 
 
@@ -96,14 +95,14 @@ class ManageUserController extends Controller
                 $cc= '';
                 $bcc='';
                 $subject=$userMail['status'];
-                $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
                 $msg=view('emails.Credential', ['user' => $userMail])->render();
 
-                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
+                $response = sendMail($to,$cc,$bcc,$subject,$msg);
             });
             if (is_null($exception)) {
                 alert()->success('User has been successfully created.', 'Success')->persistent('Close');
-                return redirect()->route('manageUser.index');
+                return redirect()->route('e-trucks.manageUser.index');
             } else {
                 throw new Exception;
             }
@@ -113,7 +112,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
            // dd($e);
             //errorMail($e, Auth::user()->id);
-            return redirect()->route('manageUser.index');
+            return redirect()->route('e-trucks.manageUser.index');
         }
     }
 
@@ -136,7 +135,19 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
      */
     public function edit($id)
     {
-        //
+        $id = decrypt($id);
+
+
+        $users = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [4])
+        ->where('parent_id', Auth::user()->id)
+        ->where('users.id', $id)
+        ->select('users.*', 'roles.name as  role')
+        ->first();
+
+        return view('truck.oem.users.edit',compact('users'));
     }
 
     /**
@@ -148,7 +159,42 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
      */
     public function update(Request $request, $id)
     {
-        //
+
+
+        try {
+            $exception = DB::transaction(function () use ($request,$id) {
+                $username = generateUsername($request->auth_name, $request->mobile_no);
+                $manageUser = User::find($id);
+                $manageUser->name = Auth::user()->name;
+                $manageUser->email = $request->email;
+                $manageUser->mobile = $request->mobile;
+                $manageUser->auth_name = $request->auth_name;
+                $manageUser->isactive = $request->isactive;
+                $manageUser->isapproved = ($request->isactive == 'Y') ? 'Y' : 'N';
+                $manageUser->auth_designation = $request->designation;
+                $manageUser->remarks = $request->remarks;
+                $manageUser->save();
+
+
+                $manageUser->assignRole('OEM');
+
+                $userData = $manageUser->where('id', $manageUser->id)->first();
+
+
+            });
+            if (is_null($exception)) {
+                alert()->success('User has been successfully updated.', 'Success')->persistent('Close');
+                return redirect()->route('e-trucks.manageUser.index');
+            } else {
+                throw new Exception;
+            }
+        } catch (Exception $e) {
+            alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+
+           // dd($e);
+            //errorMail($e, Auth::user()->id);
+            return redirect()->route('e-trucks.manageUser.index');
+        }
     }
 
     /**
@@ -169,11 +215,11 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         // dd($proj);
         $projection = DB::table('projection_report')->where('oem_id',$pid)->get();
 
-        return view('oem.users.projectionReport',compact('projection'));
+        return view('truck.oem.users.projectionReport',compact('projection'));
     }
     public function storeReport(request $request){
         // dd($request);
-        try { 
+        try {
         $pid = getParentId();
         foreach ($request->production as $key => $check) {
             if (isset($check['id'])) {
@@ -200,16 +246,16 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
                 ]);
             }
         }
-        
+
         alert()->success('Projection Report Data has been successfully saved.', 'Success')->persistent('Close');
-                return redirect()->route('projectionReport');
+                return redirect()->route('e-trucks.projectionReport');
     } catch (Exception $e) {
         // dd($e);
         alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
        // dd($e);
         //errorMail($e, Auth::user()->id);
-        return redirect()->route('projectionReport');
+        return redirect()->route('e-trucks.projectionReport');
     }
     }
 
@@ -219,31 +265,31 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         ->join('category_master as cm', 'sm.id', '=', 'cm.segment_id')
         ->select('sm.segment_name',"sm.id as sid", 'cm.category_name',"cm.id as cid") // Adjust the columns you want to select
         ->get();
-        // dd($catSeg);    
-        return view('oem.users.uploadSales',compact('catSeg'));
+        // dd($catSeg);
+        return view('truck.oem.users.uploadSales',compact('catSeg'));
     }
 
     public function uploadSalesData(Request $request)
     {
         // dd($request);
-              
+
     ini_set('memory_limit', '2048M');
-    
-    ini_set('max_execution_time', 3600);  
+
+    ini_set('max_execution_time', 3600);
         $request->validate([
             'excel_file' => 'required|mimes:xlsx,xls|max:20480',
         ]);
-    
+
         try {
-          
-            
+
+
             Excel::import(new SalesDataImport($request), $request->file('excel_file'));
-            
+
             alert()->success('Sales Data has been successfully uploaded.', 'Success')->persistent('ok');
-            return redirect()->route('uploadSales');
+            return redirect()->route('e-trucks.uploadSales');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
-    
+
             foreach ($failures as $failure) {
                 if ($failure->attribute()) {
                     alert()->error($failure->errors(), 'Error')->persistent('Ok');

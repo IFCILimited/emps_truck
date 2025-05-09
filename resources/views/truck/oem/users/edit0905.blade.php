@@ -85,11 +85,19 @@
                                             <textarea name="remarks" class="form-control" rows="3">{{$users->remarks}}</textarea>
                                         </div>
                                 </div>
+
+
+
+
+
+
+
+
                             </div>
                         </div>
                         <div class="row col-12">
                             <div class="col-md-4 text-left">
-                                <a href="{{ route('e-trucks.manageUser.index') }}" class="btn btn-warning">Back</a>
+                                <a href="{{ route('e-trucks.manageDealer.index') }}" class="btn btn-warning">Back</a>
                             </div>
                             <div class="col-md-4 text-center">
                                 <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Update</button>

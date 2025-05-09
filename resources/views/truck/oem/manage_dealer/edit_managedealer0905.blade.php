@@ -130,7 +130,7 @@
                     </div>
                     <div class="row col-12">
                         <div class="col-md-4 text-left">
-                            <a href="{{ route('e-trucks.manageDealer.operator') }}" class="btn btn-warning">Back</a>
+                            <a href="{{ route('e-trucks.manageDealer.index') }}" class="btn btn-warning">Back</a>
                         </div>
                         <div class="col-md-4 text-center">
                             <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Update Application</button>

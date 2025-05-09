@@ -853,123 +853,69 @@ function aadhaarMobileCheck($mobile, $aadhaar_no)
 }
 
 
-// function sendMail($recipientEmail,$ccEmail, $bccEmail,$subject, $body)
-// {
-//     // dd($ccEmail);
+function sendMail($recipientEmail,$ccEmail, $bccEmail,$subject, $body)
+{
+    // dd($ccEmail);
 
-//     // $recipientEmail='ajaharuddin.ansari@ifciltd.com';
-//     // Ensure PHPMailer is included
-//     require_once app_path('PHPMail/PHPMailerAutoload.php');
+    // $recipientEmail='ajaharuddin.ansari@ifciltd.com';
+    // Ensure PHPMailer is included
+    require_once app_path('PHPMail/PHPMailerAutoload.php');
 
-//     $fromEmail = 'pm-edrive@gov.in';
-//     $fromName = 'PM E-DRIVE';
+    $fromEmail = 'pm-edrive@gov.in';
+    $fromName = 'PM E-DRIVE';
 
-//     try {
-//         // Initialize PHPMailer
-//         $mail = new PHPMailer(true);
+    try {
+        // Initialize PHPMailer
+        $mail = new PHPMailer(true);
 
-//         // SMTP configuration
-//         $mail->isSMTP();
-//         $mail->CharSet = 'UTF-8';
-//         $mail->Host = 'smtpsgwhyd.nic.in';
-//         $mail->SMTPAuth = true;
-//         $mail->Username = $fromEmail;
-//         $mail->Password = 'Y5#dN7@pT2';
-//         // $mail->SMTPSecure = 'ssl';
-//         $mail->Port = 465;
+        // SMTP configuration
+        $mail->isSMTP();
+        $mail->CharSet = 'UTF-8';
+        $mail->Host = 'smtpsgwhyd.nic.in';
+        $mail->SMTPAuth = true;
+        $mail->Username = $fromEmail;
+        $mail->Password = 'Y5#dN7@pT2';
+        // $mail->SMTPSecure = 'ssl';
+        $mail->Port = 465;
 
-//         // Email settings
-//         $mail->setFrom($fromEmail, $fromName);
-//         $mail->addAddress($recipientEmail);
-//         $mail->Subject = $subject;
-//         $mail->isHTML(true);
-//         $mail->Body = $body;
+        // Email settings
+        $mail->setFrom($fromEmail, $fromName);
+        $mail->addAddress($recipientEmail);
+        $mail->Subject = $subject;
+        $mail->isHTML(true);
+        $mail->Body = $body;
 
 
-//         if (!empty($ccEmail)) {
-//             if (is_array($ccEmail)) {
-//                 foreach ($ccEmail as $cc) {
-//                     $mail->addCC($cc);
-//                 }
-//             } else {
-//                 $mail->addCC($ccEmail);
-//             }
-//         }
-
-//         if (!empty($bccEmail)) {
-//             if (is_array($bccEmail)) {
-//                 foreach ($bccEmail as $bcc) {
-//                     $mail->addBCC($bcc);
-//                 }
-//             } else {
-//                 $mail->addBCC($bccEmail);
-//             }
-//         }
-
-//         // dd($mail);
-
-//         if ($mail->send()) {
-//             return "Email sent successfully!";
-//         } else {
-//             return "Mailer Error: " . $mail->ErrorInfo;
-//         }
-//     } catch (Exception $e) {
-       
-//         return "Exception: " . $e->getMessage();
-//     }
-// }
-
-if (!function_exists('sendMail')) {
-    function sendMail($param1, $param2, $param3, $param4, $param5)
-    {
- 
-        try {
- 
-            $emailDetails = array(
-                "To" => $param1,
-                "Cc" => $param2,
-                "Bcc" => $param3,
-                "Subject" => $param4,
-                "Msg" => $param5
-            );
-            // dd();
-            $curl = curl_init();
-           
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://pmedriveuat.heavyindustries.gov.in/api/sendMail',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => json_encode($emailDetails), // JSON encoding
-                CURLOPT_HTTPHEADER => array(
-                    'Content-Type: application/json',
-                    'Accept: application/json'
-                ),
-            ));
-   
-            $response = curl_exec($curl);
-            // echo $response;
-            // die;
-   
-            if ($response === false) {
-                $errorMessage = 'Error: ' . curl_error($curl);
-                curl_close($curl);
-                return $errorMessage;
+        if (!empty($ccEmail)) {
+            if (is_array($ccEmail)) {
+                foreach ($ccEmail as $cc) {
+                    $mail->addCC($cc);
+                }
             } else {
-                curl_close($curl);
-                return $response;
+                $mail->addCC($ccEmail);
             }
-   
-        } catch (Exception $ex) {
-            // You can handle the exception here if needed
-            return false;
         }
- 
+
+        if (!empty($bccEmail)) {
+            if (is_array($bccEmail)) {
+                foreach ($bccEmail as $bcc) {
+                    $mail->addBCC($bcc);
+                }
+            } else {
+                $mail->addBCC($bccEmail);
+            }
+        }
+
+        // dd($mail);
+
+        if ($mail->send()) {
+            return "Email sent successfully!";
+        } else {
+            return "Mailer Error: " . $mail->ErrorInfo;
+        }
+    } catch (Exception $e) {
+       
+        return "Exception: " . $e->getMessage();
     }
 }
 
