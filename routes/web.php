@@ -380,7 +380,7 @@ Route::group(['middleware' => ['role:MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA|AUDITOR'
     Route::get('claimEvaluation/submit/{claim_id}/{auditor_id}', 'PMA\ClaimEvaluationController@claimsubmit')->name('claimEvaluation.submit');
     Route::get('claimEvaluation/download/{id}', 'PMA\ClaimEvaluationController@downloadUploadedFile')->name('claimEvaluation.download');
     Route::get('buyDetailView/{claimId?}', 'PMA\ClaimEvaluationController@buyDetailView')->name('claimEvaluation.buyDetailView');
-
+    Route::post('claimEvaluation/claimstagesubmit/{claim_id}/{stage_id}', 'PMA\ClaimEvaluationController@claimstagesubmit')->name('claimEvaluation.claimstagesubmit');
     Route::resource('oemChartDetails', 'Admin\FlowChart\OemDetailController');
 
     Route::resource('modelChartDetails', 'Admin\FlowChart\ModelChartDetailController');
