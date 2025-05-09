@@ -211,7 +211,7 @@ class ManageOemController extends Controller
                 $subject='Your registration process has been initiated';
                 
                 $msg=view('emails.post_registration_recomended_by_ds', ['user' => $dsUsers])->render();
-                $send = sendMail($to,$cc,$bcc,$subject,$body);
+                $send = sendMail($to,$cc,$bcc,$subject,$msg);
                 // dd($response);
                 alert()->success('Post Registration Successfully Recommended.', 'Success')->persistent('Close');
             } 
@@ -226,8 +226,8 @@ class ManageOemController extends Controller
                 $bcc = ['ajaharuddin.ansari@ifciltd.com'];
                 $subject='Your post-registration approved';
                 
-                $msg=view('emails.post_registration_approve_as', ['user' => $user])->render();
-                $send = sendMail($to,$cc,$bcc,$subject,$body);
+                $msg=view('emails.postapprovalreject', ['user' => $user])->render();
+                $send = sendMail($to,$cc,$bcc,$subject,$msg);
                 // dd($response);
                 alert()->success('Post Registration Successfully Approved.', 'Success')->persistent('Close');
             }
@@ -243,8 +243,8 @@ class ManageOemController extends Controller
                 $bcc = ['ajaharuddin.ansari@ifciltd.com'];
                 $subject='Your post-registration rejected';
                 
-                $msg=view('emails.post_registration_rejection_as', ['user' => $user])->render();
-                $send = sendMail($to,$cc,$bcc,$subject,$body);
+                $msg=view('emails.postapprovalreject', ['user' => $user])->render();
+                $send = sendMail($to,$cc,$bcc,$subject,$msg);
                 alert()->success('Post Registration Rejected', 'Success')->persistent('Close');
             }
             $user->save();
@@ -252,7 +252,7 @@ class ManageOemController extends Controller
             
             return redirect()->back();
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
   alert()->error('Something Went Wrong', 'Danger')->persistent('Close');
            //errorMail($e, Auth::user()->id);           
  return redirect()->back();
@@ -274,8 +274,12 @@ class ManageOemController extends Controller
     {
         try {
             $status = null;
-            $user = DB::table('users')->join('post_registration_detail', 'post_registration_detail.user_id', '=', 'users.id')
+            $user = DB::table('users')
+                ->join('post_registration_detail', 'post_registration_detail.user_id', '=', 'users.id')
+                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
                 ->where('approval_for_post_reg', 'A')
+                ->where('roles.id', 4)
                 ->whereNotNull('oem_type_id')
                 ->orderBy("post_registration_status", "desc")
                 ->orderBy("post_registration_at", "ASC")->get(['users.*']);
@@ -402,6 +406,8 @@ class ManageOemController extends Controller
 
     public function oemDetails()
     {
+        ini_set('memory_limit', '7048M');
+        ini_set('max_execution_time', 7600);
         try {
             $user = DB::table('users')->join('post_registration_detail', 'post_registration_detail.user_id', '=', 'users.id')
                 ->where('approval_for_post_reg', 'A')

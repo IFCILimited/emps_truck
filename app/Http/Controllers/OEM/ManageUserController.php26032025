@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Truck\OEM;
+namespace App\Http\Controllers\OEM;
+
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Imports\SalesDataImport;
@@ -30,7 +31,7 @@ class ManageUserController extends Controller
         ->select('users.*', 'roles.name as  role')
         ->get();
 
-            return view('truck.oem.users.index',compact('users'));
+            return view('oem.users.index',compact('users'));
 
     }
 
@@ -41,7 +42,7 @@ class ManageUserController extends Controller
      */
     public function create()
     {
-        return view('truck.oem.users.create');
+        return view('oem.users.create');
     }
 
     /**
@@ -95,14 +96,14 @@ class ManageUserController extends Controller
                 $cc= '';
                 $bcc='';
                 $subject=$userMail['status'];
-                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                $from = 'noreply.pmedrive@heavyindustry.gov.in';
                 $msg=view('emails.Credential', ['user' => $userMail])->render();
 
-                $response = sendMail($to,$cc,$bcc,$subject,$msg);
+                $response = sendEmailNic($to,$cc,$bcc,$subject,$from,$msg);
             });
             if (is_null($exception)) {
                 alert()->success('User has been successfully created.', 'Success')->persistent('Close');
-                return redirect()->route('e-trucks.manageUser.index');
+                return redirect()->route('manageUser.index');
             } else {
                 throw new Exception;
             }
@@ -112,7 +113,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
            // dd($e);
             //errorMail($e, Auth::user()->id);
-            return redirect()->route('e-trucks.manageUser.index');
+            return redirect()->route('manageUser.index');
         }
     }
 
@@ -147,7 +148,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         ->select('users.*', 'roles.name as  role')
         ->first();
 
-        return view('truck.oem.users.edit',compact('users'));
+        return view('oem.users.edit',compact('users'));
     }
 
     /**
@@ -184,7 +185,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
             });
             if (is_null($exception)) {
                 alert()->success('User has been successfully updated.', 'Success')->persistent('Close');
-                return redirect()->route('e-trucks.manageUser.index');
+                return redirect()->route('manageUser.index');
             } else {
                 throw new Exception;
             }
@@ -193,7 +194,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
            // dd($e);
             //errorMail($e, Auth::user()->id);
-            return redirect()->route('e-trucks.manageUser.index');
+            return redirect()->route('manageUser.index');
         }
     }
 
@@ -215,7 +216,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         // dd($proj);
         $projection = DB::table('projection_report')->where('oem_id',$pid)->get();
 
-        return view('truck.oem.users.projectionReport',compact('projection'));
+        return view('oem.users.projectionReport',compact('projection'));
     }
     public function storeReport(request $request){
         // dd($request);
@@ -248,14 +249,14 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         }
 
         alert()->success('Projection Report Data has been successfully saved.', 'Success')->persistent('Close');
-                return redirect()->route('e-trucks.projectionReport');
+                return redirect()->route('projectionReport');
     } catch (Exception $e) {
         // dd($e);
         alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
 
        // dd($e);
         //errorMail($e, Auth::user()->id);
-        return redirect()->route('e-trucks.projectionReport');
+        return redirect()->route('projectionReport');
     }
     }
 
@@ -266,7 +267,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
         ->select('sm.segment_name',"sm.id as sid", 'cm.category_name',"cm.id as cid") // Adjust the columns you want to select
         ->get();
         // dd($catSeg);
-        return view('truck.oem.users.uploadSales',compact('catSeg'));
+        return view('oem.users.uploadSales',compact('catSeg'));
     }
 
     public function uploadSalesData(Request $request)
@@ -286,7 +287,7 @@ alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
             Excel::import(new SalesDataImport($request), $request->file('excel_file'));
 
             alert()->success('Sales Data has been successfully uploaded.', 'Success')->persistent('ok');
-            return redirect()->route('e-trucks.uploadSales');
+            return redirect()->route('uploadSales');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
 

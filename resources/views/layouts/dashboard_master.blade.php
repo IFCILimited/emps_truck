@@ -164,7 +164,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
+                                {{-- <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                         class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('manageOEMApproval.index') }}">
                                         <svg class="stroke-icon">
@@ -177,7 +177,24 @@
                                         </svg><span>Manage Model</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a>
-                                </li>
+                                </li> --}}
+                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                    class="sidebar-link sidebar-title" href="#">
+                                    <svg class="stroke-icon">
+                                        <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
+                                        </use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use href="{{ asset('admin/svg/icon-sprite.svg#fill-sample-page') }}">
+                                        </use>
+                                    </svg><span>Manage Model</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="{{ route('manageOEMApproval.index') }}">Model Details</a>
+                                    </li>
+                                    <li><a href="{{ route('e-trucks.manageOEMApproval.index') }}">Truck Model Details</a>
+                                    </li>
+                                </ul>
+                            </li>
                                 <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
                                         class="sidebar-link sidebar-title" href="#">
                                         <svg class="stroke-icon">
@@ -192,6 +209,10 @@
                                         <li><a href="{{ route('oemRegistration.index') }}">View Pre-Registration</a>
                                         </li>
                                         <li><a href="{{ route('oemPostRegistration') }}">View Post-Registration</a>
+                                        </li>
+                                        <li><a href="{{ route('truckoemRegistration.index') }}">View Truck Pre-Registration</a>
+                                        </li>
+                                        <li><a href="{{ route('truckoemPostRegistration') }}">View Truck Post-Registration</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -832,7 +853,25 @@
                                             </svg><span>Models Details</span>
                                             <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                         </a></li> --}}
-                                <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
+
+                                        <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                            class="sidebar-link sidebar-title" href="#">
+                                            <svg class="stroke-icon">
+                                                <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
+                                                </use>
+                                            </svg>
+                                            <svg class="fill-icon">
+                                                <use href="{{ asset('admin/svg/icon-sprite.svg#fill-sample-page') }}">
+                                                </use>
+                                            </svg><span>Manage Model</span></a>
+                                        <ul class="sidebar-submenu">
+                                            <li><a href="{{ route('manageOEMApproval.index') }}">Model Details</a>
+                                            </li>
+                                            <li><a href="{{ route('e-trucks.manageOEMApproval.index') }}">Truck Model Details</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {{-- <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                         style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('manageOEMApproval.index') }}">
                                         <svg class="stroke-icon">
@@ -846,7 +885,7 @@
                                             </use>
                                         </svg><span>Models Details</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                    </a></li>
+                                    </a></li> --}}
                                 @if (Auth::user()->id == 53 || Auth::user()->id == 24976)
                                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                             style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
@@ -1108,7 +1147,24 @@
                                     </a>
                                 </li>
                                 @if (Auth::user()->id == 6096)
-                                  
+                                    <li class="sidebar-list">
+                                        <a class="sidebar-link sidebar-title link-nav"
+                                            href="{{ route('claimEvaluation.index') }}">
+                                            <i class="fa fa-thumb-tack"></i>
+                                            <svg class="stroke-icon">
+                                                <use
+                                                    href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
+                                                </use>
+                                            </svg>
+                                            <svg class="fill-icon">
+                                                <use
+                                                    href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
+                                                </use>
+                                            </svg>
+                                            <span>Claim Evaluation</span>
+                                            <div class="according-menu"><i class="fa fa-angle-right"></i></div>
+                                        </a>
+                                    </li>
                                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                             class="sidebar-link sidebar-title" href="#">
                                             <svg class="stroke-icon">

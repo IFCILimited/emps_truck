@@ -132,8 +132,6 @@ class VahanDashboardController extends Controller
         }
         // return view('admin.index', compact('totals', 'vehicleSales', 'vahan_summary', 'salesSum', 'emps_summary', 'portal_summary_edrive', 'emps_buyer_summary_total'));
         // dd($fomated);
-
-    
         return view('admin.index_updated', compact('fomated'));
     }
 

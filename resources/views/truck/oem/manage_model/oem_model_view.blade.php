@@ -144,6 +144,11 @@
                                         </select>
 
                                     </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label" for="meeting_qualify_tar">Gross Vehicle Weight(in Tons):</label>
+                                        <input type="number" class="form-control readonly" readonly value="{{$oemMOdelDetail->gross_weight}}" name="gross_weight" id="">
+
+                                    </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label">Date of Vehicle Submission to Test Agency for type

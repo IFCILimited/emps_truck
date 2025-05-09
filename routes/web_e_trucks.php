@@ -91,7 +91,7 @@ Route::group(['middleware' => ['role:MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA', 'verif
     Route::get('claimDetails/{flag}/download', 'Admin\AdminController@downloadClaimDetails')->name('claimDetails.download');
     Route::get('uploaddoc', 'Admin\AdminController@uploaddoc')->name('uploaddoc');
     Route::post('uploadcheck', 'Admin\AdminController@uploadcheck')->name('uploadcheck');
-    Route::resource('manageOEMApproval', 'Admin\ManageOEMApprovalController');
+    Route::resource('manageOEMApproval', 'Truck\Admin\ManageOEMApprovalController');
     Route::get('modelsFilter/{colunm?}/{order?}', 'Admin\ManageOEMApprovalController@modelsFilter')->name('modelsFilter');
     Route::get('modelsView/{status}', 'Admin\ManageOEMApprovalController@modelsView')->name('modelsView');
     Route::resource('oemRegistration', 'Admin\ManageOemController');
@@ -163,7 +163,7 @@ Route::group(['middleware' => ['role:OEM-Truck|PMA|DEALER-Truck', 'verified', 'T
 });
 
 // Testing Agency
-Route::group(['middleware' => ['role:OEM-Truck|TESTINGAGENCY', 'verified', 'TwoFA', 'IsApproved']], function () {
+Route::group(['middleware' => ['role:TESTINGAGENCY|MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA|OEM-Truck', 'verified', 'TwoFA', 'IsApproved']], function () {
     Route::resource('modelRequests', 'Truck\TestingAgency\ModelRequestController');
     Route::get('modelRequests/create/{id}', 'Truck\TestingAgency\ModelRequestController@create')->name('modelRequests.create');
     Route::post('modelPreview', 'Truck\TestingAgency\ModelRequestController@modelPreview')->name('modelPreview');

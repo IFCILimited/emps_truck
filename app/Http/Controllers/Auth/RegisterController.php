@@ -69,10 +69,7 @@ class RegisterController extends Controller
     {
 
         $oemType = OemType::where("type", $data['oem_type'])->first();
-        $segment_id = DB::table('segment_master as sm')
-            ->select('sm.id')
-            ->where('sm.segment_name', $data['segment_type'])
-            ->first();
+       
         $data['password'] = isset($data['password']) ? $data['password'] : Null;
 
         if ($data['Registration_file']) {
@@ -89,7 +86,6 @@ class RegisterController extends Controller
             'mobile' => $data['Mobile'],
             'password' => Hash::make($data['password']),
             'oem_type_id' => $oemType->id,
-            'user_segment_type' => $segment_id->id,
             'address' => $data['Address'],
             'pincode' => $data['Pincode'],
             'state' => $data['State'],
@@ -110,7 +106,9 @@ class RegisterController extends Controller
     {
 
         try {
-            $user->assignRole('OEM');
+            $role = session('utype'); 
+            $user->assignRole($role);
+            // $user->assignRole('OEM');
             Auth::logout();
 
             $to = $user->email;

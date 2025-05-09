@@ -922,9 +922,9 @@ function aadhaarMobileCheck($mobile, $aadhaar_no)
 if (!function_exists('sendMail')) {
     function sendMail($param1, $param2, $param3, $param4, $param5)
     {
- 
+
         try {
- 
+
             $emailDetails = array(
                 "To" => $param1,
                 "Cc" => $param2,
@@ -934,7 +934,7 @@ if (!function_exists('sendMail')) {
             );
             // dd();
             $curl = curl_init();
-           
+            
             curl_setopt_array($curl, array(
                 CURLOPT_URL => 'https://pmedriveuat.heavyindustries.gov.in/api/sendMail',
                 CURLOPT_RETURNTRANSFER => true,
@@ -951,11 +951,11 @@ if (!function_exists('sendMail')) {
                     'Accept: application/json'
                 ),
             ));
-   
+    
             $response = curl_exec($curl);
             // echo $response;
             // die;
-   
+    
             if ($response === false) {
                 $errorMessage = 'Error: ' . curl_error($curl);
                 curl_close($curl);
@@ -964,12 +964,14 @@ if (!function_exists('sendMail')) {
                 curl_close($curl);
                 return $response;
             }
-   
+    
         } catch (Exception $ex) {
             // You can handle the exception here if needed
             return false;
         }
- 
+
+        
+        
     }
 }
 
@@ -1166,5 +1168,4 @@ function EMPSCertificateDateFetch($modelName){
             return $result;
         }
         return null;
-
 }

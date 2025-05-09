@@ -20,10 +20,10 @@ class ManageOperatorController extends Controller
     public function index()
     {
 
-        // $dealerReg = User::get();
-        $pid = getParentId();
+          // $dealerReg = User::get();
+          $pid = getParentId();
         //   dd($pid);
-        try {
+          try {
             //   $dealerReg = DB::table('users')
             //       ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             //       ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
@@ -32,22 +32,23 @@ class ManageOperatorController extends Controller
             //       ->select('users.*', 'roles.name as  role')
             //       ->get();
 
-            $dealerReg = DB::table('users')
-                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                ->whereIn('model_has_roles.role_id', [14])
-                ->where('parent_id', Auth::user()->id)
-                ->select('users.*', 'roles.name as  role')
-                ->get();
+                  $dealerReg = DB::table('users')
+                  ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                  ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                  ->whereIn('model_has_roles.role_id', [6])
+                  ->where('parent_id', Auth::user()->id)
+                  ->select('users.*', 'roles.name as  role')
+                  ->get();
 
             // dd($dealerReg);
 
 
-            return view('truck.buyer.operator.manage_operator_index', compact('dealerReg'));
-        } catch (\Exception $e) {
-            errorMail($e, $pid);
-            return redirect()->back();
-        }
+                  return view('truck.buyer.operator.manage_operator_index', compact('dealerReg'));
+          } catch (\Exception $e) {
+              errorMail($e, $pid);
+              return redirect()->back();
+          }
+
     }
 
     /**
@@ -78,16 +79,14 @@ class ManageOperatorController extends Controller
     public function store(Request $request)
     {
 
-        // dd($request);
         $password = generatePassword();
         $pid = getParentId();
-
+       
         try {
-            $exception = DB::transaction(function () use ($request, $password, $pid) {
+            $exception = DB::transaction(function () use ($request, $password,$pid) {
                 $username = generateUsername($request->dealer_name, $request->mobile_no);
                 $manageDealer = new User;
-                // $manageDealer->name =  Auth::user()->name;
-                $manageDealer->name =  $request->dealer_name;
+                $manageDealer->name =  Auth::user()->name;
                 $manageDealer->dealer_code = $request->dealer_code;
                 $manageDealer->password = Hash::make($password);
                 $manageDealer->username = $username;
@@ -107,7 +106,7 @@ class ManageOperatorController extends Controller
                 $manageDealer->save();
                 $manageDealer->assignRole('DEALER-Truck');
                 $userData = $manageDealer->where('id', $manageDealer->id)->first();
-                $userMail = array(
+                $userMail = array (
                     'name' => $manageDealer->name,
                     'email' => $manageDealer->email,
                     'status' => 'Login Credential Successfully Create',
@@ -120,13 +119,13 @@ class ManageOperatorController extends Controller
                 //     $message->to($userMail['email'])->subject($userMail['status']);
                 // });
                 $to = $userMail['email'];
-                $cc = '';
-                $bcc = '';
-                $subject = $userMail['status'];
+                $cc= '';
+                $bcc='';
+                $subject=$userMail['status'];
                 // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-                $msg = view('emails.Credential', ['user' => $userMail])->render();
+                $msg=view('emails.Credential', ['user' => $userMail])->render();
 
-                $response = sendMail($to, $cc, $bcc, $subject, $msg);
+                $response = sendMail($to,$cc,$bcc,$subject,$msg);
             });
             if (is_null($exception)) {
                 alert()->success('Dealer has been successfully created.', 'Success')->persistent('Close');
@@ -134,18 +133,18 @@ class ManageOperatorController extends Controller
             } else {
                 throw new Exception;
             }
-            // } catch (\Illuminate\Database\QueryException $e) {
-            //     $errorMessage = "Database error: " . $e->getMessage();
-            //     if ($e->errorInfo[1] == 1062) { // Unique constraint violation
-            //         $errorMessage = "A record with the same value already exists.";
-            //     }
-            //     alert()->warning('Something Went Wrong: ' . $errorMessage, 'Danger')->persistent('Close');
-            //     return redirect()->route('manageDealer.index')->withErrors(['error' => $errorMessage]);
+        // } catch (\Illuminate\Database\QueryException $e) {
+        //     $errorMessage = "Database error: " . $e->getMessage();
+        //     if ($e->errorInfo[1] == 1062) { // Unique constraint violation
+        //         $errorMessage = "A record with the same value already exists.";
+        //     }
+        //     alert()->warning('Something Went Wrong: ' . $errorMessage, 'Danger')->persistent('Close');
+        //     return redirect()->route('manageDealer.index')->withErrors(['error' => $errorMessage]);
         } catch (Exception $e) {
-
+           
             alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
 
-            return redirect()->route('e-trucks.manageDealer.index');
+            return redirect()->route('manageDealer.index');
         }
     }
 
@@ -172,20 +171,20 @@ class ManageOperatorController extends Controller
         $id = decrypt($id);
 
         $dealerReg = DB::table('users')
-            ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->whereIn('model_has_roles.role_id', [14])
-            ->where('parent_id', Auth::user()->id)
-            ->where('users.id', $id)
-            ->select('users.*', 'roles.name as  role')
-            ->first();
-        //   dd($dealerReg);
+                  ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                  ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                  ->whereIn('model_has_roles.role_id', [6])
+                  ->where('parent_id', Auth::user()->id)
+                  ->where('users.id', $id)
+                  ->select('users.*', 'roles.name as  role')
+                  ->first();
+                //   dd($dealerReg);
 
-        $GetOemId = DB::table('users')->where('id', $id)->first();
+            $GetOemId = DB::table('users')->where('id', $id)->first();
 
-        $oemIdCheck = $GetOemId->oem_id;
+            $oemIdCheck = $GetOemId->oem_id;
 
-        return view('truck.buyer.operator.edit', compact('dealerReg', 'oemIdCheck'));
+        return view('truck.buyer.operator.edit', compact('dealerReg','oemIdCheck'));
     }
 
     /**
@@ -199,68 +198,69 @@ class ManageOperatorController extends Controller
     {
         //
         $id = decrypt($id);
-        $password = generatePassword();
-        $pid = getParentId();
+$password = generatePassword();
+$pid = getParentId();
 
-        try {
-            $exception = DB::transaction(function () use ($request, $pid, $id, $password) {
-                $manageDealer = User::findOrFail($id);
+try {
+    $exception = DB::transaction(function () use ($request, $pid, $id, $password) {
+        $manageDealer = User::findOrFail($id);
 
-                $username = generateUsername($request->dealer_name, $request->mobile_no);
+        $username = generateUsername($request->dealer_name, $request->mobile_no);
 
-                // $manageDealer->name = Auth::user()->name;
-                $manageDealer->name = $request->dealer_name;
-                $manageDealer->dealer_code = $request->dealer_code;
-                $manageDealer->password = Hash::make($password);
-                $manageDealer->username = $username;
-                $manageDealer->auth_name = $request->dealer_name;
-                $manageDealer->pincode = $request->pin_code;
-                $manageDealer->address = $request->address;
-                $manageDealer->landmark = $request->landmark;
-                $manageDealer->mobile = $request->mobile_no;
-                $manageDealer->state = $request->state;
-                $manageDealer->isotpverified = 0;
-                $manageDealer->isactive = 'Y';
-                $manageDealer->isapproved = 'Y';
-                $manageDealer->auth_district = $request->district;
-                $manageDealer->email = $request->email_id;
-                $manageDealer->oem_id = $request->oem_id;
-                $manageDealer->parent_id = $pid;
+        $manageDealer->name = Auth::user()->name;
+        $manageDealer->dealer_code = $request->dealer_code;
+        $manageDealer->password = Hash::make($password);
+        $manageDealer->username = $username;
+        $manageDealer->auth_name = $request->dealer_name;
+        $manageDealer->pincode = $request->pin_code;
+        $manageDealer->address = $request->address;
+        $manageDealer->landmark = $request->landmark;
+        $manageDealer->mobile = $request->mobile_no;
+        $manageDealer->state = $request->state;
+        $manageDealer->isotpverified = 0;
+        $manageDealer->isactive = 'Y';
+        $manageDealer->isapproved = 'Y';
+        $manageDealer->auth_district = $request->district;
+        $manageDealer->email = $request->email_id;
+        $manageDealer->oem_id = $request->oem_id;
+        $manageDealer->parent_id = $pid;
 
-                $manageDealer->save();
+        $manageDealer->save();
 
-                $manageDealer->assignRole('DEALER');
+        $manageDealer->assignRole('DEALER');
 
-                $userData = User::find($manageDealer->id);
+        $userData = User::find($manageDealer->id);
 
-                $userMail = [
-                    'name' => $manageDealer->name,
-                    'email' => $manageDealer->email,
-                    'status' => 'Login Credentials Successfully Updated',
-                    'username' => $userData->username,
-                    'password' => $password,
-                ];
+        $userMail = [
+            'name' => $manageDealer->name,
+            'email' => $manageDealer->email,
+            'status' => 'Login Credentials Successfully Updated',
+            'username' => $userData->username,
+            'password' => $password,
+        ];
 
-                $to = $userMail['email'];
-                $cc = '';
-                $bcc = '';
-                $subject = $userMail['status'];
-                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-                $msg = view('emails.Credential', ['user' => $userMail])->render();
+        $to = $userMail['email'];
+        $cc = '';
+        $bcc = '';
+        $subject = $userMail['status'];
+        // $from = 'noreply.pmedrive@heavyindustry.gov.in';
+        $msg = view('emails.Credential', ['user' => $userMail])->render();
 
-                sendMail($to, $cc, $bcc, $subject, $msg);
-            });
+        sendMail($to, $cc, $bcc, $subject, $msg);
+    });
 
-            if (is_null($exception)) {
-                alert()->success('Dealer has been successfully updated.', 'Success')->persistent('Close');
-                return redirect()->route('e-trucks.manageOperator.index');
-            } else {
-                throw new Exception('Error updating dealer.');
-            }
-        } catch (\Exception $e) {
-            alert()->error('Something went wrong. Please try again.', 'Error')->persistent('Close');
-            return redirect()->back()->withInput();
-        }
+    if (is_null($exception)) {
+        alert()->success('Dealer has been successfully updated.', 'Success')->persistent('Close');
+        return redirect()->route('manageOperator.index');
+    } else {
+        throw new Exception('Error updating dealer.');
+    }
+} catch (\Exception $e) {
+    alert()->error('Something went wrong. Please try again.', 'Error')->persistent('Close');
+    return redirect()->back()->withInput();
+}
+
+
     }
 
     public function updateOperator($id)
@@ -277,20 +277,27 @@ class ManageOperatorController extends Controller
                         ->where('id', $id)
                         ->update(['isactive' => 'N', 'isapproved' => 'N']);
 
-                    alert()->success('Dealer has been Deactivated Successfully.', 'Success')->persistent('Close');
+                alert()->success('Dealer has been Deactivated Successfully.', 'Success')->persistent('Close');
+
+
                 } else {
                     DB::table('users')
                         ->where('id', $id)
                         ->update(['isactive' => 'Y', 'isapproved' => 'Y']);
 
-                    alert()->success('Dealer has been Activate Successfully.', 'Success')->persistent('Close');
+                alert()->success('Dealer has been Activate Successfully.', 'Success')->persistent('Close');
                 }
+
             });
-            return redirect()->route('e-trucks.manageOperator.index');
+            return redirect()->route('manageOperator.index');
+
+
+
         } catch (\Exception $e) {
             alert()->error('Something went wrong. Please try again.', 'Error')->persistent('Close');
             return redirect()->back()->withInput();
         }
+
     }
 
     /**

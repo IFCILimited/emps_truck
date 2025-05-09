@@ -193,8 +193,8 @@
                                         <label class="form-label" for="vehicle_category">Vehicle Category
                                             (as per CMVR):</label>
                                         <select class="form-select readonly" disabled name="vehicle_category"
-                                            id="vehicle_category">
-                                            <option>{{$oemMOdelDetail->vehicle_cat}}</option>
+                                            >
+                                            <option selected>{{$oemMOdelDetail->vehicle_cat}}</option>
                                             <input readonly type="hidden" id="vehicle_cat"
                                                 value="{{ $oemMOdelDetail->vehicle_cat }}">
 
