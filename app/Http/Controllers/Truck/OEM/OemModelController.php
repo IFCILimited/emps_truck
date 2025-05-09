@@ -3,17 +3,12 @@
 namespace App\Http\Controllers\Truck\OEM;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\OemBatteryDetail;
-use App\Models\OemModelDetail;
-use App\Models\OemModelPerformDetail;
-use App\Models\OemVehicleCriteria;
-// use App\Helpers\helperFunction1;
+use App\Models\Trucks\OemModelDetail;
 use Auth;
 use DB;
 use App\Models\User;
-use App\Models\DocumentUpload;
 use Carbon\Carbon;
-use App\Models\OemModelMaster;
+use App\Models\Trucks\OemModelMaster;
 use Exception;
 
 class OemModelController extends Controller
@@ -28,18 +23,18 @@ class OemModelController extends Controller
     {
         $pid = getParentId();
         try {
-            $segment = DB::table('segment_master')->where('active', '1')->get();
-            $oemMOdelDetail = User::join('model_master', 'users.id', '=', 'model_master.oem_id')
+            $segment = DB::table('segment_master')->where('active', '0')->get();
+            $oemMOdelDetail = User::join('truck_model_master', 'users.id', '=', 'truck_model_master.oem_id')
                 // ->join('oem_model_details', 'model_master.id', '=', 'oem_model_details.model_id')
-                ->where('model_master.oem_id', $pid)
+                ->where('truck_model_master.oem_id', $pid)
                 // ->orderBy('oem_model_details.id')
                 ->get([
-                    'model_master.id as model_id',
-                    'model_master.*',
+                    'truck_model_master.id as model_id',
+                    'truck_model_master.*',
                     // 'oem_model_details.id as model_detail_id',
                     // 'oem_model_details.*',
                 ]);
-            $oemDet = DB::table('oem_model_details')->where('oem_id', $pid)->get();
+            $oemDet = DB::table('truck_oem_model_details')->where('oem_id', $pid)->get();
             return view('truck.oem.manage_model.oem_model', compact('oemMOdelDetail', 'segment','oemDet'));
         } catch (\Exception $e) {
 alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
@@ -66,7 +61,7 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                 ->where("mhr.role_id", "=", 5)
                 ->where('u.parent_id', null)
                 ->get();
-            $segment = DB::table('segment_master')->where('active', '1')->get();
+            $segment = DB::table('segment_master')->where('active', '0')->get();
             return view('truck.oem.manage_model.oem_model_create', compact('user', 'agency', 'segment'));
         } catch (\Exception $e) {
 alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
@@ -88,7 +83,7 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
         $pid = getParentId();
         $user_id = $pid;
         // dd($request);
-        try {
+        // try {
             DB::transaction(function () use ($request, $user_id) {
 
                 $oemModelmaster = new OemModelMaster;
@@ -173,13 +168,13 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             // $oemModelmaster = OemModelMaster::Where('oem_id', $user_id)->orderBy('id', 'desc')->first();
             alert()->success('Data has been successfully saved.', 'Success!')->persistent('Close');
             return redirect()->route('e-trucks.oemModel.index');
-        } catch (\Exception $e) {
-//dd($e);
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+//         } catch (\Exception $e) {
+// //dd($e);
+// alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-           errorMail($e, $pid);
-            return redirect()->back();
-        }
+//            errorMail($e, $pid);
+//             return redirect()->back();
+//         }
     }
 
     /**
@@ -194,7 +189,7 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
         try {
             $id = decrypt($id);
             $user = User::where('id', $pid)->first();
-            $oemMOdelDetail = DB::table('vw_model_details as vmd')
+            $oemMOdelDetail = DB::table('vw_model_details_trucks as vmd')
                 ->join("users as u", "vmd.testing_agency_id", "=", "u.id")
                 ->where('vmd.model_detail_id', $id)->where('vmd.oem_id', $pid)->first(['vmd.*', 'u.name as testing_agency_name']);
             // dd($oemMOdelDetail);
@@ -225,12 +220,12 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                 ->where("mhr.role_id", "=", 5)
                 ->where('u.parent_id', null)
                 ->get();
-            $oemMOdelDetail = DB::table('vw_model_details')->where('model_detail_id', $id)->where('oem_id', $pid)->first();
-            $detCount = DB::table('vw_model_details')->where('model_id', $oemMOdelDetail->model_id)->where('oem_id', $pid)->count();
+            $oemMOdelDetail = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->where('oem_id', $pid)->first();
+            $detCount = DB::table('vw_model_details_trucks')->where('model_id', $oemMOdelDetail->model_id)->where('oem_id', $pid)->count();
 
             // dd($detCount);
-            $segment = DB::table('segment_master')->where('active', '1')->get();
-            $categories = DB::table('category_master')->where('active', '1')->get();
+            $segment = DB::table('segment_master')->where('active', '0')->get();
+            $categories = DB::table('category_master')->where('active', '0')->get();
             return view('truck.oem.manage_model.oem_model_edit', compact('user', 'detCount','oemMOdelDetail', 'agency', 'segment', 'categories'));
         } catch (\Exception $e) {
 alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
@@ -333,7 +328,7 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
                     $ta_name = DB::table('users')->where('id',$oemModelmaster->testing_agency_id)->first();
                     $oem = DB::table('users')->where('id',$user_id)->first();
-                    $detail = DB::table('vw_model_details')->where('model_detail_id',$request->id)->first();
+                    $detail = DB::table('vw_model_details_trucks')->where('model_detail_id',$request->id)->first();
                     // dd($oem,$detail);
             $to = $oem->email;
             $cc =  ['emps-2024@ifciltd.com'];
@@ -442,17 +437,17 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
         $id = decrypt($id);
         $pid = getParentId();
         try {
-            $segment = DB::table('segment_master')->where('active', '1')->get();
-            $oemMOdelDetail = User::join('model_master', 'users.id', '=', 'model_master.oem_id')
-                ->join('oem_model_details', 'model_master.id', '=', 'oem_model_details.model_id')
-                ->where('model_master.oem_id', $pid)
-                ->where('oem_model_details.model_id', $id)
-                ->orderBy('oem_model_details.id')
+            $segment = DB::table('segment_master')->where('active', '0')->get();
+            $oemMOdelDetail = User::join('truck_model_master', 'users.id', '=', 'truck_model_master.oem_id')
+                ->join('truck_oem_model_details', 'truck_model_master.id', '=', 'truck_oem_model_details.model_id')
+                ->where('truck_model_master.oem_id', $pid)
+                ->where('truck_oem_model_details.model_id', $id)
+                ->orderBy('truck_oem_model_details.id')
                 ->get([
-                    'model_master.id as model_id',
-                    'model_master.*',
-                    'oem_model_details.id as model_detail_id',
-                    'oem_model_details.*',
+                    'truck_model_master.id as model_id',
+                    'truck_model_master.*',
+                    'truck_oem_model_details.id as model_detail_id',
+                    'truck_oem_model_details.*',
                 ]);
                 // dd($oemMOdelDetail);
             return view('truck.oem.manage_model.models', compact('oemMOdelDetail', 'segment'));

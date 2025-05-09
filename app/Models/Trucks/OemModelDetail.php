@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Models\Trucks;
+
+use Illuminate\Database\Eloquent\Model;
+
+class OemModelDetail extends Model
+{
+
+    protected $table = 'truck_oem_model_details';
+    protected $primaryKey = 'id';
+    public $timestamps = true;
+
+    protected $fillable = [
+        'oem_id',
+        'model_id',
+        'model_type',
+        'compliance_upload_id',
+        'testing_agency_id',
+        'meeting_tech_function',
+        'meeting_qualif',
+        'vehicle_sub_to_test_agency_apprv',
+        'tech_type',
+        'battery_type',
+        'factory_price',
+        'spec_density',
+        'life_cyc',
+        'no_of_battery',
+        'bat_1',
+        'bat_2',
+        'bat_3',
+        'bat_4',
+        'bat_5',
+        'bat_6',
+        'bat_7',
+        'bat_8',
+        'bat_9',
+        'bat_10',
+        'tot_energy',
+        'battery_make',
+        'battery_capacity',
+        'range',
+        'max_elect_consumption',
+        'min_max_speed',
+        'min_acceleration',
+        'monitoring_device_fitment',
+        'min_ex_show_price',
+        'estimate_incentive_amount',
+        'created_at',
+        'updated_at',
+        'submitted_at',
+        'testing_factory_price',
+        'testing_spec_density',
+        'testing_life_cyc',
+        'testing_min_ex_show_price',
+        'testing_range',
+        'testing_max_elect_consumption',
+        'testing_min_max_speed',
+        'testing_min_acceleration',
+        'testing_meeting_tech_function',
+        'testing_meeting_qualif',
+        'testing_vehicle_sub_to_test_agency_apprv',
+        'testing_doc_id',
+        'testing_certificate_no',
+        'testing_cmvr_date',
+        'testing_approval_date',
+        'testing_expiry_date',
+        'testing_status',
+        'testing_flag',
+        'testing_remarks',
+        'testing_created_by',
+        'testing_created_at',
+        'testing_submitted_at',
+        'testing_estimate_incentive_amount',
+        
+        'pma_status',
+        'pma_remarks',
+        'pma_created_by',
+        'pma_created_at'
+    ];
+
+    // Define relationships if needed
+    public function model()
+    {
+        return $this->belongsTo(ModelMaster::class, 'model_id');
+    }
+
+    // Define other relationships if needed
+}
