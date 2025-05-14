@@ -63,7 +63,7 @@
                                             <td>{{$loop->iteration}}</td>
 
                                                <td>{{$model->name}}</td>
-                                               <td> {{$model->model_name}}</td>
+                                               <td>{{$model->model_name}}</td>
                                                <td>{{$model->variant_name}} </td>
                                                <td>{{$model->segment_name}}</td>
                                                <td>{{$model->category_name}}</td>

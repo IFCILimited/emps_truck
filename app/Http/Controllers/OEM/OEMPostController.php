@@ -45,7 +45,7 @@ class OEMPostController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
+        
          ini_set('memory_limit', '7048M');
         ini_set('max_execution_time', 7600);
         try {
