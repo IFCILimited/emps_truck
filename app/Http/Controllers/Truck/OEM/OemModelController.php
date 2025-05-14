@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Truck\OEM;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Trucks\OemModelDetail;
@@ -35,10 +36,10 @@ class OemModelController extends Controller
                     // 'oem_model_details.*',
                 ]);
             $oemDet = DB::table('truck_oem_model_details')->where('oem_id', $pid)->get();
-            return view('truck.oem.manage_model.oem_model', compact('oemMOdelDetail', 'segment','oemDet'));
+            return view('truck.oem.manage_model.oem_model', compact('oemMOdelDetail', 'segment', 'oemDet'));
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
-            errorMail($e,$pid);
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            errorMail($e, $pid);
             return redirect()->back();
         }
     }
@@ -64,12 +65,11 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             $segment = DB::table('segment_master')->where('active', '0')->get();
             return view('truck.oem.manage_model.oem_model_create', compact('user', 'agency', 'segment'));
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-          // errorMail($e, Auth::user()->id);
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
-
     }
 
     /**
@@ -82,100 +82,97 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
     {
         $pid = getParentId();
         $user_id = $pid;
-        // dd($request);
         // try {
-            DB::transaction(function () use ($request, $user_id) {
+        DB::transaction(function () use ($request, $user_id) {
 
-                $oemModelmaster = new OemModelMaster;
-                $oemModelmaster->oem_id = $user_id;
-                $oemModelmaster->model_name = $request->ev_model_name;
-                // $oemModelmaster->model_code = $request->ev_model_code;
-                $oemModelmaster->variant_name = $request->variant_name;
-                $oemModelmaster->vehicle_cat_id = $request->vehicle_category;
-                $oemModelmaster->segment_id = $request->vehicle_segment;
-                $oemModelmaster->model_status = 'active';
-                $oemModelmaster->child_id = Auth::user()->id;
+            $oemModelmaster = new OemModelMaster;
+            $oemModelmaster->oem_id = $user_id;
+            $oemModelmaster->model_name = $request->ev_model_name;
+            // $oemModelmaster->model_code = $request->ev_model_code;
+            $oemModelmaster->variant_name = $request->variant_name;
+            $oemModelmaster->vehicle_cat_id = $request->vehicle_category;
+            $oemModelmaster->segment_id = $request->vehicle_segment;
+            $oemModelmaster->model_status = 'active';
+            $oemModelmaster->child_id = Auth::user()->id;
 
-                if ($request->hasFile('vehicle_img')) {
+            if ($request->hasFile('vehicle_img')) {
 
-                    $file = $request->vehicle_img;
-                    $response = uploadFileWithCurl($file);
-
-                }
-                $oemModelmaster->vehicle_img_upload_id = $response;
-                $oemModelmaster->save();
-
-
-                $oemModelDetail = new OemModelDetail;
-                $oemModelDetail->oem_id = $user_id;
-                $oemModelDetail->model_id = $oemModelmaster->id;
-                $oemModelDetail->category_type = $request->category_type;
-                $oemModelDetail->model_type = $request->model_type;
-                $oemModelDetail->status = 'D';
-
-                $oemModelDetail->testing_agency_id = $request->testing_agency;
-                $oemModelDetail->meeting_tech_function = $request->meeting_ev_tech;
-                $oemModelDetail->meeting_qualif = $request->meeting_qualify_tar;
-                $oemModelDetail->gross_weight = $request->gross_weight;
-                $oemModelDetail->vehicle_sub_to_test_agency_apprv = $request->date_vehicle_submission;
-                $oemModelDetail->date_certificate = $request->date_certificate;
-                $oemModelDetail->tech_type = $request->tech_type;
-                $oemModelDetail->factory_price = $request->ex_factory_price;
-                $oemModelDetail->battery_type = $request->battery_type;
+                $file = $request->vehicle_img;
+                $response = uploadFileWithCurl($file);
+            }
+            $oemModelmaster->vehicle_img_upload_id = $response;
+            $oemModelmaster->save();
 
 
-                $oemModelDetail->spec_density = $request->specific_density;
-                $oemModelDetail->life_cyc = $request->life_cycle;
-                $oemModelDetail->no_of_battery = $request->battery_cat_repulsion;
-                $oemModelDetail->bat_1 = ($request->bat_1) ? $request->bat_1 : null;
-                $oemModelDetail->bat_2 = ($request->bat_2) ? $request->bat_2 : null;
-                $oemModelDetail->bat_3 = ($request->bat_3) ? $request->bat_3 : null;
-                $oemModelDetail->bat_4 = ($request->bat_4) ? $request->bat_4 : null;
-                $oemModelDetail->bat_5 = ($request->bat_5) ? $request->bat_5 : null;
-                $oemModelDetail->bat_6 = ($request->bat_6) ? $request->bat_6 : null;
-                $oemModelDetail->bat_7 = ($request->bat_7) ? $request->bat_7 : null;
-                $oemModelDetail->bat_8 = ($request->bat_8) ? $request->bat_8 : null;
-                $oemModelDetail->bat_9 = ($request->bat_9) ? $request->bat_9 : null;
-                $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
-                $oemModelDetail->tot_energy = $request->total_energy_capacity;
-                $oemModelDetail->battery_make = $request->battery_make;
-               // $oemModelDetail->battery_capacity = $request->battery_capacity;
+            $oemModelDetail = new OemModelDetail;
+            $oemModelDetail->oem_id = $user_id;
+            $oemModelDetail->model_id = $oemModelmaster->id;
+            $oemModelDetail->category_type = $request->category_type;
+            $oemModelDetail->model_type = $request->model_type;
+            $oemModelDetail->status = 'D';
 
-                $oemModelDetail->range = $request->range;
-                $oemModelDetail->max_elect_consumption = $request->max_electric_energy_consumption;
-                $oemModelDetail->min_max_speed = $request->minimax_speed;
-                $oemModelDetail->min_acceleration = $request->minimum_acceleration;
-                $oemModelDetail->monitoring_device_fitment = $request->monitor_device_fitment;
-                $oemModelDetail->company_name = $request->company_name;
-                $oemModelDetail->device_id = $request->device_id;
-                $oemModelDetail->min_ex_show_price = $request->min_exshowrromprice;
-                // $oemModelDetail->warranty_period_from = $request->warranty_period_from;
-                $oemModelDetail->warranty_period_indicate = $request->warranty_period_indicate;
-                $oemModelDetail->estimate_incentive_amount = $request->estimat_incentive_amt;
+            $oemModelDetail->testing_agency_id = $request->testing_agency;
+            $oemModelDetail->meeting_tech_function = $request->meeting_ev_tech;
+            $oemModelDetail->meeting_qualif = $request->meeting_qualify_tar;
+            $oemModelDetail->gross_weight = $request->gross_weight;
+            $oemModelDetail->vehicle_sub_to_test_agency_apprv = $request->date_vehicle_submission;
+            $oemModelDetail->date_certificate = $request->date_certificate;
+            $oemModelDetail->tech_type = $request->tech_type;
+            $oemModelDetail->factory_price = $request->ex_factory_price;
+            $oemModelDetail->battery_type = $request->battery_type;
 
 
-                if ($request->hasFile('model_compli_certificate')) {
+            $oemModelDetail->spec_density = $request->specific_density;
+            $oemModelDetail->life_cyc = $request->life_cycle;
+            $oemModelDetail->no_of_battery = $request->battery_cat_repulsion;
+            $oemModelDetail->bat_1 = ($request->bat_1) ? $request->bat_1 : null;
+            $oemModelDetail->bat_2 = ($request->bat_2) ? $request->bat_2 : null;
+            $oemModelDetail->bat_3 = ($request->bat_3) ? $request->bat_3 : null;
+            $oemModelDetail->bat_4 = ($request->bat_4) ? $request->bat_4 : null;
+            $oemModelDetail->bat_5 = ($request->bat_5) ? $request->bat_5 : null;
+            $oemModelDetail->bat_6 = ($request->bat_6) ? $request->bat_6 : null;
+            $oemModelDetail->bat_7 = ($request->bat_7) ? $request->bat_7 : null;
+            $oemModelDetail->bat_8 = ($request->bat_8) ? $request->bat_8 : null;
+            $oemModelDetail->bat_9 = ($request->bat_9) ? $request->bat_9 : null;
+            $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
+            $oemModelDetail->tot_energy = $request->total_energy_capacity;
+            $oemModelDetail->battery_make = $request->battery_make;
+            // $oemModelDetail->battery_capacity = $request->battery_capacity;
 
-                    $file = $request->model_compli_certificate;
-                    $response = uploadFileWithCurl($file);
+            $oemModelDetail->range = $request->range;
+            $oemModelDetail->max_elect_consumption = $request->max_electric_energy_consumption;
+            $oemModelDetail->min_max_speed = $request->minimax_speed;
+            $oemModelDetail->min_acceleration = $request->minimum_acceleration;
+            $oemModelDetail->monitoring_device_fitment = $request->monitor_device_fitment;
+            $oemModelDetail->company_name = $request->company_name;
+            $oemModelDetail->device_id = $request->device_id;
+            $oemModelDetail->min_ex_show_price = $request->min_exshowrromprice;
+            // $oemModelDetail->warranty_period_from = $request->warranty_period_from;
+            $oemModelDetail->warranty_period_indicate = $request->warranty_period_indicate;
+            $oemModelDetail->estimate_incentive_amount = $request->estimat_incentive_amt;
 
-                }
 
-                $oemModelDetail->compliance_upload_id = $response;
-                $oemModelDetail->child_id = Auth::user()->id;
-                $oemModelDetail->save();
-            });
+            if ($request->hasFile('model_compli_certificate')) {
 
-            // $oemModelmaster = OemModelMaster::Where('oem_id', $user_id)->orderBy('id', 'desc')->first();
-            alert()->success('Data has been successfully saved.', 'Success!')->persistent('Close');
-            return redirect()->route('e-trucks.oemModel.index');
-//         } catch (\Exception $e) {
-// //dd($e);
-// alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+                $file = $request->model_compli_certificate;
+                $response = uploadFileWithCurl($file);
+            }
 
-//            errorMail($e, $pid);
-//             return redirect()->back();
-//         }
+            $oemModelDetail->compliance_upload_id = $response;
+            $oemModelDetail->child_id = Auth::user()->id;
+            $oemModelDetail->save();
+        });
+
+        // $oemModelmaster = OemModelMaster::Where('oem_id', $user_id)->orderBy('id', 'desc')->first();
+        alert()->success('Data has been successfully saved.', 'Success!')->persistent('Close');
+        return redirect()->route('e-trucks.oemModel.index');
+        //         } catch (\Exception $e) {
+        // //dd($e);
+        // alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+
+        //            errorMail($e, $pid);
+        //             return redirect()->back();
+        //         }
     }
 
     /**
@@ -196,9 +193,9 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             // dd($oemMOdelDetail);
             return view('truck.oem.manage_model.oem_model_view', compact('user', 'oemMOdelDetail'));
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-          //  errorMail($e, Auth::user()->id);
+            //  errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
@@ -227,11 +224,11 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             // dd($detCount);
             $segment = DB::table('segment_master')->where('active', '0')->get();
             $categories = DB::table('category_master')->where('active', '0')->get();
-            return view('truck.oem.manage_model.oem_model_edit', compact('user', 'detCount','oemMOdelDetail', 'agency', 'segment', 'categories'));
+            return view('truck.oem.manage_model.oem_model_edit', compact('user', 'detCount', 'oemMOdelDetail', 'agency', 'segment', 'categories'));
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-       //     errorMail($e, Auth::user()->id);
+            //     errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
@@ -268,7 +265,6 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                     $file = $request->vehicle_img;
                     $response = uploadFileWithCurl($file);
                     $oemModelmaster->vehicle_img_upload_id = $response;
-
                 }
                 $oemModelmaster->save();
 
@@ -298,7 +294,7 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                 $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
                 $oemModelDetail->tot_energy = $request->total_energy_capacity;
                 $oemModelDetail->battery_make = $request->battery_make;
-              //  $oemModelDetail->battery_capacity = $request->battery_capacity;
+                //  $oemModelDetail->battery_capacity = $request->battery_capacity;
                 $oemModelDetail->range = $request->range;
                 $oemModelDetail->max_elect_consumption = $request->max_electric_energy_consumption;
                 $oemModelDetail->min_max_speed = $request->minimax_speed;
@@ -316,7 +312,6 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                     $file = $request->model_compli_certificate;
                     $response = uploadFileWithCurl($file);
                     $oemModelDetail->compliance_upload_id = $response;
-
                 }
                 $oemModelDetail->child_id = Auth::user()->id;
                 $oemModelDetail->save();
@@ -328,39 +323,38 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                     $oemModelmaster->save();
 
 
-                    $ta_name = DB::table('users')->where('id',$oemModelmaster->testing_agency_id)->first();
-                    $oem = DB::table('users')->where('id',$user_id)->first();
-                    $detail = DB::table('vw_model_details_trucks')->where('model_detail_id',$request->id)->first();
+                    $ta_name = DB::table('users')->where('id', $oemModelmaster->testing_agency_id)->first();
+                    $oem = DB::table('users')->where('id', $user_id)->first();
+                    $detail = DB::table('vw_model_details_trucks')->where('model_detail_id', $request->id)->first();
                     // dd($oem,$detail);
-            $to = $oem->email;
-            $cc =  ['emps-2024@ifciltd.com'];
-            $bcc = ['ajaharuddin.ansari@ifciltd.com'];
-            $subject = 'Model submitted successfully';
-            $body = view('emails.model_submitted_by_oem', ['user' => $ta_name, 'detail'=>$oem,'exfp'=>$request->ex_factory_price, 'model'=>$detail])->render();
+                    $to = $oem->email;
+                    $cc =  ['emps-2024@ifciltd.com'];
+                    $bcc = ['ajaharuddin.ansari@ifciltd.com'];
+                    $subject = 'Model submitted successfully';
+                    $body = view('emails.model_submitted_by_oem', ['user' => $ta_name, 'detail' => $oem, 'exfp' => $request->ex_factory_price, 'model' => $detail])->render();
 
-            $send = sendMail($to,$cc,$bcc,$subject,$body);
-            
-            $to1 = $ta_name->email;
-            $cc1 =  [$oem->email,'emps-2024@ifciltd.com'];
-            $bcc1 = ['ajaharuddin.ansari@ifciltd.com'];
-            $subject1 = 'Model submitted successfully by OEM';
-            $body1 = view('emails.model_submitted_by_oem_toTa', ['user' => $ta_name, 'detail'=>$oem, 'model'=>$detail])->render();
-            
-            $send1 = sendMail($to1,$cc1,$bcc1,$subject1,$body1);
+                    $send = sendMail($to, $cc, $bcc, $subject, $body);
 
+                    $to1 = $ta_name->email;
+                    $cc1 =  [$oem->email, 'emps-2024@ifciltd.com'];
+                    $bcc1 = ['ajaharuddin.ansari@ifciltd.com'];
+                    $subject1 = 'Model submitted successfully by OEM';
+                    $body1 = view('emails.model_submitted_by_oem_toTa', ['user' => $ta_name, 'detail' => $oem, 'model' => $detail])->render();
+
+                    $send1 = sendMail($to1, $cc1, $bcc1, $subject1, $body1);
                 }
             });
 
-            if($request->status == 'S'){
+            if ($request->status == 'S') {
                 alert()->success('Data has been successfully submitted.', 'Success')->persistent('Close');
-            }else{
+            } else {
                 alert()->success('Data has been successfully updated.', 'Success')->persistent('Close');
             }
             return redirect()->route('e-trucks.oemModel.index');
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
-           dd($e);
-           errorMail($e, $pid);
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            dd($e);
+            errorMail($e, $pid);
             return redirect()->back();
         }
     }
@@ -386,15 +380,14 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             $oemModelmaster->submitted_at = Carbon::now();
             $oemModelmaster->save();
 
-            
+
             return redirect()->route('e-trucks.oemModel.index');
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-// errorMail($e, Auth::user()->id);
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
-
     }
 
     public function get_category($data)
@@ -409,9 +402,9 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             }
             return $options;
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-// errorMail($e, Auth::user()->id);
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
@@ -429,13 +422,14 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                 return $result;
             }
         } catch (\Exception $e) {
-        alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
-//    errorMail($e, Auth::user()->id);
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            //    errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
 
-    public function models($id) {
+    public function models($id)
+    {
         $id = decrypt($id);
         $pid = getParentId();
         try {
@@ -451,15 +445,16 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                     'truck_oem_model_details.id as model_detail_id',
                     'truck_oem_model_details.*',
                 ]);
-                // dd($oemMOdelDetail);
+            // dd($oemMOdelDetail);
             return view('truck.oem.manage_model.models', compact('oemMOdelDetail', 'segment'));
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
-            errorMail($e,$pid);
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            errorMail($e, $pid);
             return redirect()->back();
         }
     }
-    public function revalidate($id) {
+    public function revalidate($id)
+    {
         $id = decrypt($id);
         $pid = getParentId();
         try {
@@ -469,12 +464,12 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                 ->join("users as u", "vmd.testing_agency_id", "=", "u.id")
                 ->where('vmd.model_id', $id)->where('vmd.oem_id', $pid)->first(['vmd.*', 'u.name as testing_agency_name']);
 
-                    // dd($oemMOdelDetail);
+            // dd($oemMOdelDetail);
             return view('truck.oem.manage_model.revalidate', compact('user', 'oemMOdelDetail'));
         } catch (\Exception $e) {
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
-// dd($e);
-          //  errorMail($e, Auth::user()->id);
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            // dd($e);
+            //  errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }
@@ -539,7 +534,7 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
                 $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
                 $oemModelDetail->tot_energy = $request->total_energy_capacity;
                 $oemModelDetail->battery_make = $request->battery_make;
-               // $oemModelDetail->battery_capacity = $request->battery_capacity;
+                // $oemModelDetail->battery_capacity = $request->battery_capacity;
 
                 $oemModelDetail->range = $request->range;
                 $oemModelDetail->max_elect_consumption = $request->max_electric_energy_consumption;
@@ -570,10 +565,10 @@ alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
             alert()->success('Data has been successfully saved.', 'Success!')->persistent('Close');
             return redirect()->route('e-trucks.oemModel.index');
         } catch (\Exception $e) {
-// dd($e);
-alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
+            // dd($e);
+            alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
 
-           errorMail($e, $pid);
+            errorMail($e, $pid);
             return redirect()->back();
         }
     }

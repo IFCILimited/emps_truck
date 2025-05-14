@@ -60,6 +60,7 @@
                                                 <th>colour</th>
                                                 <th> Emission Norms </th>
                                                 <th> Motor Number </th>
+                                                <th> Gross Weight </th>
                                                 <th> Battery Number </th>
                                                 <th> Battery Number2 </th>
                                                 <th> Battery Number3 </th>
@@ -130,6 +131,12 @@
                                                             name="production[{{ $key }}][motor_number]"
                                                             class="form-control form-control-sm"
                                                             value="{{ $item->motor_number }}">
+                                                    </td>
+                                                     <td>
+                                                        <input type="text"
+                                                            name="production[{{ $key }}][gross_weight]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $item->gross_weight }}">
                                                     </td>
                                                     <td>
                                                         <input type="text"

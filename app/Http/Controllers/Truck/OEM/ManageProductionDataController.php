@@ -1,14 +1,16 @@
 <?php
+
 namespace App\Http\Controllers\Truck\OEM;
+
 use DB;
 use Auth;
-use App\Models\TempProductionData;
-use App\Models\ProductionData;
+use App\Models\Trucks\TempProductionData;
+use App\Models\Trucks\ProductionData;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
-use App\Imports\TempProductionDataImport;
-use App\Exports\ProductionExport;
+use App\Imports\TempProductionDataTruckImport;
+use App\Exports\TruckProductionExport;
 use Exception;
 
 class ManageProductionDataController extends Controller
@@ -22,22 +24,22 @@ class ManageProductionDataController extends Controller
 
         try {
             //             $modelMaster = DB::table("model_master as mm")
-//                 ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
-//                 ->join('users as u', 'u.id', '=', 'mm.oem_id')
-//                 ->where('omd.testing_flag', 'A')
-//                 ->where('omd.mhi_flag', 'A')
-//                 ->where('omd.oem_id', $pid)
-// 		 ->where('mm.oem_id', $pid)
-//                 ->select('u.name', 'mm.*', 'omd.*')
-//                 ->get();
-//            //  dd($modelMaster,$pid);
-//             $productionData = ProductionData::where('oem_id',$pid)->get();
-//  //dd($modelMaster,$pid,$productionData );
-//             return view("truck.oem.production_data.index_production_data", compact('productionData', 'modelMaster'));
+            //                 ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+            //                 ->join('users as u', 'u.id', '=', 'mm.oem_id')
+            //                 ->where('omd.testing_flag', 'A')
+            //                 ->where('omd.mhi_flag', 'A')
+            //                 ->where('omd.oem_id', $pid)
+            // 		 ->where('mm.oem_id', $pid)
+            //                 ->select('u.name', 'mm.*', 'omd.*')
+            //                 ->get();
+            //            //  dd($modelMaster,$pid);
+            //             $productionData = ProductionData::where('oem_id',$pid)->get();
+            //  //dd($modelMaster,$pid,$productionData );
+            //             return view("truck.oem.production_data.index_production_data", compact('productionData', 'modelMaster'));
 
 
-            $modelMaster = DB::table("model_master as mm")
-                ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+            $modelMaster = DB::table("truck_model_master as mm")
+                ->join('truck_oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
                 ->join('users as u', 'u.id', '=', 'mm.oem_id')
                 ->where('omd.testing_flag', 'A')
                 ->where('omd.mhi_flag', 'A')
@@ -45,6 +47,7 @@ class ManageProductionDataController extends Controller
                 ->where('mm.oem_id', $pid)
                 ->select('u.name', 'mm.*', 'omd.*')
                 ->get();
+            // dd($modelMaster);
 
             if (count($modelMaster) > 0) {
                 foreach ($modelMaster as $model) {
@@ -75,34 +78,34 @@ class ManageProductionDataController extends Controller
         ini_set('max_execution_time', 7600);
 
         $data = decrypt($data);
-        // dd($data);
         $pid = getParentId();
         try {
-            $items = DB::table('temp_production_data')
-                ->join('model_master', 'temp_production_data.model_master_id', '=', 'model_master.id')
-                ->where('temp_production_data.oem_id', $pid)
-                ->where('temp_production_data.model_master_id', $data['model_id'])
-                ->where('temp_production_data.model_details_id', $data['model_det_id'])
+            $items = DB::table('temp_production_data_trucks')
+                ->join('truck_model_master', 'temp_production_data_trucks.model_master_id', '=', 'truck_model_master.id')
+                ->where('temp_production_data_trucks.oem_id', $pid)
+                ->where('temp_production_data_trucks.model_master_id', $data['model_id'])
+                ->where('temp_production_data_trucks.model_details_id', $data['model_det_id'])
                 ->get();
 
 
-        
-$modelMaster = DB::table("model_master as mm")
-->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
-->join('users as u', 'u.id', '=', 'mm.oem_id')
-->join('segment_master as sm', 'mm.segment_id', '=', 'sm.id')
-->where('omd.testing_flag', 'A')
-->where('omd.mhi_flag', 'A')
-->where('omd.oem_id', $pid)
-->where('mm.oem_id', $pid)
-->where('omd.model_id',$data['model_id'])
-->where('omd.id',$data['model_det_id'])
-->select('u.name', 'mm.*', 'omd.*', 'sm.*')
-->get();
 
-            return view('truck.oem.production_data.create_production_data', compact('items','modelMaster'));
+            $modelMaster = DB::table("truck_model_master as mm")
+                ->join('truck_oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+                ->join('users as u', 'u.id', '=', 'mm.oem_id')
+                ->join('segment_master as sm', 'mm.segment_id', '=', 'sm.id')
+                ->where('omd.testing_flag', 'A')
+                ->where('omd.mhi_flag', 'A')
+                ->where('omd.oem_id', $pid)
+                ->where('mm.oem_id', $pid)
+                ->where('omd.model_id', $data['model_id'])
+                ->where('omd.id', $data['model_det_id'])
+                ->select('u.name', 'mm.*', 'omd.*', 'sm.*')
+                ->get();
+
+            return view('truck.oem.production_data.create_production_data', compact('items', 'modelMaster'));
         } catch (\Exception $e) {
-            errorMail($e, $pid);
+            dd($e);
+            // errorMail($e, $pid);
             return redirect()->back();
         }
     }
@@ -111,6 +114,7 @@ $modelMaster = DB::table("model_master as mm")
 
     public function store(Request $request)
     {
+        // dd($request);
         // ini_set('memory_limit', '7048M');
         // ini_set('max_execution_time', 7600);
         ini_set('max_execution_time', 0);
@@ -118,6 +122,7 @@ $modelMaster = DB::table("model_master as mm")
         try {
             DB::transaction(function () use ($request, $pid) {
                 $vinChassisNos = [];
+                $gwVehicle = [];
                 foreach ($request->production as $productionItem) {
                     $modelMasterId = $productionItem['model_master_id'];
                     $modelDetailsId = $productionItem['model_deatils_id'];
@@ -126,10 +131,23 @@ $modelMaster = DB::table("model_master as mm")
                         if (strpos($key, 'production[') !== false) {
                             // Collect VIN chassis numbers to check uniqueness
                             $vinChassisNos[] = $production['vin_chassis_no'];
+                            $gwVehicle[] = $production['gross_weight'];
                         }
                     }
                 }
 
+                $gvwCheck = DB::table('truck_oem_model_details')->where('id', $modelDetailsId)->first();
+
+                $offendingVins = [];
+                foreach ($gwVehicle as $index => $grossWeight) {
+                    if ($grossWeight > $gvwCheck->gross_weight) {
+                        $offendingVins[] = $vinChassisNos[$index];
+                    }
+                }
+
+                if (!empty($offendingVins)) {
+                    throw new \Exception('The following VIN chassis numbers exceed the allowed gross weight: ' . implode(', ', $offendingVins));
+                }
                 // Check if any VIN chassis numbers are already in the database
                 $existingVinChassisNos = ProductionData::whereIn('vin_chassis_no', $vinChassisNos)->pluck('vin_chassis_no')->toArray();
 
@@ -153,6 +171,7 @@ $modelMaster = DB::table("model_master as mm")
                             $newProductionData->colour = $production['colour'];
                             $newProductionData->emission_norms = $production['emission_norms'];
                             $newProductionData->motor_number = $production['motor_number'];
+                            $newProductionData->gross_weight = $production['gross_weight'];
                             $newProductionData->battery_number = $production['battery_number'];
                             $newProductionData->battery_number2 = $production['battery_number2'];
                             $newProductionData->battery_number3 = $production['battery_number3'];
@@ -191,10 +210,6 @@ $modelMaster = DB::table("model_master as mm")
         }
     }
 
-
-
-
-
     public function show($id)
     {
         ini_set('memory_limit', '7048M');
@@ -204,7 +219,6 @@ $modelMaster = DB::table("model_master as mm")
         try {
 
             $id = decrypt($id);
-
 
             $productionData = DB::table('production_data')
                 ->join('model_master', 'production_data.model_master_id', '=', 'model_master.id')
@@ -217,7 +231,6 @@ $modelMaster = DB::table("model_master as mm")
             errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
-
     }
 
     public function edit($id)
@@ -229,29 +242,30 @@ $modelMaster = DB::table("model_master as mm")
         try {
             $id = decrypt($id);
 
-            $productionData = DB::table('production_data')
-                ->join('model_master', 'production_data.model_master_id', '=', 'model_master.id')
-                ->where('production_data.oem_id', $pid)
-                ->where('production_data.model_master_id', $id['model_id'])
-                ->where('production_data.model_details_id', $id['model_det_id'])
-                ->get(['production_data.*', 'model_master.model_name', 'model_master.model_code']);
+            $productionData = DB::table('trucks_production_data')
+                ->join('truck_model_master', 'trucks_production_data.model_master_id', '=', 'truck_model_master.id')
+                ->where('trucks_production_data.oem_id', $pid)
+                ->where('trucks_production_data.model_master_id', $id['model_id'])
+                ->where('trucks_production_data.model_details_id', $id['model_det_id'])
+                ->get(['trucks_production_data.*', 'truck_model_master.model_name', 'truck_model_master.model_code']);
 
-                $modelMaster = DB::table("model_master as mm")
-                ->join('oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
+            $modelMaster = DB::table("truck_model_master as mm")
+                ->join('truck_oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
                 ->join('users as u', 'u.id', '=', 'mm.oem_id')
                 ->join('segment_master as sm', 'mm.segment_id', '=', 'sm.id')
                 ->where('omd.testing_flag', 'A')
                 ->where('omd.mhi_flag', 'A')
                 ->where('omd.oem_id', $pid)
-		        ->where('mm.oem_id', $pid)
-                ->where('omd.model_id',$id['model_id'])
-                ->where('omd.id',$id['model_det_id'])
+                ->where('mm.oem_id', $pid)
+                ->where('omd.model_id', $id['model_id'])
+                ->where('omd.id', $id['model_det_id'])
                 ->select('u.name', 'mm.*', 'omd.*', 'sm.*')
                 ->get();
 
 
-            return view('truck.oem.production_data.edit_production_data', compact('productionData', 'id','modelMaster'));
+            return view('truck.oem.production_data.edit_production_data', compact('productionData', 'id', 'modelMaster'));
         } catch (\Exception $e) {
+            // dd($e);
             errorMail($e, $pid);
             return redirect()->back();
         }
@@ -259,13 +273,41 @@ $modelMaster = DB::table("model_master as mm")
 
     public function update(Request $request, $user_id)
     {
+        // dd($request);
         // ini_set('memory_limit', '7048M');
         // ini_set('max_execution_time', 7600);
         ini_set('max_execution_time', 0);
         $pid = getParentId();
         try {
             DB::transaction(function () use ($request, $pid) {
+                $vinChassisNos =[];
+                $gwVehicle = [];
                 foreach ($request->production as $productionItem) {
+                     $modelMasterId = $request->model_master_id;
+                    $modelDetailsId = $request->model_deatils_id;
+                    foreach ($productionItem as $key => $production) {
+                        
+                            // Collect VIN chassis numbers to check uniqueness
+                            $vinChassisNos[] = $production['vin_chassis_no'];
+                            $gwVehicle[] = $production['gross_weight'];
+                        
+                    }
+                    // dd($production);
+
+                     $gvwCheck = DB::table('truck_oem_model_details')->where('id', $modelDetailsId)->first();
+// dd($gwVehicle,$vinChassisNos);
+                $offendingVins = [];
+                foreach ($gwVehicle as $index => $grossWeight) {
+                    if ($grossWeight > $gvwCheck->gross_weight) {
+                        $offendingVins[] = $vinChassisNos[$index];
+                    }
+                }
+
+                if (!empty($offendingVins)) {
+                    throw new \Exception('The following VIN chassis numbers exceed the allowed gross weight: ' . implode(', ', $offendingVins));
+                }
+                // Check if any VIN chassis numbers are already in the database
+                
                     foreach ($productionItem as $key => $value) {
                         // dd($value);
 
@@ -275,6 +317,7 @@ $modelMaster = DB::table("model_master as mm")
                         $productionData->colour = $value['colour'];
                         $productionData->emission_norms = $value['emission_norms'];
                         $productionData->motor_number = $value['motor_number'];
+                        $productionData->gross_weight = $value['gross_weight'];
                         $productionData->battery_number = $value['battery_number'];
                         $productionData->battery_number2 = $value['battery_number2'] ?? null;
                         $productionData->battery_number3 = $value['battery_number3'] ?? null;
@@ -292,7 +335,6 @@ $modelMaster = DB::table("model_master as mm")
                         $productionData->pmp_compliance = $value['pmp_compliance'];
                         $productionData->save();
                     }
-
                 }
             });
 
@@ -304,8 +346,9 @@ $modelMaster = DB::table("model_master as mm")
             // Return JSON response with success message and redirect URL
             return response()->json(['message' => 'Data has been successfully updated.', 'redirect_url' => route('e-trucks.manageProductionData.edit', encrypt($data))]);
         } catch (\Exception $e) {
-            errorMail($e, Auth::user()->id);
-            return response()->json(['error' => 'An error occurred while updating data.'], 500);
+            // dd($e);
+            // errorMail($e, Auth::user()->id);
+            return response()->json(['message' => 'An error occurred while saving the data.', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -369,7 +412,7 @@ $modelMaster = DB::table("model_master as mm")
 
 
         // ini_set('memory_limit', '7048M');
-//     ini_set('max_execution_time', 7600);
+        //     ini_set('max_execution_time', 7600);
         ini_set('max_execution_time', 0);
         $request->validate([
             'excel_file' => 'required|mimes:xlsx,xls|max:20480',
@@ -390,10 +433,11 @@ $modelMaster = DB::table("model_master as mm")
                 'model_det_id' => $request->model_det_id
             );
 
-            Excel::import(new TempProductionDataImport($request), $request->file('excel_file'));
+            Excel::import(new TempProductionDataTruckImport($request), $request->file('excel_file'));
 
             return redirect()->route('e-trucks.manageProductionData.create', encrypt($data))->with('success', 'Excel file uploaded successfully!');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            dd($e);
             $failures = $e->failures();
 
             foreach ($failures as $failure) {
@@ -404,6 +448,7 @@ $modelMaster = DB::table("model_master as mm")
             }
             return redirect()->back()->withErrors($failures)->withInput();
         } catch (\Exception $e) {
+            // dd($e);
             return redirect()->back();
         }
     }
@@ -427,19 +472,17 @@ $modelMaster = DB::table("model_master as mm")
             errorMail($e, $pid);
             return redirect()->back();
         }
-
     }
 
     public function downloadexcel($data)
     {
+        
         //     ini_set('memory_limit', '7048M');
         // ini_set('max_execution_time', 7600);
         ini_set('max_execution_time', 0);
         $pid = getParentId();
         try {
-
-
-            return Excel::download(new ProductionExport($data), 'production_data.xlsx');
+            return Excel::download(new TruckProductionExport($data), 'production_data.xlsx');
         } catch (\Exception $e) {
             dd($e);
             errorMail($e, Auth::user()->id);
@@ -456,21 +499,17 @@ $modelMaster = DB::table("model_master as mm")
                 if ($status == '1') {
 
                     TempProductionData::where('model_master_id', $id)->delete();
-
                 } elseif ($status == '2') {
 
                     ProductionData::where('model_master_id', $id)->where('status', 'D')->delete();
-
                 }
-
             });
             alert()->success('Data has been successfully Deleted.', 'Success')->persistent('close');
             return redirect()->route('e-trucks.manageProductionData.index');
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             // errorMail($e, Auth::user()->id);
             return response()->json(['message' => 'An error occurred while saving the data.', 'error' => $e->getMessage()], 500);
         }
     }
-
 }

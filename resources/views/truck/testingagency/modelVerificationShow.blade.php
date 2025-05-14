@@ -722,7 +722,7 @@
                             <input type="hidden" name="mid" value="{{$model->model_detail_id}}">
                     <div class="row">
                         <div class="col-12">
-                            <label>E-Office Number</label>
+                            <label>E-Office Date</label>
                            <input type="date"  name="e_office_date" class="form-control" required>
                         </div> 
                     </div>
