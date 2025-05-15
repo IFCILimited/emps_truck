@@ -211,7 +211,8 @@
                                                     </div>
                                                     @if (session('role_id') == 2 || session('role_id') == 13)
                                                         <p class="m-1 text-center">Don't have an account? <a
-                                                                class="ms-2" href="{{ route('signup',encrypt($utype)) }}"
+                                                                class="ms-2"
+                                                                href="{{ route('signup', encrypt($utype)) }}"
                                                                 style="color: blue;">Register</a></p>
                                                     @endif
 

@@ -87,17 +87,17 @@ class LoginController extends Controller
                     // 'size:10',
                     function ($attribute, $value, $fail) use ($request) { // Use the $request variable in the function 
                         $user = User::where('username', $value)->first();
-                      
+                    //   dd($user);
                         if($user){
                             $modelcheck = DB::table('model_has_roles')->where('model_id', $user->id)->first('role_id');
                             $rolecheck = DB::table('roles')->where('id', $modelcheck->role_id)->first();
                             //    dd( $modelcheck,$rolecheck);
                             // dd($user,$request->usertype,$rolecheck->name);
-                            if($user->hasRole(['OEM'])){
+                            if($user->hasRole(['OEM']) || $user->hasRole(['OEM-Truck'])){
                             if ($user && $user->isapproved == 'Y' && $rolecheck->name == $request->usertype && $user->approval_for_post_reg=='A' && $user->post_registration_status=='A') {
                                 return true;
                             }
-                        }elseif($user->hasRole(['DEALER'])){
+                        }elseif($user->hasRole(['DEALER']) || $user->hasRole(['DEALER-Truck'])){
                           
                             if ($user && $user->isapproved == 'Y' && $rolecheck->name == $request->usertype && $user->oem_id!=Null) {
                               

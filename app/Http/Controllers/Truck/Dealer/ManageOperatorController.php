@@ -35,7 +35,7 @@ class ManageOperatorController extends Controller
                   $dealerReg = DB::table('users')
                   ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
                   ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                  ->whereIn('model_has_roles.role_id', [6])
+                  ->whereIn('model_has_roles.role_id', [14])
                   ->where('parent_id', Auth::user()->id)
                   ->select('users.*', 'roles.name as  role')
                   ->get();
@@ -173,7 +173,7 @@ class ManageOperatorController extends Controller
         $dealerReg = DB::table('users')
                   ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
                   ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                  ->whereIn('model_has_roles.role_id', [6])
+                  ->whereIn('model_has_roles.role_id', [14])
                   ->where('parent_id', Auth::user()->id)
                   ->where('users.id', $id)
                   ->select('users.*', 'roles.name as  role')
