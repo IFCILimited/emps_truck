@@ -54,6 +54,7 @@ Route::get('datacheck/{id}/{aadhaar}/{mobile}', 'Truck\Dealer\ManageCertificateC
 Route::resource('manage_vin_number', 'Truck\Dealer\ManageVinNumberController');
 Route::post('manage_vin_number/get_customer', 'Truck\Dealer\ManageVinNumberController@getCustomerDetails')->name('manage_vin_number.get_customer');
 Route::resource('checkEligibility', 'Truck\Dealer\CheckEligibilityController');
+Route::post('cdcheck', 'Truck\Dealer\CheckEligibilityController@checkCDNumber')->name('cdcheck');
 Route::get('buyer_auth/{id}', 'Truck\Dealer\AckViewController@buyer_auth')->name('buyer_auth');
 
 Route::get('/genkey', function () {
@@ -113,7 +114,7 @@ Route::group(['middleware' => ['role:OEM-Truck|PMA|DEALER-Truck', 'verified', 'T
     Route::post('claimToMhi/show', 'Truck\OEM\Claim\ClaimToMhiController@show')->name('claimToMhi.show');
     Route::get('claimSubmitted', 'Truck\OEM\Claim\ClaimToMhiController@claimSubmitted')->name('claimSubmitted');
     Route::get('manageDealer/operator', 'Truck\OEM\ManageDealerController@operator')->name('manageDealer.operator');
-    Route::resource('manageDealer', 'Truck\OEM\ManageDealerController');
+    Route::resource('manageDealer', 'Truck\OEM\ManageDealerxController');
     Route::get('manageDealer/resendMail/{did}', 'Truck\OEM\ManageDealerController@resendMail')->name('manageDealer.resendMail');
     Route::get('updateDealer/{status}/{did}', 'Truck\OEM\ManageDealerController@updateDealer')->name('updateDealer');
     Route::post('upload-excel', 'Truck\OEM\ManageDealerController@uploadExcel')->name('upload-excel');
@@ -189,7 +190,9 @@ Route::group(['middleware' => ['role:DEALER-Truck']], function () {
     Route::post('buyerdetail/multi-invoice-submit', 'Truck\Dealer\MultiBuyerDetailController@manageInvoiceDocsSubmit')->name('buyerdetail.multi_invoice_submit');
     Route::post('buyerdetail/update-incentive', 'Truck\Dealer\BuyerDetailController@updateIncentive')->name('buyerdetail.update.incentive');
     Route::post('multibuyerdetail/multi-export-data', 'Truck\Dealer\MultiBuyerDetailController@multiexportData')->name('multibuyerdetail.export_data');
+    Route::get('get-cd-data/{cd}', 'Truck\Dealer\BuyerDetailController@getCdData');
     Route::resource('buyerdetail', 'Truck\Dealer\BuyerDetailController');
+    
     Route::post('aadhar_api_data', 'Truck\Dealer\BuyerDetailController@aadhar_api_data')->name('aadhar_api_data');
     Route::get('vin/getcode/{val}/{oemid}', 'Truck\Dealer\BuyerDetailController@getcode')->name('vin.getcode');
     Route::get('customer/type/{val}', 'Truck\Dealer\BuyerDetailController@type')->name('customer.type');

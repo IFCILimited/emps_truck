@@ -36,7 +36,7 @@ class ManageDealerController extends Controller
             $dealerReg = DB::table('users')
                 ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
                 ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                ->whereIn('model_has_roles.role_id', [6])
+                ->whereIn('model_has_roles.role_id', [14])
                 ->where('oem_id', $pid)
                 ->select('users.*', 'roles.name as  role')
                 ->get();
@@ -59,7 +59,7 @@ class ManageDealerController extends Controller
             $operator = DB::table('users')
                 ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
                 ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                ->whereIn('model_has_roles.role_id', [6])
+                ->whereIn('model_has_roles.role_id', [14])
                 ->where('oem_id', $pid)
                 ->wherenotnull('parent_id')
                 ->select('users.*', 'roles.name as  role')
@@ -140,7 +140,7 @@ class ManageDealerController extends Controller
                 $manageDealer->save();
 
 
-                $manageDealer->assignRole('DEALER');
+                $manageDealer->assignRole('DEALER-Truck');
 
                 $userData = $manageDealer->where('id', $manageDealer->id)->first();
 

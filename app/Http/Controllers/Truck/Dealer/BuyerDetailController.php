@@ -169,100 +169,25 @@ class BuyerDetailController extends Controller
 
     public function getcode($vin, $oemid)
     {
-        // dd($oemid);
-
-        $vincheck = vehicleSoldORNot($vin);
-        if ($vincheck->original['message'] === 'Not Sold') {
-            $vinchasis = DB::table('vw_vin_details')->where('vin_chassis_no', $vin)->where('oem_id', $oemid)->get();
-            $buyerDetail = BuyerDetail::where('vin_chassis_no',$vin)->first();
-            //Code by Rinki
-
+        
+            $vinchasis = DB::table('vw_vin_details_truck')->where('vin_chassis_no', $vin)->where('oem_id', $oemid)->get();
             $count = DB::table('buyer_details')->where('vin_chassis_no', $vin)->count();
-            $RCDetailAPI = VahanRCAPI($vin);
-            // $RCDetailAPI = [
-            //     'status' => true,
-            //     'prcn' => 'CG08BB5429',
-            //     // 'prcn' => null,
-            //     'prcndt' => '2024-10-11',
-            //     'trcn' => '12341',
-            //     'tmpcndt' => '2024-10-11'
-            // ];
+            
+            $response = array(
+                'data1' => $vinchasis,
+                'data2' => $count,
+                'data3' => 0,
+                'data4' => true,
+                'data5' => 'TEL',
+                'data6' => 'TEL',
+                'data7' => Null,
+                'data8' => Null,
+            );
 
-            // $RCDetailAPI = false;
-
-            if ($RCDetailAPI == false) {
-                if($buyerDetail != null && strtoupper($buyerDetail->state)=='TELANGANA'){
-                    // $response = array(
-                    //                     'data1' => $vinchasis,
-                    //                     'data2' => $count,
-                    //                     'data3' => 0,
-                    //                     'data4' => false,
-                    //                     'data5' => 'TEL',
-                    //                     'data6' => 'TEL',
-                    //                     'data7' => Null,
-                    //                     'data8' => Null,
-                    //                 );
-                    $tot_inc_amt = 0;
-                    if($buyerDetail->vihcle_dt && $buyerDetail->vihcle_dt != null && (int)$buyerDetail->addmi_inc_amt == 0){
-                        $dt = $buyerDetail->vihcle_dt;
-                        $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
-                    }
-                    $response = array(
-                                        'data1' => $vinchasis,
-                                        'data2' => $count,
-                                        'data3' => $tot_inc_amt,
-                                        'data4' => false,
-                                        'data5' => 'TEL',
-                                        'data6' => 'TEL',
-                                        'data7' => Null,
-                                        'data8' => Null,
-                                    );
-                }else{
-                    $dt = now();
-                                $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
-                                $response = array(
-                                    'data1' => $vinchasis,
-                                    'data2' => $count,
-                                    'data3' => $tot_inc_amt,
-                                    'data4' => false,
-                                    'data5' => Null,
-                                    'data6' => Null,
-                                    'data7' => Null,
-                                    'data8' => Null,
-                                );
-                }
-
-            } elseif ($RCDetailAPI == true) {
-                // dd("yest");
-                $dt = $RCDetailAPI['prcndt'];
-                $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
-                $response = array(
-                    'data1' => $vinchasis,
-                    'data2' => $count,
-                    'data3' => $tot_inc_amt,
-                    'data4' => $RCDetailAPI['status'],
-                    'data5' => $RCDetailAPI['prcn'],
-                    'data6' => $RCDetailAPI['prcndt'],
-                    'data7' => $RCDetailAPI['trcn'],
-                    'data8' => $RCDetailAPI['tmpcndt'],
-
-                );
-            }else {
-                // dd("yest");
-                $response = array(
-                    'data1' => $vincheck->original['message'],
-                    'data2' => Null,
-                    'data3' => Null,
-                    'data4' => false,
-                    'data5' => Null,
-                    'data6' => Null,
-                    'data7' => Null,
-                    'data8' => Null,
-                );
-            }
+            // dd($response);
             return $response;
     }
-}
+
 
 
 
@@ -956,6 +881,58 @@ public function create()
         } catch (Exception $e) {
             return response()->json(['status' => 1, 'msg' => $e->getMessage()]);
         }
+    }
+
+   public function getCdData($cdnumber)
+    {
+        // Static data based on CD number
+        $cdData = $this->getCdDataFromDatabase($cdnumber);
+
+        if ($cdData) {
+            // Return JSON data for the frontend
+            return response()->json([
+                'success' => true,
+                'cd_owner_name' => $cdData['owner_name'],
+                'gvw' => $cdData['gvw'],
+                'vin' => $cdData['vin'],
+                'status' => $cdData['status'],
+                'issue_date' => $cdData['issue_date'],
+                'validation_upto' => $cdData['validation_upto']
+            ]);
+        } else {
+            // Return error if no data found
+            return response()->json([
+                'success' => false,
+                'error' => 'CD Number not found or invalid.'
+            ]);
+        }
+    }
+
+    // Simulated method to get CD data (replace with database query in a real scenario)
+    private function getCdDataFromDatabase($cdnumber)
+    {
+        // Static data for demo purposes
+        $fakeDatabase = [
+            '12345' => [
+                'owner_name' => 'John Doe',
+                'gvw' => '4500',
+                'vin' => 'ABC123456789',
+                'status' => 'Active',
+                'issue_date' => '2024-01-01',
+                'validation_upto' => '2025-01-01'
+            ],
+            '67890' => [
+                'owner_name' => 'Jane Smith',
+                'gvw' => '5000',
+                'vin' => 'XYZ987654321',
+                'status' => 'Inactive',
+                'issue_date' => '2023-06-15',
+                'validation_upto' => '2024-06-15'
+            ]
+        ];
+
+        // Return CD data if it exists, or null if not found
+        return $fakeDatabase[$cdnumber] ?? null;
     }
 
 

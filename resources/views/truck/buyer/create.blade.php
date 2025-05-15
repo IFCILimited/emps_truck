@@ -132,7 +132,7 @@
                                                 name="temp_reg_no" readonly>
 
                                         </div>
- 					<div class="col-4 mb-3" id="">
+                                        <div class="col-4 mb-3" id="">
                                             <label class="form-label" for="manu_date">Temporary RC Date:</label>
                                             <input class="form-control srchV readonly" id="temp_reg_dt"
                                                 name="temp_reg_dt" readonly>
@@ -151,9 +151,101 @@
                                                 name="permanent_reg_dt" readonly>
 
                                         </div>
+                                        <div class="col-4 mb-3" id="">
+                                            <label class="form-label" for="manu_date">Gross Weight (in Tons):</label>
+                                            <input class="form-control srchV readonly" id="gross_weight"
+                                                name="permanent_reg_dt" readonly>
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                    <h4>CD Number Details</h4>
+                                </div>
+                                    <div class="card-body">
+                                        <div class="row mb-4 mt-4" id="cd-inputs-wrapper">
+                                            <div class="col-sm-4 cd-entry">
+                                                <div class="form-group">
+                                                    <label>CD Number</label>
+                                                    <input type="text" class="form-control" name="data[1][cdnumber]"
+                                                        placeholder="Enter CD Number">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mb-2" id="cd-buttons">
+                                        <button type="button" id="addCdBtn" class="btn btn-success">Add +</button>
+                                        <button type="submit" class="btn btn-primary">Check</button>
+                                    </div>
+                                </div>
+                            </div> --}}
+
+                            {{-- CD No----------------------------- --}}
+                           <div class="card height-equal">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>CD Information</h4>
+        <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button>
+    </div>
+    <div class="card-body">
+        <div class="vehicle_div">
+            <div class="row border p-3 cd-block" id="cd-inputs-wrapper">
+                <div class="col-4 mb-3 cd-entry">
+                    <label class="form-label">CD Number</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="form-control cdnumber-input" name="data[1][cdnumber]">
+                            <input class="prod_id" type="hidden" name="production_id[]" />
+                            <input type="hidden" name="segment_id[]" />
+                            <input type="hidden" name="tot_adm_inc_amt[]" />
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-primary btn-sm p-2 fetch-cd-btn">Fetch CD Data</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4 mb-3">
+                    <label class="form-label">CD Owner Name:</label>
+                    <input class="form-control readonly cd_owner_name" name="cd_owner_name" readonly>
+                </div>
+
+                <div class="col-4 mb-3">
+                    <label class="form-label">Gross Vehicle Weight (GVW):</label>
+                    <input class="form-control readonly gvw" name="gvw" readonly>
+                </div>
+
+                <div class="col-4 mb-3">
+                    <label class="form-label">VIN/Chassis Number:</label>
+                    <input class="form-control readonly vin_no" name="vin_no" readonly>
+                </div>
+
+                <div class="col-4 mb-3">
+                    <label class="form-label">Status Flag:</label>
+                    <input class="form-control readonly status" name="status" readonly>
+                </div>
+
+                <div class="col-4 mb-3">
+                    <label class="form-label">CD – Issue Date:</label>
+                    <input class="form-control readonly cd_issue_date" name="cd_issue_date" readonly>
+                </div>
+
+                <div class="col-4 mb-3">
+                    <label class="form-label">CD - Validity Upto Date:</label>
+                    <input class="form-control readonly cd_validation_date" name="cd_validation_date" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                            {{-- end cd no------------ --}}
+
+
                             <div class="card height-equal">
                                 <div class="card-header">
                                     <h4>Customer Details</h4>
@@ -276,10 +368,10 @@
                                             <div class="col-4 mb-3">
                                                 <label class="form-label" for="invoice_dt">
                                                     Dealer Invoice Date:</label>
-                                                    <input class="form-control" id="invoice_dt" type="date"
+                                                <input class="form-control" id="invoice_dt" type="date"
                                                     value="" name="invoice_dt" min="{{ $minDate }}"
                                                     max="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
-                                                     onchange="validateDates()">
+                                                    onchange="validateDates()">
 
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -408,7 +500,7 @@
             var token = $("input[name='_token']").val();
             // console.log(val,oemid,token);
             $.ajax({
-                url: '/vin/getcode/' + val + '/' + oemid,
+                url: '/e-trucks/vin/getcode/' + val + '/' + oemid,
 
                 method: 'GET',
 
@@ -428,6 +520,7 @@
                         $('#manufacturing_date').val();
                         $('#tot_adm_inc_amt').val();
                         $('#addmi_inc_amt').val();
+                        $('#gross_weight').val();
 
                     } else if (response.data1.length == 0) {
                         $('#vin').val();
@@ -443,7 +536,7 @@
                             // alert('dddddd')
 
                             if (response.data4 == true) {
-				//console.log(response.data5 ? response.data6 : '')
+                                //console.log(response.data5 ? response.data6 : '')
                                 $('#prd_id').val(response.data1[0].id);
                                 $('#seg_id').val(response.data1[0].segment_id);
                                 $('#sh_vehicle').val(response.data1[0].vehicle_cat);
@@ -452,38 +545,40 @@
                                 $('#segment').val(response.data1[0].segment);
                                 $('#ex_price').val(response.data1[0].factory_price);
                                 $('#manufacturing_date').val(response.data1[0].manufacturing_date);
+                                $('#gross_weight').val(response.data1[0].gross_weight);
                                 $('#tot_adm_inc_amt').val(response.data3);
                                 $('#addmi_inc_amt').val(response.data3);
                                 $('#permanent_reg_no').val(response.data5);
                                 //$('#permanent_reg_dt').val(response.data6);
-				$('#permanent_reg_dt').val(response.data5 ? response.data6 : '');
+                                $('#permanent_reg_dt').val(response.data5 ? response.data6 : '');
                                 $('#temp_reg_no').val(response.data7);
- 				$('#temp_reg_dt').val(response.data8);
-                            } else {
-                                //  if (response.data1[0].vehicle_cat === 'L5' && response.data4 == false) {
-                                //     alert('Unable to fetch vahan details. Please try again.');
-                                // } else {
-                                    alert('Vahan Details not found');
-
-                                    $('#prd_id').val(response.data1[0].id);
-                                    $('#seg_id').val(response.data1[0].segment_id);
-                                    $('#sh_vehicle').val(response.data1[0].vehicle_cat);
-                                    $('#xevmdl').val(response.data1[0].model_name);
-                                    $('#modl_vrnt').val(response.data1[0].variant_name);
-                                    $('#segment').val(response.data1[0].segment);
-                                    $('#ex_price').val(response.data1[0].factory_price);
-                                    $('#manufacturing_date').val(response.data1[0].manufacturing_date);
-                                    $('#tot_adm_inc_amt').val(response.data3);
-                                    $('#addmi_inc_amt').val(response.data3);
-                                    $('#permanent_reg_no').val(response.data5);
-                                    //$('#permanent_reg_dt').val(response.data6);
-                                    $('#permanent_reg_dt').val(response.data5 ? response.data6 : '');
-                                    $('#temp_reg_no').val(response.data7);
-                                    $('#temp_reg_dt').val(response.data8);
-
-                                // };
-
+                                $('#temp_reg_dt').val(response.data8);
                             }
+                            // } else {
+                            //     //  if (response.data1[0].vehicle_cat === 'L5' && response.data4 == false) {
+                            //     //     alert('Unable to fetch vahan details. Please try again.');
+                            //     // } else {
+                            //         alert('Vahan Details not found');
+
+                            //         $('#prd_id').val(response.data1[0].id);
+                            //         $('#seg_id').val(response.data1[0].segment_id);
+                            //         $('#sh_vehicle').val(response.data1[0].vehicle_cat);
+                            //         $('#xevmdl').val(response.data1[0].model_name);
+                            //         $('#modl_vrnt').val(response.data1[0].variant_name);
+                            //         $('#segment').val(response.data1[0].segment);
+                            //         $('#ex_price').val(response.data1[0].factory_price);
+                            //         $('#manufacturing_date').val(response.data1[0].manufacturing_date);
+                            //         $('#tot_adm_inc_amt').val(response.data3);
+                            //         $('#addmi_inc_amt').val(response.data3);
+                            //         $('#permanent_reg_no').val(response.data5);
+                            //         //$('#permanent_reg_dt').val(response.data6);
+                            //         $('#permanent_reg_dt').val(response.data5 ? response.data6 : '');
+                            //         $('#temp_reg_no').val(response.data7);
+                            //         $('#temp_reg_dt').val(response.data8);
+
+                            //     // };
+
+                            // }
 
                         } else {
                             alert('The manufacturing date is not between 1 October 2024 and 31 March 2026');
@@ -504,8 +599,8 @@
                         $('#tot_adm_inc_amt').val(response.data3);
                         $('#addmi_inc_amt').val(response.data3);
                         $('#permanent_reg_dt').val(response.data5 ? response.data6 : '');
-                                $('#temp_reg_no').val(response.data7);
- 				$('#temp_reg_dt').val(response.data8);
+                        $('#temp_reg_no').val(response.data7);
+                        $('#temp_reg_dt').val(response.data8);
                     }
                 }
             });
@@ -544,7 +639,94 @@
             }
         });
 
-        // prevent multiple press
+       let cdIndex = 1;
+
+// Add new row
+$('#add_multi_cdn').on('click', function () {
+    cdIndex++;
+    let newRow = `
+    <div class="row border p-3 cd-block" data-index="${cdIndex}">
+        <div class="col-4 mb-3 cd-entry">
+            <label class="form-label">CD Number</label>
+            <div class="row">
+                <div class="col-md-6">
+                    <input class="form-control cdnumber-input" name="data[${cdIndex}][cdnumber]">
+                    <input class="prod_id" type="hidden" name="production_id[]" />
+                    <input type="hidden" name="segment_id[]" />
+                    <input type="hidden" name="tot_adm_inc_amt[]" />
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-primary btn-sm p-2 fetch-cd-btn">Fetch CD Data</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-4 mb-3">
+            <label class="form-label">CD Owner Name:</label>
+            <input class="form-control readonly cd_owner_name" name="cd_owner_name" readonly>
+        </div>
+
+        <div class="col-4 mb-3">
+            <label class="form-label">Gross Vehicle Weight (GVW):</label>
+            <input class="form-control readonly gvw" name="gvw" readonly>
+        </div>
+
+        <div class="col-4 mb-3">
+            <label class="form-label">VIN/Chassis Number:</label>
+            <input class="form-control readonly vin_no" name="vin_no" readonly>
+        </div>
+
+        <div class="col-4 mb-3">
+            <label class="form-label">Status Flag:</label>
+            <input class="form-control readonly status" name="status" readonly>
+        </div>
+
+        <div class="col-4 mb-3">
+            <label class="form-label">CD – Issue Date:</label>
+            <input class="form-control readonly cd_issue_date" name="cd_issue_date" readonly>
+        </div>
+
+        <div class="col-4 mb-3">
+            <label class="form-label">CD - Validity Upto Date:</label>
+            <input class="form-control readonly cd_validation_date" name="cd_validation_date" readonly>
+        </div>
+    </div>`;
+
+    $('#cd-inputs-wrapper').append(newRow);
+});
+
+// Delegate event to handle click on dynamically added "Fetch CD Data" buttons
+$('#cd-inputs-wrapper').on('click', '.fetch-cd-btn', function () {
+    let $row = $(this).closest('.cd-block');
+    let cdNumber = $row.find('.cdnumber-input').val().trim();
+
+    if (!cdNumber) {
+        alert('Please enter a CD number.');
+        return;
+    }
+
+    $.ajax({
+        url: `/e-trucks.get-cd-data/${cdNumber}`,
+        type: 'GET',
+        success: function (response) {
+            if (response.error) {
+                alert("Error: " + response.error);
+            } else {
+                $row.find('.cd_owner_name').val(response.cd_owner_name || '');
+                $row.find('.gvw').val(response.gvw || '');
+                $row.find('.vin_no').val(response.vin || '');
+                $row.find('.status').val(response.status || '');
+                $row.find('.cd_issue_date').val(response.issue_date || '');
+                $row.find('.cd_validation_date').val(response.validation_upto || '');
+            }
+        },
+        error: function (xhr) {
+            alert("AJAX Error: " + xhr.responseText);
+        }
+    });
+});
+
+
         $(document).ready(function() {
             $('.prevent-multiple-submit').on('submit', function() {
                 $(this).find('button[type="submit"]').prop('disabled', true);
@@ -553,6 +735,35 @@
                     buttons.prop('disabled', false);
                 }, 20000); // 25 seconds in milliseconds
             });
+
+            var i = 1;
+            // Handle Add button
+            $('#addCdBtn').click(function() {
+                i++;
+                const newInput = `
+                <div class="col-sm-4 cd-entry mb-2">
+                    <div class="form-group">
+                        <label>CD Number</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="data[${i}][cdnumber]" placeholder="Enter CD Number">
+                            <div class="input-group-append">
+                                <button type="button" style="margin-left: 4px;margin-top: 3px;" class="btn btn-sm btn-danger removeCdBtn">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                $('#cd-inputs-wrapper').append(newInput);
+            });
+
+            // Handle Remove button using event delegation
+            $('#cd-inputs-wrapper').on('click', '.removeCdBtn', function() {
+                $(this).closest('.cd-entry').remove();
+            });
+
+
+
         });
 
         // date check of invoice and registration
