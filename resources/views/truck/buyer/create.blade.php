@@ -706,7 +706,7 @@ $('#cd-inputs-wrapper').on('click', '.fetch-cd-btn', function () {
     }
 
     $.ajax({
-        url: `/e-trucks.get-cd-data/${cdNumber}`,
+        url: `http://127.0.0.1:8001/e-trucks/get-cd-data/${cdNumber}`,
         type: 'GET',
         success: function (response) {
             if (response.error) {

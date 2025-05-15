@@ -913,7 +913,7 @@ public function create()
     {
         // Static data for demo purposes
         $fakeDatabase = [
-            '12345' => [
+            'CD1001' => [
                 'owner_name' => 'John Doe',
                 'gvw' => '4500',
                 'vin' => 'ABC123456789',
@@ -921,7 +921,7 @@ public function create()
                 'issue_date' => '2024-01-01',
                 'validation_upto' => '2025-01-01'
             ],
-            '67890' => [
+            'CD1002' => [
                 'owner_name' => 'Jane Smith',
                 'gvw' => '5000',
                 'vin' => 'XYZ987654321',
