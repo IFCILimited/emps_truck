@@ -27,8 +27,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/vscrap/{cd_number}', [CDRecordController::class, 'fetchCDInfo']);
 
-Route::get('/vscrap/{cd_number}', [CDRecordController::class, 'fetchCDInfo']);
-
 Route::group(['prefix' => 'dealer'], function () {
     Route::post('/userverify', [DealerController::class, 'userverify']);
     Route::post('/operator_auth', [DealerController::class, 'operator_auth']);
