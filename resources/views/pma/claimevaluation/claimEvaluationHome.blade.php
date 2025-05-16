@@ -51,7 +51,7 @@
 
                    <div class="row">
 
-                       <div class="card">
+                       {{-- <div class="card">
                            <div class="card-body">
                                <form id="filterForm">
                                    <div class="row">
@@ -88,13 +88,11 @@
                                    </div>
                                </form>
                            </div>
-                       </div>
-
+                       </div> --}}
                        <div class="col-xl-12">
                            <div class="col-6 mb-3">
                                <h4>Claim Evaluation</h4>
                            </div>
-
                            <div class="col-sm-12 col-xl-12">
                                <div class="card">
                                    <div class="card-header">
@@ -106,30 +104,20 @@
                                            <li class="nav-item"><a class="nav-link active txt-primary" id="pma-tab"
                                                    data-bs-toggle="tab" href="#pma" role="tab" aria-controls="pma"
                                                    aria-selected="true">Claim Processed</a></li>
-
-
                                            <li class="nav-item"><a class="nav-link txt-primary" id="auditor-tabs"
                                                    data-bs-toggle="tab" href="#auditor" role="tab"
                                                    aria-controls="auditor" aria-selected="true">PMA to
                                                    Auditor</a></li>
-
                                            <li class="nav-item"><a class="nav-link txt-primary" id="table_3-tabs"
                                                    data-bs-toggle="tab" href="#table_3" role="tab"
                                                    aria-controls="table_3" aria-selected="true">
                                                    Auditor to PMA</a></li>
-
-
-
                                            <li class="nav-item"><a class="nav-link  txt-primary" id="table_4-tabs"
                                                    data-bs-toggle="tab" href="#table_4" role="tab"
                                                    aria-controls="table_4" aria-selected="false">PMA to
                                                    MHI</a></li>
-
-
                                        </ul>
-
                                        <div class="tab-content" id="myTabContent">
-
                                            <div class="tab-pane fade  show active" id="pma" role="tabpanel"
                                                aria-labelledby="pma-tab">
                                                <div class="dt-ext table-responsive  custom-scrollbar mt-5">
@@ -150,7 +138,6 @@
 
                                                            @if (count($claimMaster) > 0)
                                                                @foreach ($claimMaster->whereNotIn('claim_id', $data) as $claim)
-                                                                   {{-- {{dd($buyer->id)}} --}}
                                                                    <tr>
                                                                        @php
                                                                            $sn = $loop->iteration;
@@ -160,14 +147,8 @@
                                                                        <td>{{ strtoupper($claim->name) ?? 'NA' }}</td>
                                                                        <td>{{ $claim->vehicle_count ?? 'NA' }}</td>
                                                                        <td>{{ $claim->tot_incamt ?? 'NA' }}</td>
-                                                                       {{-- <td>{{ date('d-m-Y', strtotime($claim->created_at)) ?? 'NA' }}
-                                                                    </td> --}}
-                                                                       <td>
-
-                                                                           <a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
-                                                                               class="btn btn-sm btn-warning">View</a>
-
-                                                                       </td>
+                                                                       <td><a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
+                                                                               class="btn btn-sm btn-warning">View</a></td>
                                                                        @if ($claim->claim_doc_status == 'A')
                                                                            <td><a href="{{ route('claimUploadDoc', encrypt($claim->claim_id)) }}"
                                                                                    class="btn btn-sm btn-success">View
@@ -198,7 +179,7 @@
                                                                <th scope="col">S.No.</th>
                                                                <th scope="col">Claim Number</th>
                                                                <th scope="col">OEM Name</th>
-                                                               {{-- <th scope="col">Auditor Name</th> --}}
+                                                               <th scope="col">Auditor Name</th>
                                                                <th scope="col">Number of Vehicle</th>
                                                                <th scope="col">Total incentive Amount</th>
                                                                <th scope="col">PMA Approved Amount</th>
@@ -218,19 +199,15 @@
                                                                        <th>{{ $sn }}</th>
                                                                        <td>{{ $claim->claimnumberformat ?? 'NA' }}</td>
                                                                        <td>{{ strtoupper($claim->oemname) ?? 'NA' }}</td>
-                                                                       {{-- <td>
+                                                                       <td>
                                                                            {{ strtoupper($claim->auditor_name) ?? 'NA' }}
-                                                                       </td> --}}
+                                                                       </td>
                                                                        <td>{{ $claim->count ?? 'NA' }}</td>
                                                                        <td>{{ $claim->approved_incentive ?? 'NA' }}</td>
                                                                        <td>{{ $claim->pma_amount ?? 'NA' }}</td>
                                                                        <td>
-
-                                                                           {{-- @if (Auth::user()->hasRole('AUDITOR')) --}}
                                                                            <a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
                                                                                class="btn btn-sm btn-warning">View</a>
-                                                                           {{-- @endif --}}
-
                                                                        </td>
                                                                        {{-- @if ($claim->claim_doc_status == 'A')
                                                                            <td><a href="{{ route('claimUploadDoc', encrypt($claim->claim_id)) }}"
@@ -290,10 +267,10 @@
                                                                        <td>{{ $claim->pma_amount ?? 'NA' }}</td>
                                                                        <td>
 
-                                                                           {{-- @if (Auth::user()->hasRole('AUDITOR')) --}}
+
                                                                            <a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
                                                                                class="btn btn-sm btn-warning">View</a>
-                                                                           {{-- @endif --}}
+
 
                                                                        </td>
                                                                        {{-- @if ($claim->claim_doc_status == 'A')
@@ -316,9 +293,6 @@
 
                                                </div>
                                            </div>
-
-
-
                                            <div class="tab-pane fade" id="table_4" role="tabpanel"
                                                aria-labelledby="table_4-tabs">
                                                <div class="dt-ext table-responsive  custom-scrollbar mt-5">
@@ -379,23 +353,14 @@
 
                                                </div>
                                            </div>
-
-
-
-
-
                                        </div>
                                    </div>
                                </div>
                            </div>
-
                        </div>
-
                    </div>
-
                </div>
            </div>
-
        </div>
    @endsection
    @push('scripts')
@@ -405,7 +370,7 @@
                    dom: "Bfrtip",
                    buttons: ["csvHtml5"],
                    pageLength: 2000,
-                   order: [] // Disable initial sorting
+                   order: []
                });
            });
        </script>
@@ -416,7 +381,7 @@
                    dom: "Bfrtip",
                    buttons: ["csvHtml5"],
                    pageLength: 2000,
-                   order: [] // Disable initial sorting
+                   order: []
                });
            });
        </script>
@@ -427,7 +392,7 @@
                    dom: "Bfrtip",
                    buttons: ["csvHtml5"],
                    pageLength: 2000,
-                   order: [] // Disable initial sorting
+                   order: []
                });
 
 
@@ -441,7 +406,7 @@
                    dom: "Bfrtip",
                    buttons: ["csvHtml5"],
                    pageLength: 2000,
-                   order: [] // Disable initial sorting
+                   order: []
                });
            });
        </script>

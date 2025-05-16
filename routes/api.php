@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DealerController;
 use App\Http\Controllers\APIVahanController;
 use App\Http\Controllers\VahanController;
 use App\Http\Controllers\VinController;
+use App\Http\Controllers\CDRecordController;
 
 
 /*
@@ -24,6 +25,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+
+Route::get('/vscrap/{cd_number}', [CDRecordController::class, 'fetchCDInfo']);
 
 Route::group(['prefix' => 'dealer'], function () {
     Route::post('/userverify', [DealerController::class, 'userverify']);
