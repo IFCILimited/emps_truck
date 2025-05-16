@@ -15,11 +15,11 @@
                         <h4>Manage Production Data</h4>
                     </div>
                     <div class="col-3 d-flex justify-content-end">
-                        <a href="{{ route('e-trucks.downloadFile.productiondata') }}" class="btn btn-success"><i
+                        <a href="{{ asset('files/TrucksManageProductionData.xlsx') }}" class="btn btn-success"><i
                                 class="fa fa-cloud-download"></i> Format for Production Data.</a>
                     </div>
 			<div class="col-3 d-flex justify-content-end">
-                        <a href="{{ asset('files/ManageProductionData_sample.xlsx') }}" class="btn btn-success"><i
+                        <a href="{{ asset('files/TruckManageProductionData_sample.xlsx') }}" class="btn btn-success"><i
                                 class="fa fa-cloud-download"></i> Sample Production Data.</a>
                     </div>
 
@@ -94,7 +94,7 @@
                                                     {{-- @elseif($productionData->where('model_master_id', $model->model_id)->where('model_details_id', $model->id)->pluck('status')[0] == 'S') --}}
                                                     @elseif($model->productionDataStatus == 'S')
                                                         <td class="d-flex justify-content-around m-2">
-                                                            <a href="{{ route('manageProductionData.downloadexcel', encrypt($data)) }}"
+                                                            <a href="{{ route('e-trucks.manageProductionData.downloadexcel', encrypt($data)) }}"
                                                                 class="btn  btn-success">Download</a> &nbsp; &nbsp; &nbsp;
                                                             &nbsp;
                                                             {{-- @if ($model->isProductionDraft)

@@ -100,7 +100,14 @@
                                    </div>
                                    <div class="card-body">
                                        <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
+                                           @if (Auth::user()->hasRole('PMA'))
+                                               <li class="nav-item"><a class="nav-link active txt-primary" id="pma-tab"
+                                                       data-bs-toggle="tab" href="#pma" role="tab"
+                                                       aria-controls="pma" aria-selected="true">Claim Evaluation Under
+                                                       PMA</a></li>
+                                           @endif
 
+<<<<<<< HEAD
                                            <li class="nav-item"><a class="nav-link active txt-primary" id="pma-tab"
                                                    data-bs-toggle="tab" href="#pma" role="tab" aria-controls="pma"
                                                    aria-selected="true">Claim Processed</a></li>
@@ -115,18 +122,96 @@
                                            <li class="nav-item"><a class="nav-link  txt-primary" id="table_4-tabs"
                                                    data-bs-toggle="tab" href="#table_4" role="tab"
                                                    aria-controls="table_4" aria-selected="false">PMA to
+=======
+                                           <li class="nav-item"><a
+                                                   class="nav-link txt-primary {{ Auth::user()->hasRole('AUDITOR') ? 'active' : '' }}"
+                                                   id="auditor-tabs" data-bs-toggle="tab" href="#auditor" role="tab"
+                                                   aria-controls="auditor" aria-selected="true">Claim Evaluation Under
+                                                   Auditor</a></li>
+                                           <li class="nav-item"><a class="nav-link  txt-primary" id="mhi-tabs"
+                                                   data-bs-toggle="tab" href="#mhi" role="tab" aria-controls="mhi"
+                                                   aria-selected="false">Claim Evaluation Under
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                                                    MHI</a></li>
                                        </ul>
                                        <div class="tab-content" id="myTabContent">
+<<<<<<< HEAD
                                            <div class="tab-pane fade  show active" id="pma" role="tabpanel"
                                                aria-labelledby="pma-tab">
+=======
+                                           @if (Auth::user()->hasRole('PMA'))
+                                               <div class="tab-pane fade  show active" id="pma" role="tabpanel"
+                                                   aria-labelledby="pma-tab">
+                                                   <div class="dt-ext table-responsive  custom-scrollbar mt-5">
+                                                       <table class="display table-bordered table-striped"
+                                                           id="export-button">
+                                                           <thead>
+                                                               <tr>
+                                                                   <th scope="col">S.No.</th>
+                                                                   <th scope="col">Claim Number</th>
+                                                                   <th scope="col">OEM Name</th>
+                                                                   <th scope="col">Number of Vehicle</th>
+                                                                   <th scope="col">Total incentive Amount</th>
+                                                                   {{-- <th scope="col">Claim Submitted Date</th> --}}
+                                                                   <th scope="col">Action</th>
+                                                                   <th scope="col">Documents</th>
+                                                               </tr>
+                                                           </thead>
+                                                           <tbody>
+
+                                                               @if (count($claimMaster) > 0)
+                                                                   @foreach ($claimMaster->whereNotIn('claim_id', $data) as $claim)
+                                                                       {{-- {{dd($buyer->id)}} --}}
+                                                                       <tr>
+                                                                           @php
+                                                                               $sn = $loop->iteration;
+                                                                           @endphp
+                                                                           <th>{{ $sn }}</th>
+                                                                           <td>{{ $claim->claimnumberformat ?? 'NA' }}</td>
+                                                                           <td>{{ strtoupper($claim->name) ?? 'NA' }}</td>
+                                                                           <td>{{ $claim->vehicle_count ?? 'NA' }}</td>
+                                                                           <td>{{ $claim->tot_incamt ?? 'NA' }}</td>
+                                                                           {{-- <td>{{ date('d-m-Y', strtotime($claim->created_at)) ?? 'NA' }}
+                                                                    </td> --}}
+                                                                           <td>
+
+                                                                               <a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
+                                                                                   class="btn btn-sm btn-warning">View</a>
+
+                                                                           </td>
+                                                                           @if ($claim->claim_doc_status == 'A')
+                                                                               <td><a href="{{ route('claimUploadDoc', encrypt($claim->claim_id)) }}"
+                                                                                       class="btn btn-sm btn-success">View
+                                                                                       Documents</a>
+                                                                               </td>
+                                                                           @else
+                                                                               <td>-</td>
+                                                                           @endif
+                                                                       </tr>
+                                                                   @endforeach
+                                                               @else
+                                                                   <td colspan="19" class="text-center">No Data Available
+                                                                   </td>
+                                                               @endif
+                                                           </tbody>
+                                                       </table>
+
+                                                   </div>
+
+                                               </div>
+                                           @endif
+
+                                           <div class="tab-pane fade {{ Auth::user()->hasRole('AUDITOR') ? 'show active' : '' }}"
+                                               id="auditor" role="tabpanel" aria-labelledby="auditor-tabs">
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                                                <div class="dt-ext table-responsive  custom-scrollbar mt-5">
-                                                   <table class="display table-bordered table-striped" id="table1">
+                                                   <table class="display table-bordered table-striped" id="export-button2">
                                                        <thead>
                                                            <tr>
                                                                <th scope="col">S.No.</th>
                                                                <th scope="col">Claim Number</th>
                                                                <th scope="col">OEM Name</th>
+                                                               <th scope="col">Auditor Name</th>
                                                                <th scope="col">Number of Vehicle</th>
                                                                <th scope="col">Total incentive Amount</th>
                                                                {{-- <th scope="col">Claim Submitted Date</th> --}}
@@ -135,9 +220,19 @@
                                                            </tr>
                                                        </thead>
                                                        <tbody>
+                                                           @php
+                                                               if (Auth::user()->hasRole('PMA')) {
+                                                                   $claimMaster=$claimMaster->wherein('claim_id', $data);
+                                                                  
+                                                               }
 
+                                                           @endphp
                                                            @if (count($claimMaster) > 0)
+<<<<<<< HEAD
                                                                @foreach ($claimMaster->whereNotIn('claim_id', $data) as $claim)
+=======
+                                                               @foreach ($claimMaster as $claim)
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                                                                    <tr>
                                                                        @php
                                                                            $sn = $loop->iteration;
@@ -145,10 +240,24 @@
                                                                        <th>{{ $sn }}</th>
                                                                        <td>{{ $claim->claimnumberformat ?? 'NA' }}</td>
                                                                        <td>{{ strtoupper($claim->name) ?? 'NA' }}</td>
+                                                                       <td>
+                                                                        {{ strtoupper($claim->auditor_name) ?? 'NA' }}
+                                                                       </td>
                                                                        <td>{{ $claim->vehicle_count ?? 'NA' }}</td>
                                                                        <td>{{ $claim->tot_incamt ?? 'NA' }}</td>
+<<<<<<< HEAD
                                                                        <td><a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
                                                                                class="btn btn-sm btn-warning">View</a></td>
+=======
+                                                                       <td>
+
+                                                                           @if (Auth::user()->hasRole('AUDITOR'))
+                                                                               <a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
+                                                                                   class="btn btn-sm btn-warning">View</a>
+                                                                           @endif
+
+                                                                       </td>
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                                                                        @if ($claim->claim_doc_status == 'A')
                                                                            <td><a href="{{ route('claimUploadDoc', encrypt($claim->claim_id)) }}"
                                                                                    class="btn btn-sm btn-success">View
@@ -167,8 +276,8 @@
                                                    </table>
 
                                                </div>
-
                                            </div>
+<<<<<<< HEAD
 
                                            <div class="tab-pane fade" id="auditor" role="tabpanel"
                                                aria-labelledby="auditor-tabs">
@@ -295,64 +404,39 @@
                                            </div>
                                            <div class="tab-pane fade" id="table_4" role="tabpanel"
                                                aria-labelledby="table_4-tabs">
+=======
+                                           <div class="tab-pane fade" id="mhi" role="tabpanel"
+                                               aria-labelledby="mhi-tabs">
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                                                <div class="dt-ext table-responsive  custom-scrollbar mt-5">
-                                                   <table class="display table-bordered table-striped" id="table4">
+                                                   <table class="display table-bordered table-striped"
+                                                       id="export-button3">
                                                        <thead>
-                                                           <tr>
-                                                               <th scope="col">S.No.</th>
-                                                               <th scope="col">Claim Number</th>
-                                                               <th scope="col">OEM Name</th>
-
-                                                               <th scope="col">Number of Vehicle</th>
-                                                               <th scope="col">Total incentive Amount</th>
-                                                               <th scope="col">PMA Approved Amount</th>
-                                                               {{-- <th scope="col">Claim Submitted Date</th> --}}
-                                                               <th scope="col">Action</th>
-                                                               <th scope="col">Documents</th>
-                                                           </tr>
+                                                           <thead>
+                                                               <tr>
+                                                                   <th scope="col">S.No.</th>
+                                                                   <th scope="col">Claim Number</th>
+                                                                   <th scope="col">OEM Name</th>
+                                                                   <th scope="col">Number of Vehicle</th>
+                                                                   <th scope="col">Total incentive Amount</th>
+                                                                   {{-- <th scope="col">Claim Submitted Date</th> --}}
+                                                                   <th scope="col">Action</th>
+                                                                   <th scope="col">Documents</th>
+                                                               </tr>
+                                                           </thead>
                                                        </thead>
                                                        <tbody>
 
-                                                           @if (count($claimMastermhi) > 0)
-                                                               @foreach ($claimMastermhi as $claim)
-                                                                   <tr>
-                                                                       @php
-                                                                           $sn = $loop->iteration;
-                                                                       @endphp
-                                                                       <th>{{ $sn }}</th>
-                                                                       <td>{{ $claim->claimnumberformat ?? 'NA' }}</td>
-                                                                       <td>{{ strtoupper($claim->oemname) ?? 'NA' }}</td>
 
-                                                                       <td>{{ $claim->count ?? 'NA' }}</td>
-                                                                       <td>{{ $claim->eligible_incentive ?? 'NA' }}</td>
-                                                                       <td>{{ $claim->pma_amount ?? 'NA' }}</td>
-                                                                       <td>
-                                                                           <a href="{{ route('claimEvaluation.buyDetailView', encrypt($claim->claim_id)) }}"
-                                                                               class="btn btn-sm btn-warning">View</a>
-
-
-                                                                       </td>
-                                                                       {{-- @if ($claim->claim_doc_status == 'A')
-                                                                           <td>
-                                                                            <a href="{{ route('claimUploadDoc', encrypt($claim->claim_id)) }}"
-                                                                                   class="btn btn-sm btn-success">View
-                                                                                   Documents</a>
-                                                                           </td>
-                                                                       @else
-                                                                           <td>-</td>
-                                                                       @endif --}}
-                                                                       <td>-</td>
-                                                                   </tr>
-                                                               @endforeach
-                                                           @else
-                                                               <td colspan="19" class="text-center">No Data Available
-                                                               </td>
-                                                           @endif
                                                        </tbody>
                                                    </table>
 
                                                </div>
                                            </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                                        </div>
                                    </div>
                                </div>
@@ -366,10 +450,11 @@
    @push('scripts')
        <script>
            $(document).ready(function() {
-               $("#table1").DataTable({
+               $("#export-button2, #export-button3").DataTable({
                    dom: "Bfrtip",
                    buttons: ["csvHtml5"],
                    pageLength: 2000,
+<<<<<<< HEAD
                    order: []
                });
            });
@@ -407,6 +492,9 @@
                    buttons: ["csvHtml5"],
                    pageLength: 2000,
                    order: []
+=======
+                   order: [], // Disable initial sorting
+>>>>>>> fa63b012d12f536a2874ddc761e07cd8bb042bfe
                });
            });
        </script>

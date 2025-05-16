@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Truck\Dealer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Helpers\helperFuntion1;
 
 use DB;
 
@@ -16,8 +17,10 @@ class CheckEligibilityController extends Controller
      */
     public function index()
     {
+        $results = session('results', []);
+
         $segmentCheck = DB::table("segment_master")->get();
-        return view('truck.buyer.check_eligibility', compact('segmentCheck'));
+        return view('truck.buyer.check_eligibility', compact('segmentCheck','results'));
     }
 
     /**
@@ -177,4 +180,23 @@ class CheckEligibilityController extends Controller
     {
         //
     }
+
+    public function checkCDNumber(Request $request)
+{
+    $results = [];
+
+    foreach ($request->data as $val) {
+        $cdNumber = $val['cdnumber'] ?? null;
+
+        if ($cdNumber) {
+            $response = cdNumber($cdNumber); // Call helper
+            $results[] = [
+                'cdnumber' => $cdNumber,
+                'response' => $response
+            ];
+        }
+    }
+
+return redirect()->route('e-trucks.checkEligibility.index')->with('results', $results);
+}
 }

@@ -45,7 +45,9 @@ class OEMPostController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request);
+        
+         ini_set('memory_limit', '7048M');
+        ini_set('max_execution_time', 7600);
         try {
             DB::transaction(function () use ($request) {
                 $userPostData = PostRegistrationDetail::where('user_id', $request->user_id)->first();
@@ -311,6 +313,7 @@ class OEMPostController extends Controller
             alert()->success('Post Registration Successfully Submit', 'Success')->persistent('Close');
             return redirect()->route('home');
         } catch (Exception $e) {
+            dd($e);
            alert()->success('Something Went Wrong', 'Error')->persistent('Close');
             return redirect()->back();
         }

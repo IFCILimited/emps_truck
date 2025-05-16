@@ -21,8 +21,7 @@ class ClaimEvaluationController extends Controller
 
    public function index()
 {
-        ini_set('memory_limit', '8048M');
-        ini_set('max_execution_time', 8600);
+    // Get OEM Details
     $oemDetails = DB::table('oem_ev_summary')
         ->select('oem_id', 'oem_name')
         ->orderby('oem_name')
@@ -854,4 +853,4 @@ class ClaimEvaluationController extends Controller
             'updated_at' => now(),
         ]);
     }
-}
+874ddc761e07cd8bb042bfe

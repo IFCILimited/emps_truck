@@ -1,0 +1,318 @@
+<?php
+
+namespace App\Http\Controllers\OEM;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
+use App\Imports\SalesDataImport;
+use App\Exports\SalesDataExport;
+use Illuminate\Http\Request;
+use Auth;
+use DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Exception;
+use Carbon\Carbon;
+
+class ManageUserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $users = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [4])
+        ->where('parent_id', Auth::user()->id)
+        ->select('users.*', 'roles.name as  role')
+        ->get();
+
+            return view('oem.users.index',compact('users'));
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('oem.users.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $password = generatePassword();
+
+        try {
+            $exception = DB::transaction(function () use ($request, $password) {
+                $username = generateUsername($request->auth_name, $request->mobile_no);
+                $manageUser = new User;
+                $manageUser->name = Auth::user()->name;
+                $manageUser->email = $request->email;
+                $manageUser->username = $username;
+                $manageUser->password = Hash::make($password);
+                $manageUser->mobile = $request->mobile;
+                $manageUser->auth_name = $request->auth_name;
+                $manageUser->parent_id = Auth::user()->id;
+                $manageUser->isactive = $request->isactive;
+                $manageUser->isotpverified = 0;
+                $manageUser->isapproved = $request->isapproved;
+                $manageUser->auth_designation = $request->designation;
+                $manageUser->approval_for_post_reg = 'A';
+                $manageUser->post_registration_status = 'A';
+
+                $manageUser->save();
+
+
+                $manageUser->assignRole('OEM');
+
+                $userData = $manageUser->where('id', $manageUser->id)->first();
+
+                $userMail = array (
+                    'name' => $manageUser->name,
+                    'email' => $manageUser->email,
+                    'status' => 'Login Credential Successfully Create',
+                    'username' => $userData->username,
+                    'password' => $password
+                );
+
+                // Mail::send('emails.dealerCredential', $userMail, function ($message) use ($userMail) {
+                // Mail::send('emails.Credential', $userMail, function ($message) use ($userMail) {
+                //     $message->to($userMail['email'])->subject($userMail['status']);
+                // });
+                $to = $userMail['email'];
+                $cc= '';
+                $bcc='';
+                $subject=$userMail['status'];
+                // $from = 'noreply.pmedrive@heavyindustry.gov.in';
+                $msg=view('emails.Credential', ['user' => $userMail])->render();
+
+                $response = sendMail($to,$cc,$bcc,$subject,$msg);
+            });
+            if (is_null($exception)) {
+                alert()->success('User has been successfully created.', 'Success')->persistent('Close');
+                return redirect()->route('manageUser.index');
+            } else {
+                throw new Exception;
+            }
+        } catch (Exception $e) {
+            // dd($e);
+alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+
+           // dd($e);
+            //errorMail($e, Auth::user()->id);
+            return redirect()->route('manageUser.index');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $id = decrypt($id);
+
+
+        $users = DB::table('users')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->whereIn('model_has_roles.role_id', [4])
+        ->where('parent_id', Auth::user()->id)
+        ->where('users.id', $id)
+        ->select('users.*', 'roles.name as  role')
+        ->first();
+
+        return view('oem.users.edit',compact('users'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+
+
+        try {
+            $exception = DB::transaction(function () use ($request,$id) {
+                $username = generateUsername($request->auth_name, $request->mobile_no);
+                $manageUser = User::find($id);
+                $manageUser->name = Auth::user()->name;
+                $manageUser->email = $request->email;
+                $manageUser->mobile = $request->mobile;
+                $manageUser->auth_name = $request->auth_name;
+                $manageUser->isactive = $request->isactive;
+                $manageUser->isapproved = ($request->isactive == 'Y') ? 'Y' : 'N';
+                $manageUser->auth_designation = $request->designation;
+                $manageUser->remarks = $request->remarks;
+                $manageUser->save();
+
+
+                $manageUser->assignRole('OEM');
+
+                $userData = $manageUser->where('id', $manageUser->id)->first();
+
+
+            });
+            if (is_null($exception)) {
+                alert()->success('User has been successfully updated.', 'Success')->persistent('Close');
+                return redirect()->route('manageUser.index');
+            } else {
+                throw new Exception;
+            }
+        } catch (Exception $e) {
+            alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+
+           // dd($e);
+            //errorMail($e, Auth::user()->id);
+            return redirect()->route('manageUser.index');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+
+    public function projectionReport(){
+
+        $pid = getParentId();
+        // $proj = DB::table('projection_report')->where('oem_id',$pid)->count();
+        // dd($proj);
+        $projection = DB::table('projection_report')->where('oem_id',$pid)->get();
+
+        return view('oem.users.projectionReport',compact('projection'));
+    }
+    public function storeReport(request $request){
+        // dd($request);
+        try {
+        $pid = getParentId();
+        foreach ($request->production as $key => $check) {
+            if (isset($check['id'])) {
+                // Update the existing record
+                DB::table('projection_report')
+                    ->where('id', $check['id'])
+                    ->update([
+                        'month' => $check['month'],
+                        'production' => $check['production'],
+                        'sales' => $check['sales'],
+                        'created_by' => $pid,
+                        'created_at' => now(),
+                        'oem_id' => $pid,
+                    ]);
+            } else {
+                // Insert a new record
+                DB::table('projection_report')->insert([
+                    'month' => $check['month'],
+                    'production' => $check['production'],
+                    'sales' => $check['sales'],
+                    'created_by' => $pid,
+                    'created_at' => now(),
+                    'oem_id' => $pid,
+                ]);
+            }
+        }
+
+        alert()->success('Projection Report Data has been successfully saved.', 'Success')->persistent('Close');
+                return redirect()->route('projectionReport');
+    } catch (Exception $e) {
+        // dd($e);
+        alert()->warning('Something Went Wrong.', 'Danger')->persistent('Close');
+
+       // dd($e);
+        //errorMail($e, Auth::user()->id);
+        return redirect()->route('projectionReport');
+    }
+    }
+
+    public function uploadSales() {
+
+        $catSeg = DB::table('segment_master as sm')
+        ->join('category_master as cm', 'sm.id', '=', 'cm.segment_id')
+        ->select('sm.segment_name',"sm.id as sid", 'cm.category_name',"cm.id as cid") // Adjust the columns you want to select
+        ->get();
+        // dd($catSeg);
+        return view('oem.users.uploadSales',compact('catSeg'));
+    }
+
+    public function uploadSalesData(Request $request)
+    {
+        // dd($request);
+
+    ini_set('memory_limit', '2048M');
+
+    ini_set('max_execution_time', 3600);
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls|max:20480',
+        ]);
+
+        try {
+
+
+            Excel::import(new SalesDataImport($request), $request->file('excel_file'));
+
+            alert()->success('Sales Data has been successfully uploaded.', 'Success')->persistent('ok');
+            return redirect()->route('uploadSales');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+
+            foreach ($failures as $failure) {
+                if ($failure->attribute()) {
+                    alert()->error($failure->errors(), 'Error')->persistent('Ok');
+                    return redirect()->back();
+                }
+            }
+            return redirect()->back()->withErrors($failures)->withInput();
+        } catch (\Exception $e) {
+            alert()->error('Something Went Wrong', 'Error')->persistent('Ok');
+            return redirect()->back();
+        }
+    }
+
+    public function salesDownload($data)
+    {
+        return Excel::download(new SalesDataExport($data), 'sales_data.xlsx');
+    }
+
+    public function uploadSalesReport()  {
+        $prev_date = Carbon::yesterday()->format('d-m-Y');
+        $curr_date = Carbon::today()->format('d-m-Y');
+        $oemSalesData = DB::table('oem_sales_report_view')->get();
+        return view('pma.oem_sale_report',compact('oemSalesData','prev_date','curr_date'));
+    }
+}

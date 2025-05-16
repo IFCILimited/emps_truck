@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 function helperFunction1()
 {
@@ -62,13 +63,12 @@ function vahanAPI($Chassis_Number)
     curl_close($ch);
     $inputKey = "MhI_EmPs@8300@";
     $result = $response1; // Replace with your encrypted data
-    // dd(strlen($result));
+
     if (strlen($result) < 100) {
         return false;
     }
 
     $dataArray = fnDecrypt($result, $inputKey);
-    dd($dataArray);
 
     $dataArray = [
         'vin_chasis_no' => $vinchasis,
@@ -113,7 +113,6 @@ function vahanAPI($Chassis_Number)
         });
         return true;
     } catch (\Exception $e) {
-        dd($e);
         return false;
     }
 }
@@ -156,7 +155,6 @@ function fnDecrypt($sValue, $sSecretKey)
 
 function uploadFileWithCurl($file, $additionalHeaders = [])
 {
-    // dd($file );
     if ($file->isValid()) {
 
         // Get the path to the uploaded file
@@ -177,7 +175,6 @@ function uploadFileWithCurl($file, $additionalHeaders = [])
         $filesize = $file->getSize();
         $uploadfile = file_get_contents($file->getRealPath());
         $escapefile = pg_escape_bytea($uploadfile);
-        //dd($uploadfile );
 
         if (!$db) {
             return 0;
@@ -256,7 +253,7 @@ function downloadFile_bkup($outputFilename)
     $contentDisposition = isset($responseHeaders['Content-Disposition']) ? $responseHeaders['Content-Disposition'] : null;
     if (preg_match('/filename="(.*?)"/', $contentDisposition, $matches)) {
         $filename = $matches[1];
-        // dd($filename);
+        
     } else {
         $filename = 'Error';
     }
@@ -267,9 +264,8 @@ function downloadFile_bkup($outputFilename)
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
     $response = curl_exec($curl);
-    // dd($response);
     $headers = curl_getinfo($curl);
-    // dd($response);
+    
     if (curl_errno($curl)) {
         $error_message = curl_error($curl);
         echo "Error: $error_message";
@@ -307,7 +303,6 @@ function generateUsername($name, $mobile)
 {
     // Convert first letter of name to uppercase and rest to lowercase
     $name = ucfirst(strtolower($name));
-    // dd($name);
 
     // Extract the first letter of the name
     $firstLetter = substr($name, 0, 4);
@@ -332,7 +327,6 @@ function generateUsername($name, $mobile)
     // $username = $firstLetter . $specialCharacter . $lastTwoDigits . $randomNumber;
     $username = $firstLetter . $lastTwoDigits . $randomNumber;
 
-    // dd($username);
 
     // Check if the username already exists in the database
     $existingUser = User::where('username', $username)->first();
@@ -378,55 +372,56 @@ function generatePassword()
 }
 
 
-function errorMail($e, $id)
-{
-    \Log::error($e->getMessage());
-    report($e);
+// function errorMail($e, $id)
+// {
+//     \Log::error($e->getMessage());
+//     report($e);
 
-    $mail_details = DB::table('error_mail')->get();
-    $dev_data = $mail_details->where('email_type', 'to')->first();
-    // dd($dev_data);
-    $cc_details = $mail_details->where('email_type', 'cc');
-    $user_data = DB::table('users')->where('id', $id)->first();
-    // dd($cc_details);
-    foreach ($cc_details as $k => $val) {
-        $cc[] = $val->email;
-        $cc_per_name[] = $val->name;
-    }
-    // dd($cc);
-    $data = array(
-        'name' => $dev_data->name,
-        // 'to_email' => $dev_data->email,
-        'to_email' => 'ajaharuddin.ansari@ifciltd.com',
-        'error' => $e->getMessage(),
-        // 'cc_email' => $cc,
-        'cc_email' => 'ajaharuddin.ansari@ifciltd.com',
-        'cc_name' => $cc_per_name,
-        'app_name' => $user_data->name,
-        'mobile' => $user_data->mobile,
-        'contact_person' => $user_data->auth_name
-    );
-    $emailString = implode(',', $data['cc_email']);
-    // dd($emailString);
-    $ccemail = json_encode($data['cc_email']);
-    $to = $data['to_email'];
-    // $cc = $emailString;
-    $cc = '';
-    $bcc = '';
-    $subject = 'Error Log || EMPS';
-    $from = 'noreply.emps.heavyindustry@gov.in';
-    $msg = view('emails.exception', ['data' => $data])->render();
+//     $mail_details = DB::table('error_mail')->get();
+//     $dev_data = $mail_details->where('email_type', 'to')->first();
+//     // dd($dev_data);
+//     $cc_details = $mail_details->where('email_type', 'cc');
+//     $user_data = DB::table('users')->where('id', $id)->first();
+//     // dd($cc_details);
+//     foreach ($cc_details as $k => $val) {
+//         $cc[] = $val->email;
+//         $cc_per_name[] = $val->name;
+//     }
+//     // dd($cc);
+//     $data = array(
+//         'name' => $dev_data->name,
+//         // 'to_email' => $dev_data->email,
+//         'to_email' => 'ajaharuddin.ansari@ifciltd.com',
+//         'error' => $e->getMessage(),
+//         // 'cc_email' => $cc,
+//         'cc_email' => 'ajaharuddin.ansari@ifciltd.com',
+//         'cc_name' => $cc_per_name,
+//         'app_name' => $user_data->name,
+//         'mobile' => $user_data->mobile,
+//         'contact_person' => $user_data->auth_name
+//     );
+//     $emailString = implode(',', $data['cc_email']);
+//     // dd($emailString);
+//     $ccemail = json_encode($data['cc_email']);
+//     $to = $data['to_email'];
+//     // $cc = $emailString;
+//     $cc = '';
+//     $bcc = '';
+//     $subject = 'Error Log || EMPS';
+//     $from = 'noreply.emps.heavyindustry@gov.in';
+//     $msg = view('emails.exception', ['data' => $data])->render();
 
-    $response = sendEmailNic($to, $cc, $bcc, $subject, $from, $msg);
+//     $response = sendEmailNic($to, $cc, $bcc, $subject, $from, $msg);
 
-    // dd($response);
-    // Mail::send('emails.exception', $data, function($message) use($data) {
-    // $message->to($data['to_email'],$data['name'])->subject
-    // ("Error Log || EMPS");
-    // $message->cc($data['cc_email'],$data['cc_name']);
-    // });
-    alert()->warning('Something went wrong,Please try again.', 'Warning')->persistent('Close');
-}
+//     // dd($response);
+//     // Mail::send('emails.exception', $data, function($message) use($data) {
+//     // $message->to($data['to_email'],$data['name'])->subject
+//     // ("Error Log || EMPS");
+//     // $message->cc($data['cc_email'],$data['cc_name']);
+//     // });
+//     alert()->warning('Something went wrong,Please try again.', 'Warning')->persistent('Close');
+// }
+
 
 function sendEmailNic($to, $cc, $bcc, $subject, $from, $msg)
 {
@@ -477,9 +472,6 @@ function sendEmailNic($to, $cc, $bcc, $subject, $from, $msg)
 function sendSMSAPI($Mobile, $msg)
 {
 
-    //dd($Mobile);
-
-    //dd($postdata);
     try {
         $curl = curl_init();
 
@@ -558,9 +550,9 @@ function FetchVahanAPI($claimno)
     //   $stmtCntsql->execute();
     //   $buyurCnt = $stmtCntsql->fetch(PDO::FETCH_ASSOC);
     $buyurCnt = DB::table('buyer_details_view')->where('claim_id', $claimno)->count();
-    //dd($buyurCnt); 
+    
     //==========	Data Fetch for each vehicle =============
-    //  dd($buyurCnt);
+    
     if ($buyurCnt > 0) {
         $chess = DB::table('buyur_vahanapi_vw')->where('claim_id', $claimno)->get();
         foreach ($chess as $ches) {
@@ -594,7 +586,7 @@ function FetchVahanAPI($claimno)
             //echo $result;
             $dataArray = fnDecrypt($result, $inputKey);
             //echo ok1;
-            // dd($dataArray);
+
             // ----INSERT DATA ----
             $dataArray = [
                 'vin_chasis_no' => $vinchasis,
@@ -635,7 +627,7 @@ function FetchVahanAPI($claimno)
             try {
                 DB::transaction(function () use ($dataArray) {
                     DB::table('vahanapidata')->insert($dataArray);
-                    // dd($db);
+                    
                 });
             } catch (Exception $e) {
                 echo "OPPS! Something went wrong. An exception occurred: " . $e->getMessage();
@@ -674,7 +666,6 @@ function VahanRCAPI($Chassis_Number)
     $vinchasis = $Chassis_Number;
 
     $postData = '{"chasisNo":"' . $vinchasis . '","clientId":"MHI_EMPS"}';
-    // dd($postData);
 
     $ch = curl_init();
     curl_setopt_array(
@@ -699,8 +690,7 @@ function VahanRCAPI($Chassis_Number)
     curl_close($ch);
     $inputKey = "MhI_EmPs@8300@";
     $result = $response1; // Replace with your encrypted data
-    //dd(strlen($result),'dfghj');
-    // dd($result);
+
     if (strlen($result) < 100) {
         return false;
     }
@@ -764,7 +754,7 @@ function VahanRCAPI($Chassis_Number)
             'tmpcndt' => $dataArray['temporary_registration_date'] ?? null,
             'trcn' => $dataArray['temporary_registration_number'] ?? null,
         );
-        // dd($response );
+        
         return $response;
     } catch (\Exception $e) {
         dd($e);
@@ -798,7 +788,6 @@ function getEmpsDataSummary()
     $username = 'emps';
     $password = 'emps123';
 
-    // dd($db);
     $pdo = new PDO($dsn, $username, $password);
     if (!$db) {
         return 0;
@@ -815,10 +804,7 @@ function getEmpsDataSummary()
 function EmpsAuthUpdate($vin)
 {
 
-    $vinChassis = $vin;
-    // dd($vin,$vinChassis);
-
-
+    $vinChassis  = $vin;
     $host        = "host = 10.194.94.56";
     $port        = "port = 1494";
     $dbname      = "dbname = emps";
@@ -833,8 +819,6 @@ function EmpsAuthUpdate($vin)
 
 
     $stmt = DB::table('emps_buyer_auth')->where('vin_chassis_no', $vinChassis)->first();
-
-    //  dd($stmt);
 
     $updateStmt = "UPDATE buyer_details
             SET buyer_id = :buyer_id,
@@ -899,9 +883,6 @@ function EmpsAuthUpdate($vin)
         ':pmedrive_oem_status_at' => now(),
     ];
 
-
-
-
     // Bind all parameters dynamically
     foreach ($bindings as $key => $value) {
         $stmtup->bindValue($key, $value);
@@ -916,10 +897,7 @@ function EmpsAuthUpdate($vin)
         'message' => 'Record updated successfully.',
     ]);
 
-
-
     $pdo = Null;
-
 
     exit;
 }
@@ -957,12 +935,10 @@ function fetchAutoVin($Chassis_Number)
     $responseData = json_decode($response, true);
     $token = $responseData['access_token'];
 
-
     // $vinchasis = 'M75KAKUP22E000618';
     $vinchasis = $Chassis_Number;
 
     $postData = '{"chasisNo":"' . $vinchasis . '","clientId":"MHI_EMPS"}';
-    // dd($postData);
 
     $ch = curl_init();
     curl_setopt_array(
@@ -987,12 +963,37 @@ function fetchAutoVin($Chassis_Number)
     curl_close($ch);
     $inputKey = "MhI_EmPs@8300@";
     $result = $response1; // Replace with your encrypted data
-    // dd(strlen($result));
+
     if (strlen($result) < 100) {
         return false;
     }
 
     $dataArray = fnDecrypt($result, $inputKey);
     return $dataArray;
-    // dd($dataArray);
+}
+
+function cdNumber($cd)
+{
+
+    return true;
+    try {
+        // Use raw value, not encoded
+        $url = "http://pmedrivedev.com/api/vscrap/$cd";
+
+        $response = Http::get($url);
+
+        if ($response->successful()) {
+            return $response->json(); // Return decoded JSON
+        } else {
+            return [
+                'error' => 'API error',
+                'status' => $response->status()
+            ];
+        }
+    } catch (\Exception $e) {
+        return [
+            'error' => 'Request failed',
+            'message' => $e->getMessage()
+        ];
+    }
 }

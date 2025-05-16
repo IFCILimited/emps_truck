@@ -81,9 +81,9 @@
         } elseif (session('role_id') == 12) {
             $utype = 'MHI-OnlyView';
         } elseif (session('role_id') == 13) {
-            $utype = 'OEM Truck';
+            $utype = 'OEM-Truck';
         } elseif (session('role_id') == 14) {
-            $utype = 'DEALER Truck';
+            $utype = 'DEALER-Truck';
         } else {
             $utype = null;
         }
@@ -209,9 +209,10 @@
                                                             </a>
                                                         @endif
                                                     </div>
-                                                    @if (session('role_id') == 2)
+                                                    @if (session('role_id') == 2 || session('role_id') == 13)
                                                         <p class="m-1 text-center">Don't have an account? <a
-                                                                class="ms-2" href="{{ route('register') }}"
+                                                                class="ms-2"
+                                                                href="{{ route('signup', encrypt($utype)) }}"
                                                                 style="color: blue;">Register</a></p>
                                                     @endif
 

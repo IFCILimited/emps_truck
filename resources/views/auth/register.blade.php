@@ -54,7 +54,7 @@ Contact Us - {{ env('APP_NAME')}}
 </style>
 @endpush
 @section('content')
-    
+    {{-- {{dd(session('role_id'))}} --}}
     <div class="container-fluid p-0 bg-img ">
         <div class="row m-0">
             <div class="col-12 p-0">
@@ -94,7 +94,7 @@ Contact Us - {{ env('APP_NAME')}}
                                         </div>
                                     </div>
 
-                                    <div class="col-4">
+                                    {{-- <div class="col-4">
                                         <div class="form-group">
                                             <label class="col-form-label pt-0">Type of Segment:<span
                                                     class="text-danger">*</span></label>
@@ -108,7 +108,7 @@ Contact Us - {{ env('APP_NAME')}}
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-4">
                                         <div class="form-group">
@@ -357,6 +357,8 @@ Contact Us - {{ env('APP_NAME')}}
                 dataType: "json",
                 success: function(response) {
                     var otp = response.otp;
+                    // alert(otp);
+                    // console.log(otp);
                     alert('Please check your email for OTP verification.');
                     $('#otpInput').val(otp).prop('disabled', false);
                     $('#getOtpBtn').prop('disabled', true);

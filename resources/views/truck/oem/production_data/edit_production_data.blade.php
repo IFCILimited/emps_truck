@@ -61,6 +61,7 @@
                                                 <th>colour</th>
                                                 <th> Emission Norms </th>
                                                 <th> Motor Number </th>
+                                                <th> Gross Weight </th>
                                                 <th> Battery Number </th>
                                                 <th> Battery Number2 </th>
                                                 <th> Battery Number3 </th>
@@ -146,6 +147,12 @@
                                                             class="form-control form-control-sm"
                                                             style="text-align-last: justify;"
                                                             value="{{ $productionDatas->motor_number }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text"
+                                                            name="production[{{ $key }}][gross_weight]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $productionDatas->gross_weight }}">
                                                     </td>
                                                     <td>
                                                         <input type="text"
@@ -361,11 +368,20 @@
                         window.location.href = response.redirect_url;
                     });
             },
-            error: function(xhr, status, error) {
-                // Handle error
-                console.error('Error saving data:', error);
-                swal.fire('Error', 'An error occurred while saving the data.', 'error');
-            }
+           error: function(xhr, status, error) {
+                // Attempt to parse JSON response
+                try {
+                    var response = xhr.responseJSON;
+                    if (response && response.error) {
+                        swal.fire('Error', response.error, 'error');
+                    } else {
+                        swal.fire('Error', response.message, 'error');
+                    }
+                } catch (e) {
+                    // If parsing fails, show raw response text
+                    swal.fire('Error', 'An error occurred: ' + xhr.responseText, 'error');
+                }
+            }   
         });
     });
  
