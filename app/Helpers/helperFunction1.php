@@ -974,8 +974,6 @@ function fetchAutoVin($Chassis_Number)
 
 function cdNumber($cd)
 {
-
-    return true;
     try {
         // Use raw value, not encoded
         $url = "http://pmedrivedev.com/api/vscrap/$cd";
@@ -986,7 +984,7 @@ function cdNumber($cd)
             return $response->json(); // Return decoded JSON
         } else {
             return [
-                'error' => 'API error',
+                'error' => 'Something went wrong while fetching CD data.',
                 'status' => $response->status()
             ];
         }

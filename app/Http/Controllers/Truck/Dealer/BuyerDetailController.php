@@ -172,7 +172,7 @@ class BuyerDetailController extends Controller
         
             $vinchasis = DB::table('vw_vin_details_truck')->where('vin_chassis_no', $vin)->where('oem_id', $oemid)->get();
             $count = DB::table('buyer_details')->where('vin_chassis_no', $vin)->count();
-            
+              //  dd($vinchasis,$count);
             $response = array(
                 'data1' => $vinchasis,
                 'data2' => $count,
@@ -214,26 +214,16 @@ public function create()
         // dd($request);
         try {
 
-//             // start  (31032025)
-//             $invoiceDate = Carbon::createFromFormat('d-m-Y', $request->invoice_dt);
-//             $cutoffDate = Carbon::create(2025, 3, 31);
 
-//             // Check if segment_id is 1 and invoice_dt is greater than 31-03-2025
-//             if ($request->segment_id == 1 && $invoiceDate->greaterThan($cutoffDate)) {
-//                 alert()->warning('Module Under Maintenance.', 'warning')->persistent('Close');
-//                 return redirect()->route('buyerdetail.index');
-//             }
-// // end
+            // $mid = DB::table('production_data')->where('vin_chassis_no',$request->vin)->first();
+            // $fn = CheckValidity($request->invoice_dt,$mid->model_master_id);
 
-            $mid = DB::table('production_data')->where('vin_chassis_no',$request->vin)->first();
-            $fn = CheckValidity($request->invoice_dt,$mid->model_master_id);
+            // // dd($fn);\
+            // if($fn == false){
+            //     alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
 
-            // dd($fn);\
-            if($fn == false){
-                alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
-
-                    return redirect()->route('buyerdetail.index');
-            }
+            //         return redirect()->route('buyerdetail.index');
+            // }
 
         $BuyerId = Null;
         $custmrName = $request->custmr_name;
@@ -884,56 +874,21 @@ public function create()
     }
 
    public function getCdData($cdnumber)
-    {
-        // Static data based on CD number
-        $cdData = $this->getCdDataFromDatabase($cdnumber);
-
-        if ($cdData) {
-            // Return JSON data for the frontend
-            return response()->json([
-                'success' => true,
-                'cd_owner_name' => $cdData['owner_name'],
-                'gvw' => $cdData['gvw'],
-                'vin' => $cdData['vin'],
-                'status' => $cdData['status'],
-                'issue_date' => $cdData['issue_date'],
-                'validation_upto' => $cdData['validation_upto']
-            ]);
-        } else {
-            // Return error if no data found
-            return response()->json([
-                'success' => false,
-                'error' => 'CD Number not found or invalid.'
-            ]);
-        }
+{
+    try {
+        $cdRes = cdNumber($cdnumber);
+        if($cdRes){
+        return response()->json($cdRes);
     }
-
-    // Simulated method to get CD data (replace with database query in a real scenario)
-    private function getCdDataFromDatabase($cdnumber)
-    {
-        // Static data for demo purposes
-        $fakeDatabase = [
-            'CD1001' => [
-                'owner_name' => 'John Doe',
-                'gvw' => '4500',
-                'vin' => 'ABC123456789',
-                'status' => 'Active',
-                'issue_date' => '2024-01-01',
-                'validation_upto' => '2025-01-01'
-            ],
-            'CD1002' => [
-                'owner_name' => 'Jane Smith',
-                'gvw' => '5000',
-                'vin' => 'XYZ987654321',
-                'status' => 'Inactive',
-                'issue_date' => '2023-06-15',
-                'validation_upto' => '2024-06-15'
-            ]
-        ];
-
-        // Return CD data if it exists, or null if not found
-        return $fakeDatabase[$cdnumber] ?? null;
+    else{
+        return response()->json('Something went wrong while fetching CD data.');
     }
-
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Something went wrong while fetching CD data.',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 
 }

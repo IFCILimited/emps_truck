@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BuyerDetailRequest extends FormRequest
+class TruckBuyerDetailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -58,7 +58,14 @@ class BuyerDetailRequest extends FormRequest
             'addi_cust_id' => 'required',
             'cust_id_sec' => 'required',
             'cust_sec_file' => 'required|mimes:pdf|max:2048',    // PDF file with max size of 2MB (2048 KB)
-
+            'gvw' => 'required',
+            'data.*.cdnumber' => 'required',
+            'data.*.cd_owner_name' => 'required',
+            'data.*.gvw' => 'required',
+            'data.*.vin_no' => 'required',
+            'data.*.status' => 'required',
+            'data.*.cd_issue_date' => 'required',
+            'data.*.cd_validation_date' => 'required',
         ];
     }
     public function messages()
