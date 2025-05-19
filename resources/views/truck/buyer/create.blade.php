@@ -726,14 +726,27 @@
                                 cd_validation_date: response.valid_upto_date || ''
                             }
                         });
+                        checkGvwAndToggleButton();
 
-                        const totalGvw = usedCdData.reduce((sum, entry) => {
-                            const gvw = parseFloat(entry.data.gvw);
-                            return sum + (isNaN(gvw) ? 0 : gvw);
-                        }, 0);
+                        // const totalGvw = usedCdData.reduce((sum, entry) => {
+                        //     const gvw = parseFloat(entry.data.gvw);
+                        //     return sum + (isNaN(gvw) ? 0 : gvw);
+                        // }, 0);
+                        // const modelgvw = $('#gross_weight').val();
 
-                        console.log('usedCdData:', usedCdData);
-                        console.log('Total GVW:', totalGvw);
+                        //                         if(totalGvw < modelgvw){
+                        //                             swal.fire('warning','Total GVW is less than Model GVW');
+                        //                              callFunctionBtn.disabled = true;
+                        //                             callFunctionBtn.innerHTML = 'Save & Next';
+
+                        //                         }
+                        //                         else {
+                        //     callFunctionBtn.disabled = false;
+                        //     callFunctionBtn.innerHTML = 'Save & Next';
+                        // }
+                        // console.log('usedCdData:', usedCdData);
+                        // console.log('Total GVW:', totalGvw);
+                        // console.log('Model GVW:', modelgvw);
 
                         // Store cdNumber as attribute for future removal reference
                         $(`[name="data[${index}][cdnumber]"]`).attr('data-used-cd', cdNumber);
@@ -745,8 +758,26 @@
             });
         });
 
+        function checkGvwAndToggleButton() {
+            // const totalGvw = usedCdData.reduce((sum, entry) => {
+            //     const gvw = parseFloat(entry.data.gvw);
+            //     return sum + (isNaN(gvw) ? 0 : gvw);
+            // }, 0);
+
+            // const modelgvw = parseFloat($('#gross_weight').val());
+
+            // if (totalGvw < modelgvw) {
+            //     Swal.fire('Warning', 'Total GVW is less than Model GVW', 'warning');
+            //     callFunctionBtn.disabled = true;
+            //     callFunctionBtn.innerHTML = 'Save & Next';
+            // } else {
+            //     callFunctionBtn.disabled = false;
+            //     callFunctionBtn.innerHTML = 'Save & Next';
+            // }
+        }
         // Remove specific row and update usedCdData
         $('#cd-inputs-wrapper').on('click', '.remove-cd-btn', function() {
+
             let $block = $(this).closest('.cd-block');
             let $cdInput = $block.find('[name^="data["][name$="[cdnumber]"]');
             let cdNumber = $cdInput.attr('data-used-cd');
@@ -756,6 +787,7 @@
             }
 
             $block.remove();
+            checkGvwAndToggleButton();
         });
 
 

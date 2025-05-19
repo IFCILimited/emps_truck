@@ -55,7 +55,6 @@ class BuyerDetailController extends Controller
             errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
-
     }
 
     // public function getcode($vin, $oemid)
@@ -174,7 +173,7 @@ class BuyerDetailController extends Controller
         $vincheck = vehicleSoldORNot($vin);
         if ($vincheck->original['message'] === 'Not Sold') {
             $vinchasis = DB::table('vw_vin_details')->where('vin_chassis_no', $vin)->where('oem_id', $oemid)->get();
-            $buyerDetail = BuyerDetail::where('vin_chassis_no',$vin)->first();
+            $buyerDetail = BuyerDetail::where('vin_chassis_no', $vin)->first();
             //Code by Rinki
 
             $count = DB::table('buyer_details')->where('vin_chassis_no', $vin)->count();
@@ -191,7 +190,7 @@ class BuyerDetailController extends Controller
             // $RCDetailAPI = false;
 
             if ($RCDetailAPI == false) {
-                if($buyerDetail != null && strtoupper($buyerDetail->state)=='TELANGANA'){
+                if ($buyerDetail != null && strtoupper($buyerDetail->state) == 'TELANGANA') {
                     // $response = array(
                     //                     'data1' => $vinchasis,
                     //                     'data2' => $count,
@@ -203,35 +202,34 @@ class BuyerDetailController extends Controller
                     //                     'data8' => Null,
                     //                 );
                     $tot_inc_amt = 0;
-                    if($buyerDetail->vihcle_dt && $buyerDetail->vihcle_dt != null && (int)$buyerDetail->addmi_inc_amt == 0){
+                    if ($buyerDetail->vihcle_dt && $buyerDetail->vihcle_dt != null && (int)$buyerDetail->addmi_inc_amt == 0) {
                         $dt = $buyerDetail->vihcle_dt;
                         $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
                     }
                     $response = array(
-                                        'data1' => $vinchasis,
-                                        'data2' => $count,
-                                        'data3' => $tot_inc_amt,
-                                        'data4' => false,
-                                        'data5' => 'TEL',
-                                        'data6' => 'TEL',
-                                        'data7' => Null,
-                                        'data8' => Null,
-                                    );
-                }else{
+                        'data1' => $vinchasis,
+                        'data2' => $count,
+                        'data3' => $tot_inc_amt,
+                        'data4' => false,
+                        'data5' => 'TEL',
+                        'data6' => 'TEL',
+                        'data7' => Null,
+                        'data8' => Null,
+                    );
+                } else {
                     $dt = now();
-                                $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
-                                $response = array(
-                                    'data1' => $vinchasis,
-                                    'data2' => $count,
-                                    'data3' => $tot_inc_amt,
-                                    'data4' => false,
-                                    'data5' => Null,
-                                    'data6' => Null,
-                                    'data7' => Null,
-                                    'data8' => Null,
-                                );
+                    $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
+                    $response = array(
+                        'data1' => $vinchasis,
+                        'data2' => $count,
+                        'data3' => $tot_inc_amt,
+                        'data4' => false,
+                        'data5' => Null,
+                        'data6' => Null,
+                        'data7' => Null,
+                        'data8' => Null,
+                    );
                 }
-
             } elseif ($RCDetailAPI == true) {
                 // dd("yest");
                 $dt = $RCDetailAPI['prcndt'];
@@ -247,7 +245,7 @@ class BuyerDetailController extends Controller
                     'data8' => $RCDetailAPI['tmpcndt'],
 
                 );
-            }else {
+            } else {
                 // dd("yest");
                 $response = array(
                     'data1' => $vincheck->original['message'],
@@ -261,12 +259,12 @@ class BuyerDetailController extends Controller
                 );
             }
             return $response;
+        }
     }
-}
 
 
 
-public function create()
+    public function create()
     {
 
         try {
@@ -289,124 +287,124 @@ public function create()
         // dd($request);
         try {
 
-//             // start  (31032025)
-//             $invoiceDate = Carbon::createFromFormat('d-m-Y', $request->invoice_dt);
-//             $cutoffDate = Carbon::create(2025, 3, 31);
+            //             // start  (31032025)
+            //             $invoiceDate = Carbon::createFromFormat('d-m-Y', $request->invoice_dt);
+            //             $cutoffDate = Carbon::create(2025, 3, 31);
 
-//             // Check if segment_id is 1 and invoice_dt is greater than 31-03-2025
-//             if ($request->segment_id == 1 && $invoiceDate->greaterThan($cutoffDate)) {
-//                 alert()->warning('Module Under Maintenance.', 'warning')->persistent('Close');
-//                 return redirect()->route('buyerdetail.index');
-//             }
-// // end
+            //             // Check if segment_id is 1 and invoice_dt is greater than 31-03-2025
+            //             if ($request->segment_id == 1 && $invoiceDate->greaterThan($cutoffDate)) {
+            //                 alert()->warning('Module Under Maintenance.', 'warning')->persistent('Close');
+            //                 return redirect()->route('buyerdetail.index');
+            //             }
+            // // end
 
-            $mid = DB::table('production_data')->where('vin_chassis_no',$request->vin)->first();
-            $fn = CheckValidity($request->invoice_dt,$mid->model_master_id);
+            $mid = DB::table('production_data')->where('vin_chassis_no', $request->vin)->first();
+            $fn = CheckValidity($request->invoice_dt, $mid->model_master_id);
 
             // dd($fn);\
-            if($fn == false){
+            if ($fn == false) {
                 alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
 
-                    return redirect()->route('buyerdetail.index');
+                return redirect()->route('buyerdetail.index');
             }
 
-        $BuyerId = Null;
-        $custmrName = $request->custmr_name;
-        DB::transaction(function () use ($request, &$BuyerId) {
+            $BuyerId = Null;
+            $custmrName = $request->custmr_name;
+            DB::transaction(function () use ($request, &$BuyerId) {
 
-            // $sequenceValue = DB::select("SELECT NEXTVAL('sequence_buyer_id') AS next_value");
-            // $BuyerIdSeq = $sequenceValue[0]->next_value;
-            // $BuyerDB = $BuyerIdSeq * 10000;
+                // $sequenceValue = DB::select("SELECT NEXTVAL('sequence_buyer_id') AS next_value");
+                // $BuyerIdSeq = $sequenceValue[0]->next_value;
+                // $BuyerDB = $BuyerIdSeq * 10000;
 
-            // $Random = random_int(1000, 9999);
-            // $BuyerId = $BuyerDB + $Random;
+                // $Random = random_int(1000, 9999);
+                // $BuyerId = $BuyerDB + $Random;
 
-           // $sequenceValue = DB::select("SELECT NEXTVAL('sequence_buyer_id') AS next_value");
-            //$BuyerIdSeq = $sequenceValue[0]->next_value;
-           // $BuyerDB = $BuyerIdSeq * 10000;
+                // $sequenceValue = DB::select("SELECT NEXTVAL('sequence_buyer_id') AS next_value");
+                //$BuyerIdSeq = $sequenceValue[0]->next_value;
+                // $BuyerDB = $BuyerIdSeq * 10000;
 
-           // $Random = random_int(1000, 9999);
-           // $randid = $BuyerDB + $Random;
-           // $BuyerId = $randid + 1000000000;
-            $BuyerId = gernerateBuyerId();
+                // $Random = random_int(1000, 9999);
+                // $randid = $BuyerDB + $Random;
+                // $BuyerId = $randid + 1000000000;
+                $BuyerId = gernerateBuyerId();
 
-            // Pan Card
-            if ($request->hasFile('pancopy')) {
-                $file = $request->pancopy;
-                $response = uploadFileWithCurl($file);
-                $pancopy_id = $response;
-                // $pancopy_id = 1;
+                // Pan Card
+                if ($request->hasFile('pancopy')) {
+                    $file = $request->pancopy;
+                    $response = uploadFileWithCurl($file);
+                    $pancopy_id = $response;
+                    // $pancopy_id = 1;
+                }
+
+                // GSTIN
+                if ($request->hasFile('gstncopy')) {
+                    $file = $request->gstncopy;
+                    $response = uploadFileWithCurl($file);
+                    $gstncopy_id = $response;
+                    // $gstncopy_id = 1;
+                }
+
+
+                // Additional
+                if ($request->hasFile('cust_sec_file')) {
+
+                    $file = $request->cust_sec_file;
+                    $response = uploadFileWithCurl($file);
+                    $additional_id = $response;
+                    // $additional_id = 1;
+                }
+
+                $BuyerDetail = new BuyerDetail;
+                $BuyerDetail->oem_id = $request->oem_id;
+                $BuyerDetail->dealer_id = $request->dealer_id;
+                $BuyerDetail->vin_chassis_no = $request->vin;
+                $BuyerDetail->production_id = $request->production_id;
+                $BuyerDetail->segment_id = $request->segment_id;
+                $BuyerDetail->custmr_typ = $request->custmr_typ;
+                $BuyerDetail->custmr_name = $request->custmr_name;
+                $BuyerDetail->email = $request->email;
+                $BuyerDetail->add = $request->add;
+                $BuyerDetail->landmark = $request->landmark;
+                $BuyerDetail->pincode = $request->Pincode;
+                $BuyerDetail->state = $request->State;
+                $BuyerDetail->district = $request->District;
+                $BuyerDetail->city = $request->City;
+                $BuyerDetail->mobile = $request->mobile;
+                $BuyerDetail->dob = $request->dob;
+                $BuyerDetail->dlr_invoice_no = $request->dlr_invoice_no;
+                $BuyerDetail->invoice_dt = $request->invoice_dt;
+                $BuyerDetail->invoice_amt = $request->invoice_amt;
+                $BuyerDetail->addmi_inc_amt = isset($addmi_inc_amt) ? $request->addmi_inc_amt : 0;
+                $BuyerDetail->tot_inv_amt = isset($tot_inv_amt) ? $request->tot_inv_amt : 0;
+                $BuyerDetail->tot_admi_inc_amt = isset($tot_admi_inc_amt) ? $request->tot_admi_inc_amt : 0;
+                $BuyerDetail->amt_custmr = isset($amt_custmr) ? $request->amt_custmr : 0;
+                $BuyerDetail->pan = $request->pan;
+                $BuyerDetail->pancopy_id = $request->hasFile('pancopy') ? $pancopy_id : null;
+                // $BuyerDetail->pancopy_id = 1;
+                $BuyerDetail->gstin = $request->gstin;
+                $BuyerDetail->gstin_id = $request->hasFile('gstncopy') ? $gstncopy_id : null;
+                // $BuyerDetail->gstin_id = 2;
+                $BuyerDetail->cust_id_sec = $request->cust_id_sec;
+                $BuyerDetail->addi_cust_id = $request->addi_cust_id;
+                $BuyerDetail->sec_file_uploadeid = $additional_id != null ? $additional_id : null;
+                // $BuyerDetail->sec_file_uploadeid = 3;
+                $BuyerDetail->status = 'D';
+                $BuyerDetail->vhcl_regis_no = $request->permanent_reg_no;
+                $BuyerDetail->temp_reg_no = $request->temp_reg_no;
+                $BuyerDetail->vihcle_dt = $request->permanent_reg_dt;
+                $BuyerDetail->buyer_id = ($request->custmr_typ == 1) ? $BuyerId : $BuyerDetail->buyer_id;
+                $BuyerDetail->adh_verify = ($request->custmr_typ == 1) ? 'N' : $BuyerDetail->adh_verify;
+
+                $BuyerDetail->save();
+            });
+            if ($request->custmr_typ == 1) {
+
+                alert()->success('<b>Customer ID: ' . $BuyerId . '</b><br><b>Customer Name: ' . $custmrName . '</b><br> successfully generated and saved.', 'Kindly note down the Customer ID. You will need it for authentication:')
+                    ->persistent('Close');
+            } else {
+                alert()->success('Data has been successfully save.', '')->persistent('Close');
             }
-
-            // GSTIN
-            if ($request->hasFile('gstncopy')) {
-                $file = $request->gstncopy;
-                $response = uploadFileWithCurl($file);
-                $gstncopy_id = $response;
-                // $gstncopy_id = 1;
-            }
-
-
-            // Additional
-            if ($request->hasFile('cust_sec_file')) {
-
-                $file = $request->cust_sec_file;
-                $response = uploadFileWithCurl($file);
-                $additional_id = $response;
-                // $additional_id = 1;
-            }
-
-            $BuyerDetail = new BuyerDetail;
-            $BuyerDetail->oem_id = $request->oem_id;
-            $BuyerDetail->dealer_id = $request->dealer_id;
-            $BuyerDetail->vin_chassis_no = $request->vin;
-            $BuyerDetail->production_id = $request->production_id;
-            $BuyerDetail->segment_id = $request->segment_id;
-            $BuyerDetail->custmr_typ = $request->custmr_typ;
-            $BuyerDetail->custmr_name = $request->custmr_name;
-            $BuyerDetail->email = $request->email;
-            $BuyerDetail->add = $request->add;
-            $BuyerDetail->landmark = $request->landmark;
-            $BuyerDetail->pincode = $request->Pincode;
-            $BuyerDetail->state = $request->State;
-            $BuyerDetail->district = $request->District;
-            $BuyerDetail->city = $request->City;
-            $BuyerDetail->mobile = $request->mobile;
-            $BuyerDetail->dob = $request->dob;
-            $BuyerDetail->dlr_invoice_no = $request->dlr_invoice_no;
-            $BuyerDetail->invoice_dt = $request->invoice_dt;
-            $BuyerDetail->invoice_amt = $request->invoice_amt;
-            $BuyerDetail->addmi_inc_amt =isset($addmi_inc_amt) ? $request->addmi_inc_amt : 0;
-            $BuyerDetail->tot_inv_amt =isset($tot_inv_amt) ? $request->tot_inv_amt : 0;
-            $BuyerDetail->tot_admi_inc_amt =isset($tot_admi_inc_amt) ? $request->tot_admi_inc_amt : 0;
-            $BuyerDetail->amt_custmr =isset($amt_custmr) ? $request->amt_custmr : 0;
-            $BuyerDetail->pan = $request->pan;
-            $BuyerDetail->pancopy_id = $request->hasFile('pancopy') ? $pancopy_id : null;
-            // $BuyerDetail->pancopy_id = 1;
-            $BuyerDetail->gstin = $request->gstin;
-            $BuyerDetail->gstin_id = $request->hasFile('gstncopy') ? $gstncopy_id : null;
-            // $BuyerDetail->gstin_id = 2;
-            $BuyerDetail->cust_id_sec = $request->cust_id_sec;
-            $BuyerDetail->addi_cust_id = $request->addi_cust_id;
-            $BuyerDetail->sec_file_uploadeid = $additional_id != null ? $additional_id : null;
-            // $BuyerDetail->sec_file_uploadeid = 3;
-            $BuyerDetail->status = 'D';
-            $BuyerDetail->vhcl_regis_no = $request->permanent_reg_no;
-            $BuyerDetail->temp_reg_no = $request->temp_reg_no;
-            $BuyerDetail->vihcle_dt = $request->permanent_reg_dt;
-            $BuyerDetail->buyer_id = ($request->custmr_typ == 1) ? $BuyerId : $BuyerDetail->buyer_id;
-            $BuyerDetail->adh_verify = ($request->custmr_typ == 1) ? 'N' : $BuyerDetail->adh_verify;
-
-            $BuyerDetail->save();
-        });
-        if ($request->custmr_typ == 1) {
-
-            alert()->success('<b>Customer ID: ' . $BuyerId . '</b><br><b>Customer Name: ' . $custmrName . '</b><br> successfully generated and saved.', 'Kindly note down the Customer ID. You will need it for authentication:')
-                ->persistent('Close');
-        } else {
-            alert()->success('Data has been successfully save.', '')->persistent('Close');
-        }
-        return redirect()->route('buyerdetail.index');
+            return redirect()->route('buyerdetail.index');
         } catch (Exception $e) {
             errorMail($e, Auth::user()->id);
             return redirect()->back();
@@ -443,7 +441,6 @@ public function create()
             errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
-
     }
     public function type($val)
     {
@@ -498,7 +495,6 @@ public function create()
             $resp['error'] = 0;
             $resp['message'] = 'OTP generated and sent.';
         }
-
     }
 
     public function verifybuyer(request $request, $otp)
@@ -517,8 +513,8 @@ public function create()
     {
         // dd($request);
 
-        $mid = DB::table('production_data')->where('vin_chassis_no',$request->vin)->first();
-        $fn = CheckValidity($request->invoice_dt,$mid->model_master_id);
+        $mid = DB::table('production_data')->where('vin_chassis_no', $request->vin)->first();
+        $fn = CheckValidity($request->invoice_dt, $mid->model_master_id);
 
 
 
@@ -532,13 +528,13 @@ public function create()
         //     alert()->warning('Module Under Maintenance.', 'warning')->persistent('Close');
         //     return redirect()->route('buyerdetail.index');
         // }
-// end
+        // end
 
         // dd($fn);\
-        if($fn == false){
+        if ($fn == false) {
             alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
 
-                return redirect()->route('buyerdetail.index');
+            return redirect()->route('buyerdetail.index');
         }
         $oem_Status = Null;
         try {
@@ -652,13 +648,11 @@ public function create()
             } else {
                 return redirect()->route('buyerdetail.index');
             }
-
         } catch (Exception $e) {
             dd($e->getMessage());
             errorMail($e, Auth::user()->id);
             return redirect()->route('buyerdetail.index');
         }
-
     }
 
     public function aadhar_api_data(request $request)
@@ -678,65 +672,63 @@ public function create()
         ]);
 
         return true;
-
-
     }
     public function updateTempReg(Request $request)
     {
 
         if ($request->target == 'temp' || $request->target == 'perm' || $request->target == 'both') {
 
-        //     if(isset($request->vehicleRegDate)){
-        //         $vin = null;
-        //         $dt = null;
-        //         $buyerDetail = BuyerDetail::where('id',$request->id)->first();
-        //         if($buyerDetail != null){
-        //             $vin = $buyerDetail->vin_chassis_no;
-        //             $dt = $request->vehicleRegDate;
-        //             $invoice_amt = $buyerDetail->invoice_amt;
-        //             // dd($vin,$dt);
-        //         }
-        //         $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
-        //         // dd($tot_inc_amt);
-		// if($tot_inc_amt || $tot_inc_amt != 0)
-		// 	{
-        //         		$buyerDetail->addmi_inc_amt = $tot_inc_amt;
-        //         		$buyerDetail->vihcle_dt = $dt;
-        //         		$buyerDetail->tot_inv_amt =$invoice_amt - $tot_inc_amt;
-        //         		$buyerDetail->amt_custmr =$invoice_amt - $tot_inc_amt;
-        //        		 	$buyerDetail->tot_admi_inc_amt =$tot_inc_amt;
-        //         		$buyerDetail->save();
-	    //     	}
-        //     }
+            //     if(isset($request->vehicleRegDate)){
+            //         $vin = null;
+            //         $dt = null;
+            //         $buyerDetail = BuyerDetail::where('id',$request->id)->first();
+            //         if($buyerDetail != null){
+            //             $vin = $buyerDetail->vin_chassis_no;
+            //             $dt = $request->vehicleRegDate;
+            //             $invoice_amt = $buyerDetail->invoice_amt;
+            //             // dd($vin,$dt);
+            //         }
+            //         $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
+            //         // dd($tot_inc_amt);
+            // if($tot_inc_amt || $tot_inc_amt != 0)
+            // 	{
+            //         		$buyerDetail->addmi_inc_amt = $tot_inc_amt;
+            //         		$buyerDetail->vihcle_dt = $dt;
+            //         		$buyerDetail->tot_inv_amt =$invoice_amt - $tot_inc_amt;
+            //         		$buyerDetail->amt_custmr =$invoice_amt - $tot_inc_amt;
+            //        		 	$buyerDetail->tot_admi_inc_amt =$tot_inc_amt;
+            //         		$buyerDetail->save();
+            //     	}
+            //     }
 
-        if(isset($request->vehicleRegDate) && $request->vehicleRegDate != null && $request->vehicleRegDate != ''){
-            $perm_date = Carbon::parse($request->vehicleRegDate)->format('Y-m-d');
-            $vin = null;
-            $dt = null;
-            $buyerDetail = BuyerDetail::where('id',$request->id)->first();
-            if($buyerDetail != null){
-                $vin = $buyerDetail->vin_chassis_no;
-                $dt = $perm_date;
-                $invoice_amt = $buyerDetail->invoice_amt;
+            if (isset($request->vehicleRegDate) && $request->vehicleRegDate != null && $request->vehicleRegDate != '') {
+                $perm_date = Carbon::parse($request->vehicleRegDate)->format('Y-m-d');
+                $vin = null;
+                $dt = null;
+                $buyerDetail = BuyerDetail::where('id', $request->id)->first();
+                if ($buyerDetail != null) {
+                    $vin = $buyerDetail->vin_chassis_no;
+                    $dt = $perm_date;
+                    $invoice_amt = $buyerDetail->invoice_amt;
+                }
+
+                if ($buyerDetail->evoucher_date  == null) {
+                    BuyerDetail::where('id', $request->id)->update([
+                        'evoucher_date' => Carbon::now()
+                    ]);
+                }
+
+
+                $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
+                if ($tot_inc_amt || $tot_inc_amt != 0) {
+                    $buyerDetail->addmi_inc_amt = $tot_inc_amt;
+                    $buyerDetail->vihcle_dt = $dt;
+                    $buyerDetail->tot_inv_amt = $invoice_amt - $tot_inc_amt;
+                    $buyerDetail->amt_custmr = $invoice_amt - $tot_inc_amt;
+                    $buyerDetail->tot_admi_inc_amt = $tot_inc_amt;
+                    $buyerDetail->save();
+                }
             }
-
-            if($buyerDetail->evoucher_date  == null){
-                BuyerDetail::where('id', $request->id)->update([
-                    'evoucher_date' => Carbon::now()
-                ]);
-            }
-
-
-            $tot_inc_amt = DB::select("SELECT fn_total_incentive_amount('$vin','$dt') AS total_incentive_amount")[0]->total_incentive_amount;
-            if($tot_inc_amt || $tot_inc_amt != 0){
-                $buyerDetail->addmi_inc_amt = $tot_inc_amt;
-                $buyerDetail->vihcle_dt = $dt;
-                $buyerDetail->tot_inv_amt =$invoice_amt - $tot_inc_amt;
-                $buyerDetail->amt_custmr =$invoice_amt - $tot_inc_amt;
-                $buyerDetail->tot_admi_inc_amt =$tot_inc_amt;
-                $buyerDetail->save();
-            }
-        }
             // dd($request,$request->id);
 
             $existingBuyerDetail = BuyerDetail::where('vhcl_regis_no', $request->vhcl_regis_no)
@@ -770,7 +762,6 @@ public function create()
             } else {
                 return response()->json(['message' => 'Record not found.'], 404);
             }
-
         } else {
             // dd('ddd');
             $RCDetailAPI = VahanRCAPI($request->vin); // Call the API and store the response
@@ -816,22 +807,21 @@ public function create()
                     //     'prcndt' => $RCDetailAPI['prcndt'],
                     // ]);
 
-                    if($RCDetailAPI['status'] == true && $RCDetailAPI['prcn'] == null){
+                    if ($RCDetailAPI['status'] == true && $RCDetailAPI['prcn'] == null) {
                         $json = response()->json([
                             'message' => 'Unable to fetch RC detail from vahan, Try again.',
                             'status' => false,
                             'prcn' => null,
                             'prcndt' => null,
                         ]);
-                    }else if($RCDetailAPI['status'] == false && strtoupper($recordTel->state)=='TELANGANA'){
+                    } else if ($RCDetailAPI['status'] == false && strtoupper($recordTel->state) == 'TELANGANA') {
                         $json = response()->json([
                             'message' => 'RC detail not found in vahan, Please Enter it Manually.',
                             'status' => false,
                             'prcn' => 'TEL',
                             'prcndt' => 'TEL',
                         ]);
-                    }
-                    else{
+                    } else {
                         // Return message if RC data is not available
                         $json = response()->json([
                             // 'message' => 'The RC Data is not available on vahan, Please enter manually',
@@ -843,14 +833,14 @@ public function create()
                     }
                 }
             } else {
-                if(strtoupper($recordTel->state)=='TELANGANA'){
+                if (strtoupper($recordTel->state) == 'TELANGANA') {
                     $json = response()->json([
                         'message' => 'RC detail not found in vahan, Please Enter it Manually.',
                         'status' => false,
                         'prcn' => 'TEL',
                         'prcndt' => 'TEL',
                     ]);
-                }else{
+                } else {
 
                     $json = response()->json([
                         'status' => 'N',
@@ -931,7 +921,8 @@ public function create()
 
 
     // 30122024
-    public function updateIncentive(Request $request){
+    public function updateIncentive(Request $request)
+    {
         try {
             // throw new Exception('this is not good');
             $incentive_amount = ($this->getcode($request->vin, $request->oemid))["data3"];
@@ -941,22 +932,20 @@ public function create()
             // $net_amt = 0;
             // if((int)$buyer_detail->addmi_inc_amt == 0 || (int)$buyer_detail->addmi_inc_amt == ""){
 
-                // $buyer_detail->invoice_amt;
-                // $buyer_detail->tot_inv_amt;
-                // $buyer_detail->amt_custmr;
-                // $net_amt = ($buyer_detail->invoice_amt - $incentive_amount);
-                $net_amt = ((int)$request->invoice_amt - (int)$incentive_amount);
-                // dd($request->all(), $net_amt, $incentive_amount);
-                $buyer_detail->invoice_amt = $request->invoice_amt;
-                $buyer_detail->tot_inv_amt = $buyer_detail->amt_custmr = $net_amt;
-                $buyer_detail->addmi_inc_amt = $buyer_detail->tot_admi_inc_amt = $incentive_amount;
-                $buyer_detail->save();
-                return response()->json(['status' => 0, 'data' => ['net_amt' => $net_amt, 'invt_amt' => $incentive_amount]]);
+            // $buyer_detail->invoice_amt;
+            // $buyer_detail->tot_inv_amt;
+            // $buyer_detail->amt_custmr;
+            // $net_amt = ($buyer_detail->invoice_amt - $incentive_amount);
+            $net_amt = ((int)$request->invoice_amt - (int)$incentive_amount);
+            // dd($request->all(), $net_amt, $incentive_amount);
+            $buyer_detail->invoice_amt = $request->invoice_amt;
+            $buyer_detail->tot_inv_amt = $buyer_detail->amt_custmr = $net_amt;
+            $buyer_detail->addmi_inc_amt = $buyer_detail->tot_admi_inc_amt = $incentive_amount;
+            $buyer_detail->save();
+            return response()->json(['status' => 0, 'data' => ['net_amt' => $net_amt, 'invt_amt' => $incentive_amount]]);
             // }
         } catch (Exception $e) {
             return response()->json(['status' => 1, 'msg' => $e->getMessage()]);
         }
     }
-
-
 }

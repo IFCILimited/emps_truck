@@ -383,14 +383,12 @@ Route::group(['middleware' => ['role:MHI|MHI-AS|MHI-DS|MHI-OnlyView|PMA|AUDITOR'
     Route::get('view-details/{oemId}/{claimnumberformat}', 'Admin\ClaimReportController@viewDetails')->name('viewDetails');
 
     Route::get('stateSalesReport/{portal}', 'Admin\AdminController@StateSalesReportEdrive')->name('state-sales-report');
-
-
     Route::resource('claimEvaluation', 'PMA\ClaimEvaluationController');
     Route::get('claimEvaluation/search/{oem}/{segm}', 'PMA\ClaimEvaluationController@search')->name('claimEvaluation.search');
     Route::get('claimEvaluation/submit/{claim_id}/{auditor_id}', 'PMA\ClaimEvaluationController@claimsubmit')->name('claimEvaluation.submit');
     Route::get('claimEvaluation/download/{id}', 'PMA\ClaimEvaluationController@downloadUploadedFile')->name('claimEvaluation.download');
     Route::get('buyDetailView/{claimId?}', 'PMA\ClaimEvaluationController@buyDetailView')->name('claimEvaluation.buyDetailView');
-
+    Route::post('claimEvaluation/claimstagesubmit/{claim_id}/{stage_id}', 'PMA\ClaimEvaluationController@claimstagesubmit')->name('claimEvaluation.claimstagesubmit');
     Route::resource('oemChartDetails', 'Admin\FlowChart\OemDetailController');
 
     Route::resource('modelChartDetails', 'Admin\FlowChart\ModelChartDetailController');
