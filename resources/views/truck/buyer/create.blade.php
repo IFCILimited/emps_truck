@@ -153,95 +153,78 @@
                                         </div>
                                         <div class="col-4 mb-3" id="">
                                             <label class="form-label" for="manu_date">Gross Weight (in Tons):</label>
-                                            <input class="form-control srchV readonly" id="gross_weight"
-                                                name="permanent_reg_dt" readonly>
+                                            <input class="form-control srchV readonly" id="gross_weight" name="gvw"
+                                                readonly>
 
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- <div class="col-sm-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                    <h4>CD Number Details</h4>
+
+                            {{-- CD No----------------------------- --}}
+                            <div class="card height-equal">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4>CD Information</h4>
+                                    <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button>
                                 </div>
-                                    <div class="card-body">
-                                        <div class="row mb-4 mt-4" id="cd-inputs-wrapper">
-                                            <div class="col-sm-4 cd-entry">
-                                                <div class="form-group">
-                                                    <label>CD Number</label>
-                                                    <input type="text" class="form-control" name="data[1][cdnumber]"
-                                                        placeholder="Enter CD Number">
+                                <div class="card-body">
+                                    <div class="vehicle_div">
+                                        <div class="row border p-3 cd-block" id="cd-inputs-wrapper">
+                                            <div class="col-4 mb-3 cd-entry">
+                                                <label class="form-label">CD Number</label>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <input class="form-control cdnumber-input"
+                                                            name="data[1][cdnumber]">
+
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <button type="button"
+                                                            class="btn btn-primary btn-sm p-2 fetch-cd-btn"
+                                                            data-index="1">Fetch CD Data</button>
+                                                    </div>
                                                 </div>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD Owner Name:</label>
+                                                <input class="form-control readonly cd_owner_name"
+                                                    name="data[1][cd_owner_name]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">Gross Vehicle Weight (GVW):</label>
+                                                <input class="form-control readonly gvw" name="data[1][gvw]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">VIN/Chassis Number:</label>
+                                                <input class="form-control readonly vin_no" name="data[1][vin_no]"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">Status Flag:</label>
+                                                <input class="form-control readonly status" name="data[1][status]"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD – Issue Date:</label>
+                                                <input class="form-control readonly cd_issue_date"
+                                                    name="data[1][cd_issue_date]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD - Validity Upto Date:</label>
+                                                <input class="form-control readonly cd_validation_date"
+                                                    name="data[1][cd_validation_date]" readonly>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="text-center mb-2" id="cd-buttons">
-                                        <button type="button" id="addCdBtn" class="btn btn-success">Add +</button>
-                                        <button type="submit" class="btn btn-primary">Check</button>
-                                    </div>
                                 </div>
-                            </div> --}}
-
-                            {{-- CD No----------------------------- --}}
-                           <div class="card height-equal">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>CD Information</h4>
-        <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button>
-    </div>
-    <div class="card-body">
-        <div class="vehicle_div">
-            <div class="row border p-3 cd-block" id="cd-inputs-wrapper">
-                <div class="col-4 mb-3 cd-entry">
-                    <label class="form-label">CD Number</label>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input class="form-control cdnumber-input" name="data[1][cdnumber]">
-                            <input class="prod_id" type="hidden" name="production_id[]" />
-                            <input type="hidden" name="segment_id[]" />
-                            <input type="hidden" name="tot_adm_inc_amt[]" />
-                        </div>
-                        <div class="col-md-6">
-                            <button type="button" class="btn btn-primary btn-sm p-2 fetch-cd-btn">Fetch CD Data</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-4 mb-3">
-                    <label class="form-label">CD Owner Name:</label>
-                    <input class="form-control readonly cd_owner_name" name="cd_owner_name" readonly>
-                </div>
-
-                <div class="col-4 mb-3">
-                    <label class="form-label">Gross Vehicle Weight (GVW):</label>
-                    <input class="form-control readonly gvw" name="gvw" readonly>
-                </div>
-
-                <div class="col-4 mb-3">
-                    <label class="form-label">VIN/Chassis Number:</label>
-                    <input class="form-control readonly vin_no" name="vin_no" readonly>
-                </div>
-
-                <div class="col-4 mb-3">
-                    <label class="form-label">Status Flag:</label>
-                    <input class="form-control readonly status" name="status" readonly>
-                </div>
-
-                <div class="col-4 mb-3">
-                    <label class="form-label">CD – Issue Date:</label>
-                    <input class="form-control readonly cd_issue_date" name="cd_issue_date" readonly>
-                </div>
-
-                <div class="col-4 mb-3">
-                    <label class="form-label">CD - Validity Upto Date:</label>
-                    <input class="form-control readonly cd_validation_date" name="cd_validation_date" readonly>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                            </div>
 
                             {{-- end cd no------------ --}}
 
@@ -489,6 +472,8 @@
 @push('scripts')
     @include('partials.js.pincode')
     <script>
+        let usedCdData = [];
+
         // vinChassis detail from production data
         function getProjectCode() {
 
@@ -503,7 +488,6 @@
                 url: '/e-trucks/vin/getcode/' + val + '/' + oemid,
 
                 method: 'GET',
-
 
                 success: function(response) {
                     console.log(response);
@@ -531,10 +515,7 @@
                         let startDate = new Date('2024-04-01');
                         let endDate = new Date('2026-03-31');
 
-
                         if (manufacturingDate >= startDate && manufacturingDate <= endDate) {
-                            // alert('dddddd')
-
                             if (response.data4 == true) {
                                 //console.log(response.data5 ? response.data6 : '')
                                 $('#prd_id').val(response.data1[0].id);
@@ -587,7 +568,6 @@
                         $('#vin').val('');
                         alert('Vehicle with this VIN no is already sold in EMPS')
                     } else {
-                        // alert('dddddd')
                         $('#prd_id').val(response.data1[0].id);
                         $('#seg_id').val(response.data1[0].segment_id);
                         $('#sh_vehicle').val(response.data1[0].vehicle_cat);
@@ -639,92 +619,178 @@
             }
         });
 
-       let cdIndex = 1;
+        let cdIndex = 1;
 
-// Add new row
-$('#add_multi_cdn').on('click', function () {
-    cdIndex++;
-    let newRow = `
-    <div class="row border p-3 cd-block" data-index="${cdIndex}">
+        $('#add_multi_cdn').on('click', function() {
+            cdIndex++;
+            let newRow = `
+    <div class="row border p-3 mb-3 cd-block" data-index="${cdIndex}">
         <div class="col-4 mb-3 cd-entry">
             <label class="form-label">CD Number</label>
             <div class="row">
                 <div class="col-md-6">
                     <input class="form-control cdnumber-input" name="data[${cdIndex}][cdnumber]">
-                    <input class="prod_id" type="hidden" name="production_id[]" />
-                    <input type="hidden" name="segment_id[]" />
-                    <input type="hidden" name="tot_adm_inc_amt[]" />
+                    <input type="hidden" name="data[${cdIndex}][production_id]" class="prod_id" />
+                    <input type="hidden" name="data[${cdIndex}][segment_id]" />
+                    <input type="hidden" name="data[${cdIndex}][tot_adm_inc_amt]" />
                 </div>
                 <div class="col-md-6">
-                    <button type="button" class="btn btn-primary btn-sm p-2 fetch-cd-btn">Fetch CD Data</button>
+                    <button type="button" class="btn btn-primary btn-sm p-2 fetch-cd-btn" data-index="${cdIndex}">Fetch CD Data</button>
                 </div>
             </div>
         </div>
 
         <div class="col-4 mb-3">
             <label class="form-label">CD Owner Name:</label>
-            <input class="form-control readonly cd_owner_name" name="cd_owner_name" readonly>
+            <input class="form-control readonly" name="data[${cdIndex}][cd_owner_name]" readonly>
         </div>
 
         <div class="col-4 mb-3">
             <label class="form-label">Gross Vehicle Weight (GVW):</label>
-            <input class="form-control readonly gvw" name="gvw" readonly>
+            <input class="form-control readonly" name="data[${cdIndex}][gvw]" readonly>
         </div>
 
         <div class="col-4 mb-3">
             <label class="form-label">VIN/Chassis Number:</label>
-            <input class="form-control readonly vin_no" name="vin_no" readonly>
+            <input class="form-control readonly" name="data[${cdIndex}][vin_no]" readonly>
         </div>
 
         <div class="col-4 mb-3">
             <label class="form-label">Status Flag:</label>
-            <input class="form-control readonly status" name="status" readonly>
+            <input class="form-control readonly" name="data[${cdIndex}][status]" readonly>
         </div>
 
         <div class="col-4 mb-3">
             <label class="form-label">CD – Issue Date:</label>
-            <input class="form-control readonly cd_issue_date" name="cd_issue_date" readonly>
+            <input class="form-control readonly" name="data[${cdIndex}][cd_issue_date]" readonly>
         </div>
 
         <div class="col-4 mb-3">
             <label class="form-label">CD - Validity Upto Date:</label>
-            <input class="form-control readonly cd_validation_date" name="cd_validation_date" readonly>
+            <input class="form-control readonly" name="data[${cdIndex}][cd_validation_date]" readonly>
+        </div>
+
+        <div class="col-4 mt-4">
+            <button type="button" class="btn btn-danger btn-sm remove-cd-btn">Remove</button>
         </div>
     </div>`;
 
-    $('#cd-inputs-wrapper').append(newRow);
-});
+            $('#cd-inputs-wrapper').append(newRow);
+        });
 
-// Delegate event to handle click on dynamically added "Fetch CD Data" buttons
-$('#cd-inputs-wrapper').on('click', '.fetch-cd-btn', function () {
-    let $row = $(this).closest('.cd-block');
-    let cdNumber = $row.find('.cdnumber-input').val().trim();
 
-    if (!cdNumber) {
-        alert('Please enter a CD number.');
-        return;
-    }
+        // let usedCdData = [];
 
-    $.ajax({
-        url: `http://127.0.0.1:8001/e-trucks/get-cd-data/${cdNumber}`,
-        type: 'GET',
-        success: function (response) {
-            if (response.error) {
-                alert("Error: " + response.error);
-            } else {
-                $row.find('.cd_owner_name').val(response.cd_owner_name || '');
-                $row.find('.gvw').val(response.gvw || '');
-                $row.find('.vin_no').val(response.vin || '');
-                $row.find('.status').val(response.status || '');
-                $row.find('.cd_issue_date').val(response.issue_date || '');
-                $row.find('.cd_validation_date').val(response.validation_upto || '');
+        $(document).on('click', '.fetch-cd-btn', function() {
+            let index = $(this).data('index');
+            let cdNumber = $(`[name="data[${index}][cdnumber]"]`).val()?.trim();
+
+            if (!cdNumber) {
+                alert('Please enter a CD number.');
+                return;
             }
-        },
-        error: function (xhr) {
-            alert("AJAX Error: " + xhr.responseText);
+
+            // Check if CD number already used
+            if (usedCdData.some(entry => entry.cdNumber === cdNumber)) {
+                alert('This CD number has already been used.');
+                return;
+            }
+
+            $.ajax({
+                url: `/e-trucks/get_cd_data/${cdNumber}`,
+                type: 'GET',
+                success: function(response) {
+                    if (response.error) {
+                        swal.fire('Error', response.error, 'error');
+                    } else {
+                        // Fill in the form fields
+                        $(`[name="data[${index}][cd_owner_name]"]`).val(response.present_owner_name ||
+                            '');
+                        $(`[name="data[${index}][gvw]"]`).val(response.vehicle_gvw || '');
+                        $(`[name="data[${index}][vin_no]"]`).val(response.scrapped_vin || '');
+                        $(`[name="data[${index}][status]"]`).val(response.status_flag || '');
+                        $(`[name="data[${index}][cd_issue_date]"]`).val(response.issue_date || '');
+                        $(`[name="data[${index}][cd_validation_date]"]`).val(response.valid_upto_date ||
+                            '');
+
+                        // Add full data to the array
+                        usedCdData.push({
+                            cdNumber: cdNumber,
+                            index: index,
+                            data: {
+                                cd_owner_name: response.present_owner_name || '',
+                                gvw: response.vehicle_gvw || '',
+                                vin_no: response.scrapped_vin || '',
+                                status: response.status_flag || '',
+                                cd_issue_date: response.issue_date || '',
+                                cd_validation_date: response.valid_upto_date || ''
+                            }
+                        });
+                        checkGvwAndToggleButton();
+
+                        // const totalGvw = usedCdData.reduce((sum, entry) => {
+                        //     const gvw = parseFloat(entry.data.gvw);
+                        //     return sum + (isNaN(gvw) ? 0 : gvw);
+                        // }, 0);
+                        // const modelgvw = $('#gross_weight').val();
+
+                        //                         if(totalGvw < modelgvw){
+                        //                             swal.fire('warning','Total GVW is less than Model GVW');
+                        //                              callFunctionBtn.disabled = true;
+                        //                             callFunctionBtn.innerHTML = 'Save & Next';
+
+                        //                         }
+                        //                         else {
+                        //     callFunctionBtn.disabled = false;
+                        //     callFunctionBtn.innerHTML = 'Save & Next';
+                        // }
+                        // console.log('usedCdData:', usedCdData);
+                        // console.log('Total GVW:', totalGvw);
+                        // console.log('Model GVW:', modelgvw);
+
+                        // Store cdNumber as attribute for future removal reference
+                        $(`[name="data[${index}][cdnumber]"]`).attr('data-used-cd', cdNumber);
+                    }
+                },
+                error: function(xhr) {
+                    alert("AJAX Error: " + xhr.responseText);
+                }
+            });
+        });
+
+        function checkGvwAndToggleButton() {
+            // const totalGvw = usedCdData.reduce((sum, entry) => {
+            //     const gvw = parseFloat(entry.data.gvw);
+            //     return sum + (isNaN(gvw) ? 0 : gvw);
+            // }, 0);
+
+            // const modelgvw = parseFloat($('#gross_weight').val());
+
+            // if (totalGvw < modelgvw) {
+            //     Swal.fire('Warning', 'Total GVW is less than Model GVW', 'warning');
+            //     callFunctionBtn.disabled = true;
+            //     callFunctionBtn.innerHTML = 'Save & Next';
+            // } else {
+            //     callFunctionBtn.disabled = false;
+            //     callFunctionBtn.innerHTML = 'Save & Next';
+            // }
         }
-    });
-});
+        // Remove specific row and update usedCdData
+        $('#cd-inputs-wrapper').on('click', '.remove-cd-btn', function() {
+
+            let $block = $(this).closest('.cd-block');
+            let $cdInput = $block.find('[name^="data["][name$="[cdnumber]"]');
+            let cdNumber = $cdInput.attr('data-used-cd');
+
+            if (cdNumber) {
+                usedCdData = usedCdData.filter(entry => entry.cdNumber !== cdNumber);
+            }
+
+            $block.remove();
+            checkGvwAndToggleButton();
+        });
+
+
 
 
         $(document).ready(function() {
@@ -735,34 +801,6 @@ $('#cd-inputs-wrapper').on('click', '.fetch-cd-btn', function () {
                     buttons.prop('disabled', false);
                 }, 20000); // 25 seconds in milliseconds
             });
-
-            var i = 1;
-            // Handle Add button
-            $('#addCdBtn').click(function() {
-                i++;
-                const newInput = `
-                <div class="col-sm-4 cd-entry mb-2">
-                    <div class="form-group">
-                        <label>CD Number</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="data[${i}][cdnumber]" placeholder="Enter CD Number">
-                            <div class="input-group-append">
-                                <button type="button" style="margin-left: 4px;margin-top: 3px;" class="btn btn-sm btn-danger removeCdBtn">&times;</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-                $('#cd-inputs-wrapper').append(newInput);
-            });
-
-            // Handle Remove button using event delegation
-            $('#cd-inputs-wrapper').on('click', '.removeCdBtn', function() {
-                $(this).closest('.cd-entry').remove();
-            });
-
-
 
         });
 
@@ -797,5 +835,5 @@ $('#cd-inputs-wrapper').on('click', '.fetch-cd-btn', function () {
             // }
         }
     </script>
-    {!! JsValidator::formRequest('App\Http\Requests\BuyerDetailRequest', '.modelcreate') !!}
+    {!! JsValidator::formRequest('App\Http\Requests\TruckBuyerDetailRequest', '.modelcreate') !!}
 @endpush
