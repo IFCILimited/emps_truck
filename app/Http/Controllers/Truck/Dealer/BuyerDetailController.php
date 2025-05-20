@@ -246,7 +246,7 @@ class BuyerDetailController extends Controller
                 $totalCdGvw += $gvw;
 
                 if (
-                    $request->invoice_dt < $val['cd_issue_date'] ||
+                    $request->invoice_dt < $val['cd_issue_date'] &&
                     $request->invoice_dt > $val['cd_validation_date']
                 ) {
                     alert()->warning('Invoice date must be between CD issue date and CD validation date.', '')->persistent('Close');

@@ -759,21 +759,26 @@
         });
 
         function checkGvwAndToggleButton() {
-            // const totalGvw = usedCdData.reduce((sum, entry) => {
-            //     const gvw = parseFloat(entry.data.gvw);
-            //     return sum + (isNaN(gvw) ? 0 : gvw);
-            // }, 0);
+            const totalGvw = usedCdData.reduce((sum, entry) => {
+                const gvw = parseFloat(entry.data.gvw);
+                return sum + (isNaN(gvw) ? 0 : gvw);
+            }, 0);
 
-            // const modelgvw = parseFloat($('#gross_weight').val());
+            const cd_issue_date = parseFloat(entry.data.cd_issue_date);
+            const cd_validation_date = parseFloat(entry.data.cd_validation_date);
+            const invoice_dt = parseFloat($('#invoice_dt').val());
+            const modelgvw = parseFloat($('#gross_weight').val());
 
-            // if (totalGvw < modelgvw) {
-            //     Swal.fire('Warning', 'Total GVW is less than Model GVW', 'warning');
-            //     callFunctionBtn.disabled = true;
-            //     callFunctionBtn.innerHTML = 'Save & Next';
-            // } else {
-            //     callFunctionBtn.disabled = false;
-            //     callFunctionBtn.innerHTML = 'Save & Next';
-            // }
+
+
+            if (totalGvw < modelgvw) {
+                Swal.fire('Warning', 'Total GVW is less than Model GVW', 'warning');
+                callFunctionBtn.disabled = true;
+                callFunctionBtn.innerHTML = 'Save & Next';
+            } else {
+                callFunctionBtn.disabled = false;
+                callFunctionBtn.innerHTML = 'Save & Next';
+            }
         }
         // Remove specific row and update usedCdData
         $('#cd-inputs-wrapper').on('click', '.remove-cd-btn', function() {
@@ -811,6 +816,28 @@
             var vehicleDate = new Date($("#vihcle_dt").val());
             var category = $('#sh_vehicle').val();
 
+
+            $("input[name*='[cd_issue_date]']").each(function() {
+                // Extract index from the name attribute like data[1][cd_issue_date]
+                const nameAttr = $(this).attr("name");
+                const match = nameAttr.match(/data\[(\d+)]\[cd_issue_date]/);
+
+                if (match) {
+                    const index = match[1]; 
+
+                    const issueDateStr = $(`input[name="data[${index}][cd_issue_date]"]`).val();
+                    const validDateStr = $(`input[name="data[${index}][cd_validation_date]"]`).val();
+
+                    const issueDate = new Date(issueDateStr);
+                    const validDate = new Date(validDateStr);
+
+                    if (invoiceDate < issueDate || invoiceDate > validDate) {
+                        alert(`Invoice date must be between CD issue and valid date for entry ${index}`);
+                        $("#invoice_dt").val("");
+                        return false; // exit loop
+                    }
+                }
+            });
             if (invoiceDate < manu_date) {
                 alert("Invoice date is less than manufacturing date");
                 $("#invoice_dt").val("");
