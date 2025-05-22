@@ -760,7 +760,7 @@
             var token = $("input[name='_token']").val();
             // console.log(val,oemid,token);
             $.ajax({
-                url: "{{ route('update-temp-reg') }}", // Laravel route
+                url: "{{ route('e-trucks.update-temp-reg') }}", // Laravel route
                 method: "POST",
                 data: reqData,
 

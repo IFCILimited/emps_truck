@@ -46,7 +46,7 @@ class BulkDealerImport implements ToCollection, WithHeadingRow, WithValidation
 
             ]);
 
-            $user->assignRole('DEALER');
+            $user->assignRole('DEALER-Truck');
 
             $userData = $user->where('id', $user->id)->first();
 

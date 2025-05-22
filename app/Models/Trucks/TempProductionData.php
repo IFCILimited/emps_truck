@@ -10,32 +10,33 @@ class TempProductionData extends Model
     protected $table = 'temp_production_data_trucks';
 
     protected $fillable = [
-        'oem_id', 
-        'model_details_id', 
-        'model_master_id', 
-        'manufacturing_date', 
-        'vin_chassis_no', 
-        'colour', 
-        'emission_norms', 
-        'motor_number', 
+        'oem_id',
+        'model_details_id',
+        'model_master_id',
+        'manufacturing_date',
+        'vin_chassis_no',
+        'colour',
+        'emission_norms',
+        'motor_number',
         'gross_weight',
-        'battery_number', 
-        'battery_number2', 
-        'battery_number3', 
-        'battery_number4', 
-        'battery_number5', 
-        'battery_number6', 
-        'battery_number7', 
-        'battery_number8', 
-        'battery_number9', 
-        'battery_number10', 
-        'battery_make', 
-        'battery_capacity', 
-        'battery_chemistry', 
-        'dva_indicative', 
-        'pmp_compliance', 
+        'battery_number',
+        'battery_number2',
+        'battery_number3',
+        'battery_number4',
+        'battery_number5',
+        'battery_number6',
+        'battery_number7',
+        'battery_number8',
+        'battery_number9',
+        'battery_number10',
+        'battery_make',
+        'no_of_battery',
+        'battery_capacity',
+        'battery_chemistry',
+        'dva_indicative',
+        'pmp_compliance',
         'uploaded_method',
-'child_id' 
+        'child_id'
     ];
 
     protected $casts = [
@@ -56,6 +57,6 @@ class TempProductionData extends Model
 
     public function OemModelMaster()
     {
-        return $this->belongsTo('App\OemModelMaster', 'model_master_id','id');
+        return $this->belongsTo('App\OemModelMaster', 'model_master_id', 'id');
     }
 }

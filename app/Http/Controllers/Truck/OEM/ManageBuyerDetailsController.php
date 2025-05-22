@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 use DB;
 use Auth;
 use App\Models\User;
-use App\Models\BuyerDetail;
+use App\Models\Trucks\BuyerDetail;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BuyerDetailExport;
+use App\Exports\TruckBuyerDetailsAllExport;
 
 class ManageBuyerDetailsController extends Controller
 {
@@ -28,7 +29,7 @@ class ManageBuyerDetailsController extends Controller
         // dd($pid);
         try {
             if ($status == 'P') {
-                $bankDetails = DB::table('buyer_details_view')
+                $bankDetails = DB::table('buyer_details_trucks_view')
                     ->whereNull('oem_status')
                     ->where('oem_id', $pid)
                     ->where('status', 'A')
@@ -36,7 +37,7 @@ class ManageBuyerDetailsController extends Controller
                     ->orderBy('invoice_dt', 'asc')
                     ->take(2000)
                     ->get();
-                $bdCount = DB::table('buyer_details_view')
+                $bdCount = DB::table('buyer_details_trucks_view')
                     ->whereNull('oem_status')
                     ->where('oem_id', $pid)
                     ->where('status', 'A')
@@ -44,8 +45,8 @@ class ManageBuyerDetailsController extends Controller
                     ->count();
 
             } elseif ($status == 'A') {
-                $bankDetails = DB::table('buyer_details_view')->where('oem_status', 'A')->where('oem_id', $pid)->where('status', 'A')->where('custmr_typ',1)->paginate(2000);
-                $bdCount = DB::table('buyer_details_view')->where('oem_status', 'A')->where('oem_id', $pid)->where('status', 'A')->where('custmr_typ',1)->count();
+                $bankDetails = DB::table('buyer_details_trucks_view')->where('oem_status', 'A')->where('oem_id', $pid)->where('status', 'A')->where('custmr_typ',1)->paginate(2000);
+                $bdCount = DB::table('buyer_details_trucks_view')->where('oem_status', 'A')->where('oem_id', $pid)->where('status', 'A')->where('custmr_typ',1)->count();
             }
 
             // dd($bankDetail);
@@ -73,7 +74,7 @@ class ManageBuyerDetailsController extends Controller
             // $type = DB::table('customer_doc_verf_type')->whereNotIn('id', [1])->get();
 
             $user = User::where('id', $pid)->first();
-            $bankDetail = DB::table('buyer_details_view as bd')->where('status', 'A')
+            $bankDetail = DB::table('buyer_details_trucks_view as bd')->where('status', 'A')
                 ->where('id', $id)->first();
 
             $customerId = (int) $bankDetail->custmr_id;
@@ -88,13 +89,14 @@ class ManageBuyerDetailsController extends Controller
                 ->first();
             // dd($cat,$bankDetail->custmr_id);
 
+             $cdDet = DB::table('truck_cd_information')->where('buyer_detail_id', $bankDetail->id)->get();
 
             $type = DB::table('customer_doc_verf_type')->where('id', $bankDetail->addi_cust_id)->first();
 
             // dd($type,$cat);
 
 
-            return view('truck.oem.manage_buyer.create_manage_buyer_details', compact('type', 'bankDetail', 'user', 'customerId', 'cat'));
+            return view('truck.oem.manage_buyer.create_manage_buyer_details', compact('type','cdDet', 'bankDetail', 'user', 'customerId', 'cat'));
         } catch (\Exception $e) {
             errorMail($e, $pid);
             return redirect()->back();
@@ -159,17 +161,17 @@ class ManageBuyerDetailsController extends Controller
     {
         // dd($request);
         try {
-            $oem_status=Null;
+             $oem_status=Null;
                 $buyerAppr = BuyerDetail::find($request->id);
-                if($request->status != 'R'){
-                if((int)$buyerAppr->addmi_inc_amt == 0) {
-                    alert()->warning("Incentive amount is zero", 'Cannot proceed with current request')->persistent('Close');
-                    return redirect()->back();
-                }
-            }
+            //     if($request->status != 'R'){
+            //     if((int)$buyerAppr->addmi_inc_amt == 0) {
+            //         alert()->warning("Incentive amount is zero", 'Cannot proceed with current request')->persistent('Close');
+            //         return redirect()->back();
+            //     }
+            // }
             DB::transaction(function () use ($request,&$oem_status, $buyerAppr) {
 
-                // $buyerAppr = BuyerDetail::find($request->id);
+                //$buyerAppr = BuyerDetail::find($request->id);
                 if ($request->status == 'R') {
                     $buyerAppr->status = 'D';
                     $buyerAppr->oem_remarks = $request->oem_remarks;
@@ -246,11 +248,12 @@ class ManageBuyerDetailsController extends Controller
     }
     public function downloadBuyerList($status)
     {
+        // dd($status);
         ini_set('memory_limit', '8048M');
 
         ini_set('max_execution_time', 8600);
         try {
-            return Excel::download(new BuyerDetailExport($status,1), 'individual_details.xlsx');
+            return Excel::download(new TruckBuyerDetailsAllExport($status,1), 'truck_individual_details.xlsx');
         } catch (\Exception $e) {
             dd($e);
             errorMail($e, Auth::user()->id);

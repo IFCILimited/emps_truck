@@ -61,17 +61,8 @@
                                                 <th> Emission Norms </th>
                                                 <th> Motor Number </th>
                                                 <th> Gross Weight </th>
-                                                <th> Battery Number </th>
-                                                <th> Battery Number2 </th>
-                                                <th> Battery Number3 </th>
-                                                <th> Battery Number4 </th>
-                                                <th> Battery Number5 </th>
-                                                <th> Battery Number6 </th>
-                                                <th> Battery Number7 </th>
-                                                <th> Battery Number8 </th>
-                                                <th> Battery Number9 </th>
-                                                <th> Battery Number10 </th>
                                                 <th> Battery Make </th>
+                                                <th> No Of Batteries </th>
                                                 <th> Battery Capacity </th>
                                                 <th> BatteryChemistry </th>
                                                 <th> DVA Indicative </th>
@@ -140,6 +131,12 @@
                                                     </td>
                                                     <td>
                                                         <input type="text"
+                                                            name="production[{{ $key }}][battery_make]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $item->battery_make }}">
+                                                    </td>
+                                                    {{-- <td>
+                                                        <input type="text"
                                                             name="production[{{ $key }}][battery_number]"
                                                             class="form-control form-control-sm"
                                                             value="{{ $item->battery_number }}">
@@ -197,12 +194,12 @@
                                                             name="production[{{ $key }}][battery_number10]"
                                                             class="form-control form-control-sm"
                                                             value="{{ $item->battery_number10 }}">
-                                                    </td>
+                                                    </td> --}}
                                                     <td>
                                                         <input type="text"
-                                                            name="production[{{ $key }}][battery_make]"
+                                                            name="production[{{ $key }}][no_of_battery]"
                                                             class="form-control form-control-sm"
-                                                            value="{{ $item->battery_make }}">
+                                                            value="{{ $item->no_of_battery }}">
                                                     </td>
                                                     <td>
                                                         <input type="text"

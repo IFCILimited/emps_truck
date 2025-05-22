@@ -21,7 +21,7 @@
                         {{-- <ol class="breadcrumb">
                             <li class="breadcrumb-item"> --}}
                         {{-- <a class="btn btn-success " href="/Auth/Adminpanel/OEM/ModelAddEdit.aspx">Add xEV Model</a> --}}
-                        <a href="{{ route('e-trucks.oemModel.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> xEV
+                        <a href="{{ route('e-trucks.oemModel.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Truck
                             Model</a>
                         {{-- <a id="ContentPlaceHolder1_lbExistingModel" class="btn btn-primary" href="">Existing
                             Model</a> --}}
@@ -98,9 +98,9 @@
                                                 <td class="text-center">{{ $oem->variant_name }}</td>
                                                 <td class="text-center">{{ $oem->tech_type }}</td>
                                                 <td class="text-center">{{ ($oem->testing_certificate_no != null)? $oem->testing_certificate_no:'' }}</td>
-                                                <td class="text-center">{{ ($oem->testing_cmvr_date != null)? $oem->testing_cmvr_date:'' }}</td>
-                                                <td class="text-center">{{ ($oem->testing_approval_date != null)? $oem->testing_approval_date:'' }}</td>
-                                                <td class="text-center">{{ ($oem->testing_expiry_date != null)? $oem->testing_expiry_date:'' }}</td>
+                                                <td class="text-center">{{ ($oem->testing_cmvr_date != null)? date('d-m-Y', strtotime($oem->testing_cmvr_date)) :'' }}</td>
+                                                <td class="text-center">{{ ($oem->testing_approval_date != null)? date('d-m-Y', strtotime($oem->testing_approval_date)):'' }}</td>
+                                                <td class="text-center">{{ ($oem->testing_expiry_date != null)?  date('d-m-Y', strtotime($oem->testing_expiry_date)):'' }}</td>
                                                 <td class="text-center">
                                                     @if ($oem->status == 'D')
                                                         <span class="badge badge-light-warning">Draft</span>
@@ -108,7 +108,7 @@
                                                         <span class="badge badge-light-success">Submitted</span>
                                                     @endif
                                                 </td>
-                                                <td class="text-center">{{ ($oem->submitted_at != null)? $oem->submitted_at:'' }}</td>
+                                                <td class="text-center">{{ ($oem->submitted_at != null)? date('d-m-Y',strtotime($oem->submitted_at)):'' }}</td>
                                                 <td class="text-center">
                                                     <span class="badge
                                                         {{ $oem->testing_flag == 'A' ? 'badge-success' : ($oem->testing_flag == 'R' ? 'badge-danger' : 'badge-warning') }}">
@@ -118,7 +118,7 @@
                                                 <td class="text-center">
                                                   <span class = "text-danger">{{ $oem->testing_remarks ?? '-' }}</span>
                                                 </td>
-                                                <td class="text-center">{{ ($oem->testing_created_at != null)? $oem->testing_created_at:'' }}</td>
+                                                <td class="text-center">{{ ($oem->testing_created_at != null)? date('d-m-Y',strtotime($oem->testing_created_at)):'' }}</td>
                                                 <td class="text-center">
                                                     <span class="badge
                                                         {{ $oem->pma_status == 'A' ? 'badge-success' : ($oem->pma_status == 'R' ? 'badge-danger' : 'badge-warning') }}">
@@ -128,7 +128,7 @@
                                                 <td class="text-center">
                                                     <span class = "text-danger">{{ $oem->pma_remarks ?? '-' }}</span>
                                                 </td>
-                                                <td class="text-center">{{ ($oem->pma_created_at != null)? $oem->pma_created_at:'' }}</td>
+                                                <td class="text-center">{{ ($oem->pma_created_at != null)? date('d-m-Y',strtotime($oem->pma_created_at)):'' }}</td>
                                                 <td class="text-center">
                                                     <span class="badge
                                                         {{ $oem->mhi_flag == 'A' ? 'badge-success' : ($oem->mhi_flag == 'R' ? 'badge-danger' : 'badge-warning') }}">
@@ -138,7 +138,7 @@
                                                 <td class="text-center">
                                                     <span class = "text-danger">{{ $oem->mhi_remarks ?? '-' }}</span>
                                                 </td>
-                                                <td class="text-center">{{ ($oem->mhi_created_at != null)? $oem->mhi_created_at:'' }}</td>
+                                                <td class="text-center">{{ ($oem->mhi_created_at != null)? date('d-m-Y',strtotime($oem->mhi_created_at)):'' }}</td>
 
                                                 <td class="text-center">
                                                     <ul class="action">

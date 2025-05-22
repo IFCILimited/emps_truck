@@ -692,7 +692,7 @@
 
             // Check if CD number already used
             if (usedCdData.some(entry => entry.cdNumber === cdNumber)) {
-                alert('This CD number has already been used.');
+                swal.fire('warning','This CD number has already been used.');
                 return;
             }
 
@@ -700,9 +700,11 @@
                 url: `/e-trucks/get_cd_data/${cdNumber}`,
                 type: 'GET',
                 success: function(response) {
+                    console.log(response);
                     if (response.error) {
                         swal.fire('Error', response.error, 'error');
-                    } else {
+                    }
+                     else {
                         // Fill in the form fields
                         $(`[name="data[${index}][cd_owner_name]"]`).val(response.present_owner_name ||
                             '');
@@ -728,27 +730,6 @@
                         });
                         checkGvwAndToggleButton();
 
-                        // const totalGvw = usedCdData.reduce((sum, entry) => {
-                        //     const gvw = parseFloat(entry.data.gvw);
-                        //     return sum + (isNaN(gvw) ? 0 : gvw);
-                        // }, 0);
-                        // const modelgvw = $('#gross_weight').val();
-
-                        //                         if(totalGvw < modelgvw){
-                        //                             swal.fire('warning','Total GVW is less than Model GVW');
-                        //                              callFunctionBtn.disabled = true;
-                        //                             callFunctionBtn.innerHTML = 'Save & Next';
-
-                        //                         }
-                        //                         else {
-                        //     callFunctionBtn.disabled = false;
-                        //     callFunctionBtn.innerHTML = 'Save & Next';
-                        // }
-                        // console.log('usedCdData:', usedCdData);
-                        // console.log('Total GVW:', totalGvw);
-                        // console.log('Model GVW:', modelgvw);
-
-                        // Store cdNumber as attribute for future removal reference
                         $(`[name="data[${index}][cdnumber]"]`).attr('data-used-cd', cdNumber);
                     }
                 },
@@ -764,12 +745,8 @@
                 return sum + (isNaN(gvw) ? 0 : gvw);
             }, 0);
 
-            const cd_issue_date = parseFloat(entry.data.cd_issue_date);
-            const cd_validation_date = parseFloat(entry.data.cd_validation_date);
             const invoice_dt = parseFloat($('#invoice_dt').val());
             const modelgvw = parseFloat($('#gross_weight').val());
-
-
 
             if (totalGvw < modelgvw) {
                 Swal.fire('Warning', 'Total GVW is less than Model GVW', 'warning');
@@ -796,8 +773,6 @@
         });
 
 
-
-
         $(document).ready(function() {
             $('.prevent-multiple-submit').on('submit', function() {
                 $(this).find('button[type="submit"]').prop('disabled', true);
@@ -806,7 +781,6 @@
                     buttons.prop('disabled', false);
                 }, 20000); // 25 seconds in milliseconds
             });
-
         });
 
         // date check of invoice and registration
@@ -816,7 +790,6 @@
             var vehicleDate = new Date($("#vihcle_dt").val());
             var category = $('#sh_vehicle').val();
 
-
             $("input[name*='[cd_issue_date]']").each(function() {
                 // Extract index from the name attribute like data[1][cd_issue_date]
                 const nameAttr = $(this).attr("name");
@@ -824,10 +797,8 @@
 
                 if (match) {
                     const index = match[1]; 
-
                     const issueDateStr = $(`input[name="data[${index}][cd_issue_date]"]`).val();
                     const validDateStr = $(`input[name="data[${index}][cd_validation_date]"]`).val();
-
                     const issueDate = new Date(issueDateStr);
                     const validDate = new Date(validDateStr);
 

@@ -418,6 +418,7 @@ class BuyerDetailController extends Controller
 
             return view('truck.buyer.buyer_edit', compact('bankDetail', 'cdDet', 'prodDet', 'user', 'id', 'type', 'cat', 'oemname', 'minDate', 'maxDate'));
         } catch (Exception $e) {
+            //  dd($e);
             //errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
@@ -493,8 +494,8 @@ class BuyerDetailController extends Controller
     {
         // dd($request);
 
-        $mid = DB::table('production_data')->where('vin_chassis_no', $request->vin)->first();
-        $fn = CheckValidity($request->invoice_dt, $mid->model_master_id);
+        // $mid = DB::table('trucks_production_data')->where('vin_chassis_no', $request->vin)->first();
+        // $fn = CheckValidity($request->invoice_dt, $mid->model_master_id);
 
 
 
@@ -511,16 +512,16 @@ class BuyerDetailController extends Controller
         // end
 
         // dd($fn);\
-        if ($fn == false) {
-            alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
+        // if ($fn == false) {
+        //     alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
 
-            return redirect()->route('buyerdetail.index');
-        }
+        //     return redirect()->route('buyerdetail.index');
+        // }
         $oem_Status = Null;
         try {
             DB::transaction(function () use ($request, $id, &$oem_Status) {
 
-                $data = DB::table('buyer_details')->where('id', $id)->first();
+                $data = DB::table('buyer_details_trucks')->where('id', $id)->first();
                 $oem_Status = $data->oem_status;
 
                 $filedata = '';
@@ -624,14 +625,14 @@ class BuyerDetailController extends Controller
             alert()->success('Data has been successfully updated.', '')->persistent('Close');
 
             if ($oem_Status == 'R') {
-                return redirect()->route('buyer.oemreturn');
+                return redirect()->route('e-trucks.buyer.oemreturn');
             } else {
-                return redirect()->route('buyerdetail.index');
+                return redirect()->route('e-trucks.buyerdetail.index');
             }
         } catch (Exception $e) {
-            dd($e->getMessage());
+            dd($e);
             errorMail($e, Auth::user()->id);
-            return redirect()->route('buyerdetail.index');
+            return redirect()->route('e-trucks.buyerdetail.index');
         }
     }
 
@@ -744,15 +745,15 @@ class BuyerDetailController extends Controller
             }
         } else {
             // dd('ddd');
-            $RCDetailAPI = VahanRCAPI($request->vin); // Call the API and store the response
+            // $RCDetailAPI = VahanRCAPI($request->vin); // Call the API and store the response
 
-            // $RCDetailAPI = [
-            //     'status' => true,
-            //     'prcn' => 'UP16EX7654',
-            //     'prcndt' => '2024-10-12',
-            //     'trcn' => 'T1233212',
-            //     'tmpcndt' => '2024-10-12'
-            // ];
+            $RCDetailAPI = [
+                'status' => true,
+                'prcn' => 'UP16EX7654',
+                'prcndt' => '2024-10-12',
+                'trcn' => 'T1233212',
+                'tmpcndt' => '2024-10-12'
+            ];
             // $RCDetailAPI = [
             //     'status' => false,
             //     'prcn' => 'UP16EX7654',
@@ -931,8 +932,16 @@ class BuyerDetailController extends Controller
 
     public function getCdData($cdnumber)
     {
+        $chk = DB::table('truck_cd_information')->where('cd_number', $cdnumber)->count();
+        if ($chk > 0) {
+            return response()->json(['error' => 'This CD is already Utilised in Escrap']);
+        }
+
         try {
+
             $cdRes = cdNumber($cdnumber);
+
+
             if ($cdRes) {
                 return response()->json($cdRes);
             } else {

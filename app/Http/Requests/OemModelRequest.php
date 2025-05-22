@@ -108,7 +108,7 @@ class OemModelRequest extends FormRequest
             'specific_density.numeric' => 'Specific density must be a number.',
             'life_cycle.required' => 'Life cycle is required.',
             'life_cycle.numeric' => 'Life cycle must be a number.',
-            'battery_cat_repulsion.required' => 'Please select a value for the battery category repulsion.',
+            'battery_cat_repulsion.required' => 'Please add a value for the battery category repulsion.',
             'number_of_batteries.required' => 'The number of batteries required for vehicle propulsion is required.',
             'number_of_batteries.integer' => 'The number of batteries must be an integer.',
             'total_energy_capacity.required' => 'Total energy xEV capacity is required.',
