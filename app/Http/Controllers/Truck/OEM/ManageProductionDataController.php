@@ -79,6 +79,7 @@ class ManageProductionDataController extends Controller
 
         $data = decrypt($data);
         $pid = getParentId();
+        // dd($pid);
         try {
             $items = DB::table('temp_production_data_trucks')
                 ->join('truck_model_master', 'temp_production_data_trucks.model_master_id', '=', 'truck_model_master.id')
@@ -92,7 +93,7 @@ class ManageProductionDataController extends Controller
             $modelMaster = DB::table("truck_model_master as mm")
                 ->join('truck_oem_model_details as omd', 'mm.id', '=', 'omd.model_id')
                 ->join('users as u', 'u.id', '=', 'mm.oem_id')
-                ->join('segment_master as sm', 'mm.segment_id', '=', 'sm.id')
+                ->join('truck_segment_master as sm', 'mm.segment_id', '=', 'sm.id')
                 ->where('omd.testing_flag', 'A')
                 ->where('omd.mhi_flag', 'A')
                 ->where('omd.oem_id', $pid)
@@ -101,6 +102,7 @@ class ManageProductionDataController extends Controller
                 ->where('omd.id', $data['model_det_id'])
                 ->select('u.name', 'mm.*', 'omd.*', 'sm.*')
                 ->get();
+                //dd($modelMaster);
 
             return view('truck.oem.production_data.create_production_data', compact('items', 'modelMaster'));
         } catch (\Exception $e) {
@@ -172,17 +174,18 @@ class ManageProductionDataController extends Controller
                             $newProductionData->emission_norms = $production['emission_norms'];
                             $newProductionData->motor_number = $production['motor_number'];
                             $newProductionData->gross_weight = $production['gross_weight'];
-                            $newProductionData->battery_number = $production['battery_number'];
-                            $newProductionData->battery_number2 = $production['battery_number2'];
-                            $newProductionData->battery_number3 = $production['battery_number3'];
-                            $newProductionData->battery_number4 = $production['battery_number4'];
-                            $newProductionData->battery_number5 = $production['battery_number5'];
-                            $newProductionData->battery_number6 = $production['battery_number6'];
-                            $newProductionData->battery_number7 = $production['battery_number7'];
-                            $newProductionData->battery_number8 = $production['battery_number8'];
-                            $newProductionData->battery_number9 = $production['battery_number9'];
-                            $newProductionData->battery_number10 = $production['battery_number10'];
+                            // $newProductionData->battery_number = $production['battery_number'];
+                            // $newProductionData->battery_number2 = $production['battery_number2'];
+                            // $newProductionData->battery_number3 = $production['battery_number3'];
+                            // $newProductionData->battery_number4 = $production['battery_number4'];
+                            // $newProductionData->battery_number5 = $production['battery_number5'];
+                            // $newProductionData->battery_number6 = $production['battery_number6'];
+                            // $newProductionData->battery_number7 = $production['battery_number7'];
+                            // $newProductionData->battery_number8 = $production['battery_number8'];
+                            // $newProductionData->battery_number9 = $production['battery_number9'];
+                            // $newProductionData->battery_number10 = $production['battery_number10'];
                             $newProductionData->battery_make = $production['battery_make'];
+                            $newProductionData->no_of_battery = $production['no_of_battery'];
                             $newProductionData->battery_capacity = $production['battery_capacity'];
                             $newProductionData->battery_chemistry = $production['battery_chemistry'];
                             $newProductionData->dva_indicative = $production['dva_indicative'];
@@ -418,7 +421,7 @@ class ManageProductionDataController extends Controller
             'excel_file' => 'required|mimes:xlsx,xls|max:20480',
         ]);
 
-        try {
+        // try {
             $checkIfTempProductionDataExists = TempProductionData::where('model_details_id', $request->model_det_id)
                 ->where('model_master_id', $request->model_id)
                 ->exists();
@@ -436,21 +439,21 @@ class ManageProductionDataController extends Controller
             Excel::import(new TempProductionDataTruckImport($request), $request->file('excel_file'));
 
             return redirect()->route('e-trucks.manageProductionData.create', encrypt($data))->with('success', 'Excel file uploaded successfully!');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            dd($e);
-            $failures = $e->failures();
+        // } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        //     dd($e);
+        //     $failures = $e->failures();
 
-            foreach ($failures as $failure) {
-                if ($failure->attribute()) {
-                    alert()->error($failure->errors(), 'Error')->persistent('ok');
-                    return redirect()->back();
-                }
-            }
-            return redirect()->back()->withErrors($failures)->withInput();
-        } catch (\Exception $e) {
-            // dd($e);
-            return redirect()->back();
-        }
+        //     foreach ($failures as $failure) {
+        //         if ($failure->attribute()) {
+        //             alert()->error($failure->errors(), 'Error')->persistent('ok');
+        //             return redirect()->back();
+        //         }
+        //     }
+        //     return redirect()->back()->withErrors($failures)->withInput();
+        // } catch (\Exception $e) {
+        //     // dd($e);
+        //     return redirect()->back();
+        // }
     }
 
 

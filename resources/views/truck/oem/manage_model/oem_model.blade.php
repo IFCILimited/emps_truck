@@ -21,7 +21,7 @@
                         {{-- <ol class="breadcrumb">
                             <li class="breadcrumb-item"> --}}
                         {{-- <a class="btn btn-success " href="/Auth/Adminpanel/OEM/ModelAddEdit.aspx">Add xEV Model</a> --}}
-                        <a href="{{ route('e-trucks.oemModel.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> xEV
+                        <a href="{{ route('e-trucks.oemModel.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Truck
                             Model</a>
                         {{-- <a id="ContentPlaceHolder1_lbExistingModel" class="btn btn-primary" href="">Existing
                             Model</a> --}}
@@ -69,7 +69,7 @@
                                             <th class="text-center">S.No.</th>
                                             <th class="text-center">Ev Model Name</th>
                                             <th class="text-center">Variant Name</th>
-                                            <th class="text-center">Tech Type</th>
+                                            {{-- <th class="text-center">Tech Type</th> --}}
                                             {{-- <th class="text-center">Status</th>
                                             <th class="text-center">Testing Agency Status</th>
                                             <th class="text-center">MHI Status</th> --}}
@@ -78,13 +78,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-
                                         @foreach ($oemMOdelDetail as $key => $oem)
                                             <tr class="odd">
                                                 <td class="text-center">{{ $key + 1 }}</td>
                                                 <td class="text-center">{{ $oem->model_name }}</td>
                                                 <td class="text-center">{{ $oem->variant_name }}</td>
-                                                <td class="text-center">{{ $oem->tech_type }}</td>
+                                                {{-- <td class="text-center">{{ $oem->tech_type }}</td> --}}
                                                 {{-- <td class="text-center">
                                                     @if ($oem->status == 'D')
                                                         <span class="badge badge-light-warning">Draft</span>

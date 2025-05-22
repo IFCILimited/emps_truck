@@ -62,7 +62,6 @@ function SendSMS($Mobile, $msg)
         $response = curl_exec($curl);
         return True;
         curl_close($curl);
-
     } catch (Exception $e) {
         return false;
     }
@@ -189,19 +188,19 @@ function voucherSMS($buyer_id)
 }
 
 
-function OTPSMS($mobile,$OTP)
+function OTPSMS($mobile, $OTP)
 {
-    
 
-    
-// dd($mobile,$OTP);
-// 
+
+
+    // dd($mobile,$OTP);
+    // 
     // dd($buyer_id);
     // Define your parameters directly
 
-    $portal_name = env('APP_NAME').'-2024'; // Subsidy name
+    $portal_name = env('APP_NAME') . '-2024'; // Subsidy name
     $downloadLink = "https://pmedrive.heavyindustries.gov.in/vcf"; // Actual download link
-    $orgNAme="IFCI Ltd.";
+    $orgNAme = "IFCI Ltd.";
 
     $url = "https://smsgw.sms.gov.in/failsafe/MLink";
 
@@ -238,17 +237,16 @@ function OTPSMS($mobile,$OTP)
     curl_close($curl);
 
     DB::table('msg_log')->insert([
-        'related_type'=>'Login OTP',
-        'related_id'=>Auth::user()->id,
-        'prsn_name'=>Auth::user()->name,
-        'prsn_mobile'=>Auth::user()->mobile,
-        'msg'=> $data,
-        'response'=> $resp,
-        'store_at'=>now()
+        'related_type' => 'Login OTP',
+        'related_id' => Auth::user()->id,
+        'prsn_name' => Auth::user()->name,
+        'prsn_mobile' => Auth::user()->mobile,
+        'msg' => $data,
+        'response' => $resp,
+        'store_at' => now()
     ]);
 
     return true;
-   
 }
 function vehicleSoldORNot($vin)
 {
@@ -345,29 +343,29 @@ function DuplicateCheck($request)
     //     $curl = curl_init();
 
     //     curl_setopt_array($curl, array(
-//         // CURLOPT_URL => 'http://localhost:8000/api/EMPSBuyerDetail',
-//         CURLOPT_URL => 'https://emps.heavyindustries.gov.in/api/EMPSBuyerDetail',
-//         CURLOPT_RETURNTRANSFER => true,
-//         CURLOPT_ENCODING => '',
-//         CURLOPT_MAXREDIRS => 10,
-//         CURLOPT_TIMEOUT => 0,
-//         CURLOPT_FOLLOWLOCATION => true,
-//         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-//         CURLOPT_CUSTOMREQUEST => 'POST',
-//         CURLOPT_POSTFIELDS => json_encode([
-//             'mobile' => $mobile,
-//             'cust_id' => $cust_id,
-//             'segment_id' => $segment_id,
-//         ]),
-//         CURLOPT_HTTPHEADER => array(
-//             'Content-Type: application/json',
-//         ),
-//     ));
+    //         // CURLOPT_URL => 'http://localhost:8000/api/EMPSBuyerDetail',
+    //         CURLOPT_URL => 'https://emps.heavyindustries.gov.in/api/EMPSBuyerDetail',
+    //         CURLOPT_RETURNTRANSFER => true,
+    //         CURLOPT_ENCODING => '',
+    //         CURLOPT_MAXREDIRS => 10,
+    //         CURLOPT_TIMEOUT => 0,
+    //         CURLOPT_FOLLOWLOCATION => true,
+    //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //         CURLOPT_CUSTOMREQUEST => 'POST',
+    //         CURLOPT_POSTFIELDS => json_encode([
+    //             'mobile' => $mobile,
+    //             'cust_id' => $cust_id,
+    //             'segment_id' => $segment_id,
+    //         ]),
+    //         CURLOPT_HTTPHEADER => array(
+    //             'Content-Type: application/json',
+    //         ),
+    //     ));
 
     //     $response = curl_exec($curl);
-// //  dd($response);
-//     curl_close($curl);
-//     return $response;  // Return the response
+    // //  dd($response);
+    //     curl_close($curl);
+    //     return $response;  // Return the response
 
 
 
@@ -463,7 +461,6 @@ function CheckVinExist($vinChassis)
 
         // Return true if VIN exists, otherwise false
         return $count > 0;
-
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
         return false; // In case of an error, return false
@@ -597,7 +594,7 @@ function EmpsAuthCheck($vinChassisNo)
 
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if($result==null){
+    if ($result == null) {
         return response()->json([
             'status' => 'Warning',
             'message' => "The VIN {$vinChassisNo} does not exist in EMPS."
@@ -713,7 +710,6 @@ function EmpsdownloadFile($outputFilename)
             header('Content-Length: ' . $fileSize);
             echo $fileData;
             $pdo = Null;
-
         } else {
             echo "File Not Found";
         }
@@ -795,10 +791,10 @@ function aadhaarMobileCheck($mobile, $aadhaar_no)
 
 
     // $mobile='9838406575';
-// dd($txn);
+    // dd($txn);
 
     $pid_block = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Pid ts="' . $pidts . '" ver="2.0" wadh=""><Demo><Pi phone="' . $mobile . '" /></Demo></Pid>';
-   // dd($pid_block);
+    // dd($pid_block);
     $auth_xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Auth xmlns="http://www.uidai.gov.in/authentication/uid-auth-request/2.0" uid="' . $aadhaar_no . '" rc="Y" tid="" ver="2.5" txn="' . $txn . '" ac="" sa="' . $sa . '" lk="' . $lk . '">
 <Uses pi="y" pa="n" pfa="n" bio="n" otp="n" pin="n" />
@@ -806,7 +802,7 @@ function aadhaarMobileCheck($mobile, $aadhaar_no)
 <Skey ci="' . certif_expire() . '">' . encrypt_session_key($session_key) . '</Skey>
 <Data type="X">' . encrypt_by_session_key($pid_block, $session_key, $ts) . '</Data>
 <Hmac>' . calculate_hmac($pid_block, $session_key, $ts) . '</Hmac></Auth>';
-     //dd($auth_xml);
+    //dd($auth_xml);
 
     $emcode_auth = base64_encode($auth_xml);
 
@@ -849,7 +845,6 @@ function aadhaarMobileCheck($mobile, $aadhaar_no)
         // $err = $oxml['err'];
         // dd($err);
     }
-
 }
 
 
@@ -914,7 +909,7 @@ function aadhaarMobileCheck($mobile, $aadhaar_no)
 //             return "Mailer Error: " . $mail->ErrorInfo;
 //         }
 //     } catch (Exception $e) {
-       
+
 //         return "Exception: " . $e->getMessage();
 //     }
 // }
@@ -934,7 +929,7 @@ if (!function_exists('sendMail')) {
             );
             // dd();
             $curl = curl_init();
-            
+
             curl_setopt_array($curl, array(
                 CURLOPT_URL => 'https://pmedriveuat.heavyindustries.gov.in/api/sendMail',
                 CURLOPT_RETURNTRANSFER => true,
@@ -951,11 +946,11 @@ if (!function_exists('sendMail')) {
                     'Accept: application/json'
                 ),
             ));
-    
+
             $response = curl_exec($curl);
             // echo $response;
             // die;
-    
+
             if ($response === false) {
                 $errorMessage = 'Error: ' . curl_error($curl);
                 curl_close($curl);
@@ -964,14 +959,10 @@ if (!function_exists('sendMail')) {
                 curl_close($curl);
                 return $response;
             }
-    
         } catch (Exception $ex) {
             // You can handle the exception here if needed
             return false;
         }
-
-        
-        
     }
 }
 
@@ -1005,7 +996,6 @@ function vahanAPILoop($Chassis_Number)
     $vinchasis = $Chassis_Number;
 
     $postData = '{"chasisNo":"' . $vinchasis . '","clientId":"MHI_EMPS"}';
-    // dd($postData);
 
     $ch = curl_init();
     curl_setopt_array(
@@ -1030,22 +1020,21 @@ function vahanAPILoop($Chassis_Number)
     curl_close($ch);
     $inputKey = "MhI_EmPs@8300@";
     $result = $response1; // Replace with your encrypted data
-    // dd(strlen($result));
+    
     if (strlen($result) < 100) {
         return false;
     }
 
     $dataArray = fnDecrypt($result, $inputKey);
-    // dd($dataArray);
 
     $dataArray = [
         'vin_chasis_no' => $vinchasis,
         //'rc_regn_no' => $dataArray['rc_regn_no'] ?? null,
-	'rc_regn_no' => !empty($dataArray['rc_regn_no']) ? $dataArray['rc_regn_no'] : null,
+        'rc_regn_no' => !empty($dataArray['rc_regn_no']) ? $dataArray['rc_regn_no'] : null,
         'rc_regn_dt' => $dataArray['rc_regn_dt'] ?? null,
         'temporary_registration_number' => $dataArray['temporary_registration_number'] ?? null,
         //'rc_regn_upto' => $dataArray['rc_regn_upto'] ?? null,
-	'rc_regn_upto' => !empty($dataArray['rc_regn_upto']) ? $dataArray['rc_regn_upto'] : null,
+        'rc_regn_upto' => !empty($dataArray['rc_regn_upto']) ? $dataArray['rc_regn_upto'] : null,
         'rc_purchase_dt' => $dataArray['rc_purchase_dt'] ?? null,
         'rc_owner_name' => $dataArray['rc_owner_name'] ?? null,
         'rc_f_name' => $dataArray['rc_f_name'] ?? null,
@@ -1056,10 +1045,10 @@ function vahanAPILoop($Chassis_Number)
         'rc_chasi_no' => $dataArray['rc_chasi_no'] ?? null,
         'rc_eng_no' => $dataArray['rc_eng_no'] ?? null,
         // 'rc_maker_desc' => $dataArray['rc_maker_desc'] ?? null,   
-        'rc_maker_desc' => !empty($dataArray['rc_maker_desc']) ? $dataArray['rc_maker_desc'] : null,   
+        'rc_maker_desc' => !empty($dataArray['rc_maker_desc']) ? $dataArray['rc_maker_desc'] : null,
         'rc_maker_model' => $dataArray['rc_maker_model'] ?? null,
         //'rc_status' => $dataArray['rc_status'] ?? null,
-	'rc_status' => !empty($dataArray['rc_status']) ? $dataArray['rc_status'] : null,
+        'rc_status' => !empty($dataArray['rc_status']) ? $dataArray['rc_status'] : null,
         'rc_vh_class' => $dataArray['rc_vh_class'] ?? null,
         'rc_fuel_cd' => $dataArray['rc_fuel_cd'] ?? null,
         'rc_maker_cd' => $dataArray['rc_maker_cd'] ?? null,
@@ -1068,11 +1057,11 @@ function vahanAPILoop($Chassis_Number)
         'rc_currentadd_districtcode' => $dataArray['rc_currentadd_districtcode'] ?? null,
         'rc_non_use' => $dataArray['rc_non_use'] ?? null,
         'rc_vh_type' => $dataArray['rc_vh_type'] ?? null,
-  			    'rc_currentadd_statename' => $dataArray['state_cd'] ?? null,
-			    'rc_manu_month_yr' => $dataArray['rc_manu_month_yr'] ?? null,
-			    'rc_registered_at' => $dataArray['rc_registered_at'] ?? null,
-			    'rc_fuel_type' => $dataArray['rc_fuel_desc'] ?? null,
-                            'rc_remark' => 'PERMANENT REGISTERED',
+        'rc_currentadd_statename' => $dataArray['state_cd'] ?? null,
+        'rc_manu_month_yr' => $dataArray['rc_manu_month_yr'] ?? null,
+        'rc_registered_at' => $dataArray['rc_registered_at'] ?? null,
+        'rc_fuel_type' => $dataArray['rc_fuel_desc'] ?? null,
+        'rc_remark' => 'PERMANENT REGISTERED',
         // 'created_by' =>0,
         // 'created_at' => Carbon::now(),
         // 'updated_at' => Carbon::now(),
@@ -1088,48 +1077,47 @@ function vahanAPILoop($Chassis_Number)
         dd($e);
         return false;
     }
-
-
 }
 
-function CheckValidity($invoice_dt,$mid)  {
+function CheckValidity($invoice_dt, $mid)
+{
 
     // $Check_model = DB::table('oem_model_details')->where('model_id',$mid)
     // ->selectRaw('MIN(testing_approval_date) as min_approval_date, MAX(testing_expiry_date) as max_expiry_date')->first();
-    
-    
+
+
     // if($invoice_dt >= $Check_model->min_approval_date &&  $invoice_dt <= $Check_model->max_expiry_date){
     //     return true;
 
-        
+
     // }
     // else{
     //     return false;
     // }
 
-    
-        // $model=DB::table('vw_model_details')->where('model_id',$mid->model_master_id)->where('mhi_flag','A')->first();
-        $model=DB::table('vw_model_details')->where('model_id',$mid)->where('mhi_flag','A')->first();
-       
-            // Call the PostgreSQL function
-            $result = DB::select("SELECT pmedrive.check_invoicecertificatevalidity_new(?, ?, ?) AS validity", [
-                $mid,
-                $invoice_dt,
-                $model->model_name // Assuming this is the correct column
-            ]);
 
-            // Extract the validity result
-            $fn = $result[0]->validity ?? 0; // Defaults to 0 if function fails
+    // $model=DB::table('vw_model_details')->where('model_id',$mid->model_master_id)->where('mhi_flag','A')->first();
+    $model = DB::table('vw_model_details_trucks')->where('model_id', $mid)->where('mhi_flag', 'A')->first();
 
-            // If the function returns 0, show a warning and redirect
-            if ($fn > 0) {
-                return true;
-            }else{
-                return false;
-            }
-}   
-function EMPSCertificateDateFetch($modelName){
-   
+    // Call the PostgreSQL function
+    $result = DB::select("SELECT pmedrive.check_invoicecertificatevalidity_new_truks(?, ?, ?) AS validity", [
+        $mid,
+        $invoice_dt,
+        $model->model_name // Assuming this is the correct column
+    ]);
+
+    // Extract the validity result
+    $fn = $result[0]->validity ?? 0; // Defaults to 0 if function fails
+
+    // If the function returns 0, show a warning and redirect
+    if ($fn > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function EMPSCertificateDateFetch($modelName)
+{
 
     $host = "host = 10.194.94.56";
     $port = "port = 1494";
@@ -1150,22 +1138,22 @@ function EMPSCertificateDateFetch($modelName){
         max(omd.testing_expiry_date ) as testing_expiry_date
         from model_master mm 
         inner join oem_model_details omd on omd.model_id = mm.id
-        where replace(upper(mm.model_name),' ', '') =  replace(upper('".$modelName."'),' ', '')
+        where replace(upper(mm.model_name),' ', '') =  replace(upper('" . $modelName . "'),' ', '')
         and omd.mhi_flag = 'A') 
         select (select 
         max(omd.model_id)
         from model_master mm 
         inner join oem_model_details omd on omd.model_id = mm.id
-        where replace(upper(mm.model_name),' ', '') =  replace(upper('".$modelName."'),' ', '')
+        where replace(upper(mm.model_name),' ', '') =  replace(upper('" . $modelName . "'),' ', '')
         and omd.testing_expiry_date = inner_table.testing_expiry_date
         and omd.mhi_flag = 'A'), inner_table.* from inner_table";
 
-        $stmt = $pdo->prepare($query);
-        $stmt->execute();
+    $stmt = $pdo->prepare($query);
+    $stmt->execute();
 
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if(!empty($result)){
-            return $result;
-        }
-        return null;
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!empty($result)) {
+        return $result;
+    }
+    return null;
 }

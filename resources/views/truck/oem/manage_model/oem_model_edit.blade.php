@@ -547,7 +547,7 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-4 mb-3">
-                                            <label class="form-label" for="specific_density">Specific Density
+                                            <label class="form-label" for="specific_density">Density
                                                 (Wh/Kg):</label>
                                             <input class="form-control" id="specific_density" type="text"
                                                 value="{{ $oemMOdelDetail->spec_density }}" name="specific_density">
@@ -562,22 +562,10 @@
                                         <div class="col-4 mb-3 ">
                                             <label class="form-label" for="battery_cat_repulsion">No. of Batteries
                                                 Required for Vehicle Propulsion:*</label>
-                                            {{-- <input type="hidden" name="battery_data" id="battery_data"
-                                                value="{{ $oemMOdelDetail->field }}
-                                                "> --}}
-                                            <select class="form-select" name="battery_cat_repulsion"
-                                                id="battery_cat_repulsion">
-                                                <option value="">Choose...</option>
-                                                @for ($i = 1; $i <= 10; $i++)
-                                                    <option value="{{ $i }}"
-                                                        {{ $oemMOdelDetail->no_of_battery == $i ? 'selected' : '' }}>
-                                                        {{ $i }}</option>
-                                                @endfor
-                                            </select>
-
+                                             <input type="number" name="battery_cat_repulsion" value="{{ $oemMOdelDetail->no_of_battery }}"  class="form-control" id="">
                                         </div>
 
-                                        <div id="dynamic-fields-container" class="row">
+                                        {{-- <div id="dynamic-fields-container" class="row">
                                             <!-- Dynamic battery fields will be inserted here -->
                                             @for ($i = 1; $i <= $oemMOdelDetail->no_of_battery; $i++)
                                                 <div class="col-md-4 mb-3 dynamic-field">
@@ -588,7 +576,7 @@
                                                         name="bat_{{ $i }}">
                                                 </div>
                                             @endfor
-                                        </div>
+                                        </div> --}}
 
 
 

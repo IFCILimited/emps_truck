@@ -278,18 +278,18 @@
                                                         <a class="dropdown-item dropdown-toggle" href="#">OEM</a>
                                                         <div class="dropdown-menu">
                                                             <a class="dropdown-item"
-                                                                href="{{ route('signin', encrypt(2)) }}">OEM e-2W/e-3W</a>
+                                                                href="{{ route('signin', encrypt(2)) }}">e-2W/e-3W</a>
                                                             <a class="dropdown-item"
-                                                                href="{{ route('signin', encrypt(13)) }}">OEM Truck</a>
+                                                                href="{{ route('signin', encrypt(13)) }}">E-Truck</a>
                                                         </div>
                                                     </div>
                                                     <div class="dropdown-submenu">
                                                         <a class="dropdown-item dropdown-toggle" href="#">Dealers</a>
                                                         <div class="dropdown-menu">
                                                             <a class="dropdown-item"
-                                                                href="{{ route('signin', encrypt(3)) }}">Dealers</a>
+                                                                href="{{ route('signin', encrypt(3)) }}">e-2W/e-3W</a>
                                                             <a class="dropdown-item"
-                                                                href="{{ route('signin', encrypt(14)) }}">Dealers Truck</a>
+                                                                href="{{ route('signin', encrypt(14)) }}">E-Truck</a>
                                                         </div>
                                                     </div>
                                                     {{-- <a class="dropdown-item"

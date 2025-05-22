@@ -24,7 +24,6 @@ class BankDetailController extends Controller
         try {
             
             $bankDetail = PostRegistrationDetail::where('user_id', Auth::user()->id)->first();
-
             $tempBankDetail = TempBankDetail::where('user_id', Auth::user()->id)->first();
 
             return view('truck.oem.bank_detail.bankDetails', compact('bankDetail', 'tempBankDetail'));

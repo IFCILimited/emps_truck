@@ -106,10 +106,74 @@ Dealer -Buyer Details
                                         value="{{ date('Y-m-d', strtotime($bankDetail->manufacturing_date)) }}" id=""
                                         name="manufacturing_date" readonly>
                                 </div>
+                                <div class="col-4 mb-3" id="">
+                                    <label class="form-label" for="manu_date">Gross Vehicle Weight (GVW in Tons):</label>
+                                    <input class="form-control srchV readonly"
+                                        value="{{ $bankDetail->gross_weight }}" id=""
+                                        name="gvw" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="card height-equal">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4>CD Information</h4>
+                                    {{-- <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button> --}}
+                                </div>
+                                <div class="card-body">
+                                    <div class="vehicle_div">
+                                        @foreach ($cdDet as $cd)
+                                            
+                                       
+                                        <div class="row border p-3 cd-block" id="cd-inputs-wrapper">
+                                            <div class="col-4 mb-3 cd-entry">
+                                                <label class="form-label">CD Number</label>
+                                              
+                                                        <input value={{$cd->cd_number}} class="form-control cdnumber-input readonly"
+                                                            name="data[1][cdnumber]" readonly >
 
+                                                   
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD Owner Name:</label>
+                                                <input value={{$cd->cd_owner_name}} class="form-control readonly cd_owner_name"
+                                                    name="data[1][cd_owner_name]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">Gross Vehicle Weight (GVW):</label>
+                                                <input value={{$cd->vehicle_gvw}} class="form-control readonly gvw" name="data[1][gvw]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">VIN/Chassis Number:</label>
+                                                <input value={{$cd->vin_scrapped}} class="form-control readonly vin_no" name="data[1][vin_no]"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">Status Flag:</label>
+                                                <input value={{$cd->status_flag}} class="form-control readonly status" name="data[1][status]"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD – Issue Date:</label>
+                                                <input value={{$cd->cd_issue_date}} class="form-control readonly cd_issue_date"
+                                                    name="data[1][cd_issue_date]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD - Validity Upto Date:</label>
+                                                <input value={{$cd->cd_validity_upto}} class="form-control readonly cd_validation_date"
+                                                    name="data[1][cd_validation_date]" readonly>
+                                            </div>
+                                        </div>
+                                         @endforeach
+                                    </div>
+                                </div>
+                            </div>
                     <div class="card height-equal">
                         <div class="card-header">
                             <h4>Customer Details</h4>
@@ -476,12 +540,12 @@ Dealer -Buyer Details
             </div>
         </div>
     </div>
-    <form action="{{ route('e-trucks.manageBuyerDetails.update', $bankDetail->id) }}" role="form" method="POST"
+    {{-- <form action="{{ route('e-trucks.manageBuyerDetails.update', $bankDetail->id) }}" role="form" method="POST"
         class='form-horizontal modelcreate' files=true enctype='multipart/form-data' id="model_create"
         accept-charset="utf-8">
         @csrf
         @method('patch')
-    </form>
+    </form> --}}
     <div class="row col-12">
         <div class="col-md-4 text-left">
             <a href="{{ route('e-trucks.manageBuyerDetails.index', 'P') }}" class="btn btn-warning">Back</a>

@@ -24,7 +24,7 @@ class OemModelController extends Controller
     {
         $pid = getParentId();
         try {
-            $segment = DB::table('segment_master')->where('active', '0')->get();
+            $segment = DB::table('truck_segment_master')->where('active', '1')->get();
             $oemMOdelDetail = User::join('truck_model_master', 'users.id', '=', 'truck_model_master.oem_id')
                 // ->join('oem_model_details', 'model_master.id', '=', 'oem_model_details.model_id')
                 ->where('truck_model_master.oem_id', $pid)
@@ -62,7 +62,7 @@ class OemModelController extends Controller
                 ->where("mhr.role_id", "=", 5)
                 ->where('u.parent_id', null)
                 ->get();
-            $segment = DB::table('segment_master')->where('active', '0')->get();
+            $segment = DB::table('truck_segment_master')->where('active', '1')->get();
             return view('truck.oem.manage_model.oem_model_create', compact('user', 'agency', 'segment'));
         } catch (\Exception $e) {
             alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
@@ -125,16 +125,16 @@ class OemModelController extends Controller
             $oemModelDetail->spec_density = $request->specific_density;
             $oemModelDetail->life_cyc = $request->life_cycle;
             $oemModelDetail->no_of_battery = $request->battery_cat_repulsion;
-            $oemModelDetail->bat_1 = ($request->bat_1) ? $request->bat_1 : null;
-            $oemModelDetail->bat_2 = ($request->bat_2) ? $request->bat_2 : null;
-            $oemModelDetail->bat_3 = ($request->bat_3) ? $request->bat_3 : null;
-            $oemModelDetail->bat_4 = ($request->bat_4) ? $request->bat_4 : null;
-            $oemModelDetail->bat_5 = ($request->bat_5) ? $request->bat_5 : null;
-            $oemModelDetail->bat_6 = ($request->bat_6) ? $request->bat_6 : null;
-            $oemModelDetail->bat_7 = ($request->bat_7) ? $request->bat_7 : null;
-            $oemModelDetail->bat_8 = ($request->bat_8) ? $request->bat_8 : null;
-            $oemModelDetail->bat_9 = ($request->bat_9) ? $request->bat_9 : null;
-            $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
+            // $oemModelDetail->bat_1 = ($request->bat_1) ? $request->bat_1 : null;
+            // $oemModelDetail->bat_2 = ($request->bat_2) ? $request->bat_2 : null;
+            // $oemModelDetail->bat_3 = ($request->bat_3) ? $request->bat_3 : null;
+            // $oemModelDetail->bat_4 = ($request->bat_4) ? $request->bat_4 : null;
+            // $oemModelDetail->bat_5 = ($request->bat_5) ? $request->bat_5 : null;
+            // $oemModelDetail->bat_6 = ($request->bat_6) ? $request->bat_6 : null;
+            // $oemModelDetail->bat_7 = ($request->bat_7) ? $request->bat_7 : null;
+            // $oemModelDetail->bat_8 = ($request->bat_8) ? $request->bat_8 : null;
+            // $oemModelDetail->bat_9 = ($request->bat_9) ? $request->bat_9 : null;
+            // $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
             $oemModelDetail->tot_energy = $request->total_energy_capacity;
             $oemModelDetail->battery_make = $request->battery_make;
             // $oemModelDetail->battery_capacity = $request->battery_capacity;
@@ -221,9 +221,9 @@ class OemModelController extends Controller
             $oemMOdelDetail = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->where('oem_id', $pid)->first();
             $detCount = DB::table('vw_model_details_trucks')->where('model_id', $oemMOdelDetail->model_id)->where('oem_id', $pid)->count();
 
-            // dd($detCount);
-            $segment = DB::table('segment_master')->where('active', '0')->get();
-            $categories = DB::table('category_master')->where('active', '0')->get();
+            // dd($oemMOdelDetail);
+            $segment = DB::table('truck_segment_master')->where('active', '1')->get();
+            $categories = DB::table('truck_category_master')->where('active', '1')->get();
             return view('truck.oem.manage_model.oem_model_edit', compact('user', 'detCount', 'oemMOdelDetail', 'agency', 'segment', 'categories'));
         } catch (\Exception $e) {
             alert()->warning('Something went wrong.', 'Danger')->persistent('Close');
@@ -395,7 +395,7 @@ class OemModelController extends Controller
         try {
             $options = '<option selected disabled value="">Choose...</option>'; // Default option
             if (!empty($data)) {
-                $categories = DB::table('category_master')->where('segment_id', $data)->where('active', '0')->get();
+                $categories = DB::table('truck_category_master')->where('segment_id', $data)->where('active', '1')->get();
                 foreach ($categories as $category) {
                     $options .= '<option value="' . $category->id . '">' . $category->category_name . '</option>';
                 }
@@ -433,7 +433,7 @@ class OemModelController extends Controller
         $id = decrypt($id);
         $pid = getParentId();
         try {
-            $segment = DB::table('segment_master')->where('active', '0')->get();
+            $segment = DB::table('truck_segment_master')->where('active', '1')->get();
             $oemMOdelDetail = User::join('truck_model_master', 'users.id', '=', 'truck_model_master.oem_id')
                 ->join('truck_oem_model_details', 'truck_model_master.id', '=', 'truck_oem_model_details.model_id')
                 ->where('truck_model_master.oem_id', $pid)
@@ -460,7 +460,7 @@ class OemModelController extends Controller
         try {
 
             $user = User::where('id', $pid)->first();
-            $oemMOdelDetail = DB::table('vw_model_details as vmd')
+            $oemMOdelDetail = DB::table('vw_model_details_trucks as vmd')
                 ->join("users as u", "vmd.testing_agency_id", "=", "u.id")
                 ->where('vmd.model_id', $id)->where('vmd.oem_id', $pid)->first(['vmd.*', 'u.name as testing_agency_name']);
 
@@ -512,6 +512,7 @@ class OemModelController extends Controller
                 $oemModelDetail->testing_agency_id = $request->testing_agency;
                 $oemModelDetail->meeting_tech_function = $request->meeting_ev_tech;
                 $oemModelDetail->meeting_qualif = $request->meeting_qualify_tar;
+                $oemModelDetail->gross_weight = $request->gross_weight;
                 $oemModelDetail->vehicle_sub_to_test_agency_apprv = $request->date_vehicle_submission;
                 $oemModelDetail->date_certificate = $request->date_certificate;
                 $oemModelDetail->tech_type = $request->tech_type;
@@ -522,16 +523,16 @@ class OemModelController extends Controller
                 $oemModelDetail->spec_density = $request->specific_density;
                 $oemModelDetail->life_cyc = $request->life_cycle;
                 $oemModelDetail->no_of_battery = $request->battery_cat_repulsion;
-                $oemModelDetail->bat_1 = ($request->bat_1) ? $request->bat_1 : null;
-                $oemModelDetail->bat_2 = ($request->bat_2) ? $request->bat_2 : null;
-                $oemModelDetail->bat_3 = ($request->bat_3) ? $request->bat_3 : null;
-                $oemModelDetail->bat_4 = ($request->bat_4) ? $request->bat_4 : null;
-                $oemModelDetail->bat_5 = ($request->bat_5) ? $request->bat_5 : null;
-                $oemModelDetail->bat_6 = ($request->bat_6) ? $request->bat_6 : null;
-                $oemModelDetail->bat_7 = ($request->bat_7) ? $request->bat_7 : null;
-                $oemModelDetail->bat_8 = ($request->bat_8) ? $request->bat_8 : null;
-                $oemModelDetail->bat_9 = ($request->bat_9) ? $request->bat_9 : null;
-                $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
+                // $oemModelDetail->bat_1 = ($request->bat_1) ? $request->bat_1 : null;
+                // $oemModelDetail->bat_2 = ($request->bat_2) ? $request->bat_2 : null;
+                // $oemModelDetail->bat_3 = ($request->bat_3) ? $request->bat_3 : null;
+                // $oemModelDetail->bat_4 = ($request->bat_4) ? $request->bat_4 : null;
+                // $oemModelDetail->bat_5 = ($request->bat_5) ? $request->bat_5 : null;
+                // $oemModelDetail->bat_6 = ($request->bat_6) ? $request->bat_6 : null;
+                // $oemModelDetail->bat_7 = ($request->bat_7) ? $request->bat_7 : null;
+                // $oemModelDetail->bat_8 = ($request->bat_8) ? $request->bat_8 : null;
+                // $oemModelDetail->bat_9 = ($request->bat_9) ? $request->bat_9 : null;
+                // $oemModelDetail->bat_10 = ($request->bat_10) ? $request->bat_10 : null;
                 $oemModelDetail->tot_energy = $request->total_energy_capacity;
                 $oemModelDetail->battery_make = $request->battery_make;
                 // $oemModelDetail->battery_capacity = $request->battery_capacity;

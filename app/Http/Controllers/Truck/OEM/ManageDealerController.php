@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Truck\OEM;
+
 use DB;
 use Exception;
 use App\Models\DealerRegistration;
@@ -42,7 +43,7 @@ class ManageDealerController extends Controller
                 ->get();
 
 
-               
+
 
             return view('truck.oem.manage_dealer.index_managedealer', compact('dealerReg'));
         } catch (\Exception $e) {
@@ -51,33 +52,36 @@ class ManageDealerController extends Controller
         }
     }
 
-    public function operator(){
+    public function operator()
+    {
 
         $pid = getParentId();
-        
+
         // try {
-            $operator = DB::table('users')
-                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                ->whereIn('model_has_roles.role_id', [14])
-                ->where('oem_id', $pid)
-                ->wherenotnull('parent_id')
-                ->select('users.*', 'roles.name as  role')
-                ->get();
+        $operator = DB::table('users')
+            ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->whereIn('model_has_roles.role_id', [14])
+            ->where('oem_id', $pid)
+            ->wherenotnull('parent_id')
+            ->select('users.*', 'roles.name as  role')
+            ->get();
 
-                // $dealer = DB::table('users')
-                // ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-                // ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                // ->whereIn('model_has_roles.role_id', [6])
-                // ->where('oem_id', $pid)
-                // // ->wherenotnull('parent_id')
-                // ->select('users.*', 'roles.name as  role')
-                // ->get();
-                
-                // dd($dealer);
+        // $dealer = DB::table('users')
+        // ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        // ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        // ->whereIn('model_has_roles.role_id', [6])
+        // ->where('oem_id', $pid)
+        // // ->wherenotnull('parent_id')
+        // ->select('users.*', 'roles.name as  role')
+        // ->get();
 
-            return view('truck.oem.manage_dealer.index_manageoperator',
-            compact('operator'));
+        // dd($dealer);
+
+        return view(
+            'truck.oem.manage_dealer.index_manageoperator',
+            compact('operator')
+        );
         // } catch (\Exception $e) {
         //     errorMail($e, $pid);
         //     return redirect()->back();
@@ -91,7 +95,7 @@ class ManageDealerController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {   
+    {
         $pid = getParentId();
         try {
             Auth::id();
@@ -115,7 +119,7 @@ class ManageDealerController extends Controller
         $pid = getParentId();
         // dd($pid);
         try {
-            $exception = DB::transaction(function () use ($request, $password,$pid) {
+            $exception = DB::transaction(function () use ($request, $password, $pid) {
                 $username = generateUsername($request->dealer_name, $request->mobile_no);
                 $manageDealer = new User;
                 $manageDealer->name = $request->dealer_name;
@@ -144,7 +148,7 @@ class ManageDealerController extends Controller
 
                 $userData = $manageDealer->where('id', $manageDealer->id)->first();
 
-                $userMail = array (
+                $userMail = array(
                     'name' => $manageDealer->name,
                     'email' => $manageDealer->email,
                     'status' => 'Login Credential Successfully Create',
@@ -162,7 +166,7 @@ class ManageDealerController extends Controller
                 $subject = $userMail['status'];
                 // $from = 'noreply.pmedrive@heavyindustry.gov.in';
                 $msg = view('emails.Credential', ['user' => $userMail])->render();
-        
+
                 $send = sendMail($to, $cc, $bcc, $subject, $msg);
             });
             if (is_null($exception)) {
@@ -181,10 +185,10 @@ class ManageDealerController extends Controller
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('An error occurred: ' . $e->getMessage());
-    
+
             // Display an alert with the error message
             alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
-    
+
             // Redirect to a specific route
             return redirect()->route('e-trucks.manageDealer.index');
         }
@@ -199,10 +203,10 @@ class ManageDealerController extends Controller
 
     public function uploadExcel(Request $request)
     {
-      
-ini_set('memory_limit', '2048M');
 
-ini_set('max_execution_time', 3600);        // dd($request);
+        // ini_set('memory_limit', '2048M');
+
+        // ini_set('max_execution_time', 3600);        // dd($request);
         $request->validate([
             'excel_file' => 'required|mimes:xlsx,xls|max:5120',
         ]);
@@ -211,7 +215,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
             Excel::import(new BulkDealerImport, $request->file('excel_file'));
             alert()->success('Successfully Excel file uploaded & Dealer Created.', 'Success');
             return redirect()->back();
-        }catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             foreach ($failures as $failure) {
                 $errorValue = isset($failure->values()[$failure->attribute()]) ? $failure->values()[$failure->attribute()] : 'N/A';
@@ -224,7 +228,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
             }
             return redirect()->back()->withErrors($failures)->withInput();
         } catch (Exception $e) {
-            // dd($e,2);
+            dd($e,2);
             errorMail($e, Auth::user()->id); // Handle exception (e.g., log or send email)
             return redirect()->route('e-trucks.manageDealer.index'); // Redirect after handling exception
         }
@@ -278,7 +282,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
         // dd($request,$id);
         $pid = getParentId();
         try {
-            $exception = DB::transaction(function () use ($request, $id,$pid) {
+            $exception = DB::transaction(function () use ($request, $id, $pid) {
 
 
                 $password = generatePassword();
@@ -303,7 +307,7 @@ ini_set('max_execution_time', 3600);        // dd($request);
                 // dd( $manageDealer->username);
                 $userData = $manageDealer->where('id', $id)->first();
                 // dd($username);
-                $userMail = array (
+                $userMail = array(
                     'name' => $manageDealer->name,
                     'email' => $manageDealer->email,
                     'status' => 'Login Credential Successfully Updated',
@@ -315,15 +319,13 @@ ini_set('max_execution_time', 3600);        // dd($request);
                 //     $message->to($userMail['email'])->subject($userMail['status']);
                 // });
                 $to = $userMail['email'];
-                $cc= '';
-                $bcc='ajaharuddin.ansari@ifciltd.com';
-                $subject=$userMail['status'];
+                $cc = '';
+                $bcc = 'ajaharuddin.ansari@ifciltd.com';
+                $subject = $userMail['status'];
                 // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-                $msg=view('emails.Credential', ['user' => $userMail])->render();
+                $msg = view('emails.Credential', ['user' => $userMail])->render();
 
                 $send = sendMail($to, $cc, $bcc, $subject, $msg);
-
-
             });
             alert()->success('Data has been successfully updated.', 'Success')->persistent('Close');
             return redirect()->route('e-trucks.manageDealer.index');
@@ -345,74 +347,70 @@ ini_set('max_execution_time', 3600);        // dd($request);
     }
 
     public function resendMail($id)
-{
-    $pid = getParentId();
-    try {
-        $id = decrypt($id);
-        $user = User::find($id);
-        if (!$user) {
-            throw new Exception("User not found.");
+    {
+        $pid = getParentId();
+        try {
+            $id = decrypt($id);
+            $user = User::find($id);
+            if (!$user) {
+                throw new Exception("User not found.");
+            }
+            $password = generatePassword();
+
+            $user->password = Hash::make($password);
+            $user->save();
+            // $decryptedPwd = decrypt($password);
+            // dd($user->password );
+            $userMail = array(
+                'name' => $user->name,
+                'email' => $user->email,
+                'status' => 'Login Credential Successfully Updated',
+                'username' => $user->username,
+                'password' => $password // This should not be sent in plain text
+            );
+
+            $to = $userMail['email'];
+            $cc = '';
+            $bcc = 'ajaharuddin.ansari@ifciltd.com';
+            $subject = $userMail['status'];
+            // $from = 'noreply.pmedrive@heavyindustry.gov.in';
+            $msg = view('emails.Credential', ['user' => $userMail])->render();
+
+            $send = sendMail($to, $cc, $bcc, $subject, $msg);
+
+            alert()->success('Email has been successfully resent.', 'Success')->persistent('Close');
+        } catch (Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('An error occurred while resending the email: ' . $e->getMessage());
+
+            // Display an alert with the error message
+            alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
         }
-        $password = generatePassword();
 
-        $user->password = Hash::make($password);
-        $user->save();
-        // $decryptedPwd = decrypt($password);
-        // dd($user->password );
-        $userMail = array(
-            'name' => $user->name,
-            'email' => $user->email,
-            'status' => 'Login Credential Successfully Updated',
-            'username' => $user->username,
-            'password' => $password // This should not be sent in plain text
-        );
-
-        $to = $userMail['email'];
-        $cc = '';
-        $bcc = 'ajaharuddin.ansari@ifciltd.com';
-        $subject = $userMail['status'];
-        // $from = 'noreply.pmedrive@heavyindustry.gov.in';
-        $msg = view('emails.Credential', ['user' => $userMail])->render();
-
-        $send = sendMail($to, $cc, $bcc, $subject, $msg);
-
-        alert()->success('Email has been successfully resent.', 'Success')->persistent('Close');
-    } catch (Exception $e) {
-        // Log the error for debugging purposes
-        Log::error('An error occurred while resending the email: ' . $e->getMessage());
-
-        // Display an alert with the error message
-        alert()->warning('Something Went Wrong: ' . $e->getMessage(), 'Danger')->persistent('Close');
+        return redirect()->back();
+        // return redirect()->route('manageDealer.index');
     }
 
-    return redirect()->back();
-    // return redirect()->route('manageDealer.index');
-}
+    public function updateDealer($status, $did)
+    {
+        try {
+            if ($status == 'N') {
+                DB::table('users')->where('id', $did)->update([
+                    'isactive' => 'Y',
+                    'isapproved' => 'Y',
+                ]);
+            } elseif ($status == 'Y') {
+                DB::table('users')->where('id', $did)->update([
+                    'isactive' => 'N',
+                    'isapproved' => 'N',
+                ]);
+            }
+            alert()->success('Dealer Deactivated Successfully ', 'Success')->persistent('Close');
+            return redirect()->back();
+        } catch (Exception $e) {
 
-public function updateDealer($status,$did) {
-    try {
-    if($status == 'N'){
-        DB::table('users')->where('id',$did)->update([
-            'isactive'=>'N',
-            'isapproved'=>'N',
-        ]);
-
+            alert()->warning('Something Went Wrong ', 'Danger')->persistent('Close');
+            return redirect()->back();
+        }
     }
-    elseif($status == 'Y'){
-        DB::table('users')->where('id',$did)->update([
-            'isactive'=>'Y',
-            'isapproved'=>'Y',
-        ]);
-    }
-    alert()->success('Dealer Deactivated Successfully ', 'Success')->persistent('Close');
-    return redirect()->back();
-} catch (Exception $e) {
-  
-    alert()->warning('Something Went Wrong ', 'Danger')->persistent('Close');
-    return redirect()->back();
-}
-    
-}
-
-
 }

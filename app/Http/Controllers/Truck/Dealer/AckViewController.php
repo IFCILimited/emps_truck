@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use DB;
 use Auth;
 use App\Models\User;
-use App\Models\BuyerDetail;
+use App\Models\Trucks\BuyerDetail;
 use Exception;
 
 class AckViewController extends Controller
@@ -17,23 +17,24 @@ class AckViewController extends Controller
         try {
             $user = User::where('id', Auth::user()->id)->first();
             $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
-            $buyer = DB::table('buyer_details')->where('id', $id)->first();
+            $buyer = DB::table('buyer_details_trucks')->where('id', $id)->first();
 
-            $detail = DB::table('vw_vin_details')->where('oem_id', $buyer->oem_id)->where('id', $buyer->production_id)->first();
+            $detail = DB::table('vw_vin_details_truck')->where('oem_id', $buyer->oem_id)->where('id', $buyer->production_id)->first();
 
             $type = DB::table('customer_doc_verf_type')->where('id', $buyer->custmr_id)->first();
 
             $sectype = DB::table('customer_doc_verf_type')->where('id', $buyer->addi_cust_id)->first();
 
-            $maindata = DB::table('vw_vin_details')->where('oem_id', $buyer->oem_id)->where('id', $buyer->production_id)->first();
+            $maindata = DB::table('vw_vin_details_truck')->where('oem_id', $buyer->oem_id)->where('id', $buyer->production_id)->first();
 
-            $multibuyer = DB::table('multi_buyer_details')->where('buyer_id', $buyer->buyer_id)->first();
+            $multibuyer = DB::table('multi_buyer_details_trucks')->where('buyer_id', $buyer->buyer_id)->first();
 
             // dd($buyer);
 
             return view('truck.buyer.ackview', compact('user', 'oemname', 'detail', 'buyer', 'type', 'sectype', 'maindata', 'multibuyer'));
         } catch (Exception $e) {
-            errorMail($e, Auth::user()->id);
+            dd($e); 
+            // errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
 
@@ -75,7 +76,7 @@ class AckViewController extends Controller
         // dd($id);
         try {
             $user = User::where('id', Auth::user()->id)->first();
-            $bankDetail = DB::table('buyer_details_view as bd')
+            $bankDetail = DB::table('buyer_details_trucks_view as bd')
                 ->where('id', $id)->first();
             // dd($bankDetail);
 
@@ -87,13 +88,14 @@ class AckViewController extends Controller
                 ->where('id', $customerId)
                 ->first();
             // dd($cat,$bankDetail->custmr_id);
-
+ $cdDet = DB::table('truck_cd_information')->where('buyer_detail_id', $bankDetail->id)->get();
 
             $type = DB::table('customer_doc_verf_type')->where('id', $bankDetail->addi_cust_id)->first();
 
-            return view('truck.buyer.ack_doc', compact('bankDetail', 'user', 'id', 'type', 'cat', 'oemname'));
+            return view('truck.buyer.ack_doc', compact('bankDetail', 'user','cdDet', 'id', 'type', 'cat', 'oemname'));
         } catch (Exception $e) {
-            errorMail($e, Auth::user()->id);
+           // dd($e);
+            //errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
 
@@ -104,51 +106,51 @@ class AckViewController extends Controller
         // dd($request,$request->id);
 
         try {
-            $existingBuyerDetail = BuyerDetail::where('vhcl_regis_no', $request->vhcl_regis_no)
-                ->where('id', '!=', $id)
-                ->first();
+            // $existingBuyerDetail = BuyerDetail::where('vhcl_regis_no', $request->vhcl_regis_no)
+            //     ->where('id', '!=', $id)
+            //     ->first();
 
 
-            if ($existingBuyerDetail) {
-                alert()->error('The vehicle registration number already exists.', 'Error')->persistent('Close');
-                return redirect()->back()->withInput();
-            }
+            // if ($existingBuyerDetail) {
+            //     alert()->error('The vehicle registration number already exists.', 'Error')->persistent('Close');
+            //     return redirect()->back()->withInput();
+            // }
 
             // Call the API and store the response
             // dd($RCDetailAPI);
 
-            $vreg = substr($request->vhcl_regis_no, 0, 2);
-            $checkvahan = BuyerDetail::find($request->id);
-            if ($vreg === 'TG' || $vreg === 'TR') {
+            // $vreg = substr($request->vhcl_regis_no, 0, 2);
+            // $checkvahan = BuyerDetail::find($request->id);
+            // if ($vreg === 'TG' || $vreg === 'TR') {
 
-            } elseif($checkvahan->vahanavailable == 'N' || $checkvahan->vahanavailable == null) {
-                $RCDetailAPI = VahanRCAPI($request->vin);
-                if ($RCDetailAPI) {
-                    $record1 = BuyerDetail::find($request->id);
-                    if ($record1->vhcl_regis_no == null ) {
-                        if ($RCDetailAPI['status'] == true && $RCDetailAPI['prcn'] != null) {
-                            $record = BuyerDetail::find($request->id);
-                            $record->vahanavailable = 'Y';
-                            $record->vhcl_regis_no = $RCDetailAPI['prcn'];
-                            $record->vihcle_dt = $RCDetailAPI['prcndt'];
-                            $record->save(); // Save the updated record
-                        } elseif ($RCDetailAPI['status'] == false) {
-                            $record = BuyerDetail::find($request->id);
-                            alert()->warning('The RC Data is not available can not submit to OEM', '')->persistent('Close');
-                            return redirect()->back();
-                        } else {
-                            alert()->warning('Something went wrong', '')->persistent('Close');
-                            return redirect()->back();
-                        }
-                    }
-                } elseif ($RCDetailAPI == false) {
-                    alert()->warning('The RC Data is not available can not submit to OEM', '')->persistent('Close');
-                    return redirect()->back();
-                } else {
-                    alert()->warning('The RC Data is not available can not submit to OEM', '')->persistent('Close');
-                    return redirect()->back();
-                }
-            }
+            // } elseif($checkvahan->vahanavailable == 'N' || $checkvahan->vahanavailable == null) {
+            //     $RCDetailAPI = VahanRCAPI($request->vin);
+            //     if ($RCDetailAPI) {
+            //         $record1 = BuyerDetail::find($request->id);
+            //         if ($record1->vhcl_regis_no == null ) {
+            //             if ($RCDetailAPI['status'] == true && $RCDetailAPI['prcn'] != null) {
+            //                 $record = BuyerDetail::find($request->id);
+            //                 $record->vahanavailable = 'Y';
+            //                 $record->vhcl_regis_no = $RCDetailAPI['prcn'];
+            //                 $record->vihcle_dt = $RCDetailAPI['prcndt'];
+            //                 $record->save(); // Save the updated record
+            //             } elseif ($RCDetailAPI['status'] == false) {
+            //                 $record = BuyerDetail::find($request->id);
+            //                 alert()->warning('The RC Data is not available can not submit to OEM', '')->persistent('Close');
+            //                 return redirect()->back();
+            //             } else {
+            //                 alert()->warning('Something went wrong', '')->persistent('Close');
+            //                 return redirect()->back();
+            //             }
+            //         }
+            //     } elseif ($RCDetailAPI == false) {
+            //         alert()->warning('The RC Data is not available can not submit to OEM', '')->persistent('Close');
+            //         return redirect()->back();
+            //     } else {
+            //         alert()->warning('The RC Data is not available can not submit to OEM', '')->persistent('Close');
+            //         return redirect()->back();
+            //     }
+            // }
             $buyerID = Null;
             $oem_Status = Null;
             DB::transaction(function () use ($request, $id, &$buyerID, &$oem_Status) {
@@ -200,8 +202,8 @@ class AckViewController extends Controller
                 // $BuyerDetail->gstin_id = $request->hasFile('gstncopy') ? $gstncopy_id : null;
 
                 $BuyerDetail = BuyerDetail::find($id);
-                // dd($BuyerDetail->oem_id);
-                $oem_Status = $BuyerDetail->oem_status;
+              //  dd($BuyerDetail->oem_id);
+               $oem_Status = $BuyerDetail->oem_status;
                 $BuyerDetail->status = ($request->formAction == 'S') ? 'S' : 'A';
                 $BuyerDetail->cst_ack_file = $file1_id !== null ? $file1_id : null;
                 $BuyerDetail->invc_copy_file = $file2_id !== null ? $file2_id : null;
@@ -232,20 +234,20 @@ class AckViewController extends Controller
 
                 alert()->success('Data has been successfully Updated', '')->persistent('Close');
             } else {
-                $voucher = voucherSMS($buyerID); //for sms
+               // $voucher = voucherSMS($buyerID); //for sms
                 alert()->success('Data has been successfully submitted', '')->persistent('Close');
             }
 
 
             if ($oem_Status == 'R') {
-                return redirect()->route('buyer.oemreturn');
+                return redirect()->route('e-trucks.buyer.oemreturn');
             } else {
-                return redirect()->route('buyerdetail.index');
+                return redirect()->route('e-trucks.buyerdetail.index');
             }
 
         } catch (Exception $e) {
-            //dd($e);
-            errorMail($e, Auth::user()->id);
+            dd($e);
+            //errorMail($e, Auth::user()->id);
             alert()->success('Something went wrong', 'Warning')->persistent('Close');
             return redirect()->back();
         }
@@ -259,11 +261,11 @@ class AckViewController extends Controller
 
 
             $user = User::where('id', Auth::user()->id)->first();
-            $bankDetail = DB::table('buyer_details_view as bd')
+            $bankDetail = DB::table('buyer_details_trucks_view as bd')
                 ->where('id', $id)->first();
 
             $customerId = (int) $bankDetail->custmr_id;
-            if (Auth::user()->hasRole('OEM') == true) {
+            if (Auth::user()->hasRole('OEM-Truck') == true) {
                 $oemname = DB::table('users')->where('oem_id', Auth::user()->id)->first();
             } else {
                 $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
@@ -280,7 +282,7 @@ class AckViewController extends Controller
 
             return view('truck.buyer.view', compact('bankDetail', 'user', 'id', 'type', 'cat', 'oemname'));
         } catch (Exception $e) {
-            errorMail($e, Auth::user()->id);
+            //errorMail($e, Auth::user()->id);
             return redirect()->back();
         }
     }

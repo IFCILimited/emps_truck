@@ -161,7 +161,11 @@
 
 
                                         </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label" for="meeting_qualify_tar">Gross Vehicle Weight (GVW in Tons):</label>
+                                            <input type="number" class="form-control" name="gross_weight" id="">
 
+                                        </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Date of Vehicle Submission to Test Agency for type
                                                 approval:</label>
@@ -281,7 +285,7 @@
                                         <div class="col-4 mb-3 ">
                                             <label class="form-label" for="battery_cat_repulsion">No. of Batteries
                                                 Required for Vehicle Propulsion:*</label>
-                                            <select class="form-select" name="battery_cat_repulsion"
+                                            {{-- <select class="form-select" name="battery_cat_repulsion"
                                                 id="battery_cat_repulsion">
                                                 <option value="">Choose...</option>
                                                 <option value="1">1</option>
@@ -294,9 +298,10 @@
                                                 <option value="8">8</option>
                                                 <option value="9">9</option>
                                                 <option value="10">10</option>
-                                            </select>
+                                            </select> --}}
+                                            <input type="number" name="battery_cat_repulsion"  class="form-control" id="">
                                         </div>
-                                        <div id="dynamicFields"></div>
+                                        {{-- <div id="dynamicFields"></div> --}}
 
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Total Energy xEV Capacity (kWh):</label>

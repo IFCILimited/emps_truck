@@ -269,7 +269,7 @@ Route::group(['middleware' => ['role:OEM-Truck']], function () {
     Route::get('oemwisemodel/modelDetails/{modelid}', 'PMA\OEMWiseModelController@modelDetails')->name('oemwisemodel.modelDetails');
 });
 
-Route::group(['middleware' => ['role:OEM-Truck']], function () {
+Route::group(['middleware' => ['role:OEM-Truck|DEALER-Truck|PMA']], function () {
     Route::post('vahanReport/generate', 'PMA\PMAController@vahanReportGenerate')->name('vahanReport.generate');
     Route::get('ackdoc/finalview/{id}', 'Truck\Dealer\AckViewController@view')->name('ackdoc.finalview');
     Route::get('viewclaims/{id}', 'PMA\PMAController@viewclaims')->name('viewclaims');

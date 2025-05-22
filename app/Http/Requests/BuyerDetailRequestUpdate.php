@@ -54,7 +54,7 @@ class BuyerDetailRequestUpdate extends FormRequest
             'gstin' => 'required|string|regex:/^([0-9]{2})([A-Z]{5}[0-9]{4}[A-Z])([A-Z0-9]{3})$/i',
             'addi_cust_id' => 'required',
             'cust_id_sec' => 'required',
-            'vhcl_reg_file' => 'required|mimes:pdf|max:2048'
+            'vhcl_reg_file' => 'mimes:pdf|max:2048'
  
             
             // 'cst_ack_file' => 'required|mimes:pdf|max:2048',

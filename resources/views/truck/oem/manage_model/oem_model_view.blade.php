@@ -8,7 +8,8 @@
         .error-help-block {
             color: red;
         }
-        .w-30{
+
+        .w-30 {
             width: 30%;
         }
     </style>
@@ -36,7 +37,8 @@
                     <div class="card height-equal">
                         <div class="card-header">
                             <h4>OEM & Vehicle Model Details</h4>
-                            <p class="f-m-light mt-1">EV Model Information to be submitted by manufacturer for {{ env('APP_NAME')}} under
+                            <p class="f-m-light mt-1">EV Model Information to be submitted by manufacturer for
+                                {{ env('APP_NAME') }} under
                                 MHI and submitted to Test Agency for Compliance
                                 Certification</code></p>
                         </div>
@@ -45,8 +47,8 @@
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
                                         <label class="form-label" for="category_type">Category Type</label>
-                                        <select class="form-select w-30 readonly" readonly aria-label="select example" id="category_type"
-                                            name="category_type">
+                                        <select class="form-select w-30 readonly" readonly aria-label="select example"
+                                            id="category_type" name="category_type">
                                             <option value="">Select Category...</option>
                                             <option value="O"
                                                 {{ $oemMOdelDetail->category_type == 'O' ? 'selected' : '' }}>Original
@@ -145,8 +147,11 @@
 
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label" for="meeting_qualify_tar">Gross Vehicle Weight(in Tons):</label>
-                                        <input type="number" class="form-control readonly" readonly value="{{$oemMOdelDetail->gross_weight}}" name="gross_weight" id="">
+                                        <label class="form-label" for="meeting_qualify_tar">Gross Vehicle Weight (GVW in
+                                            Tons):</label>
+                                        <input type="number" class="form-control readonly" readonly
+                                            value="{{ $oemMOdelDetail->gross_weight }}" name="gross_weight"
+                                            id="">
 
                                     </div>
 
@@ -159,16 +164,16 @@
                                                 name="date_vehicle_submission" id="date_vehicle_submission">
                                         </div>
                                     </div>
-                                @if ($oemMOdelDetail->date_certificate != null)
-                                <div class="col-md-6">
-                                    <label class="form-label">Certificate Effective Date:</label>
-                                    <div class="col-md-6">
-                                        <input class="form-control digits " type="date"
-                                            value="{{ $oemMOdelDetail->date_certificate }}" disabled
-                                            name="date_certificate" id="date_certificate">
-                                    </div>
-                                </div>
-                                @endif
+                                    @if ($oemMOdelDetail->date_certificate != null)
+                                        <div class="col-md-6">
+                                            <label class="form-label">Certificate Effective Date:</label>
+                                            <div class="col-md-6">
+                                                <input class="form-control digits " type="date"
+                                                    value="{{ $oemMOdelDetail->date_certificate }}" disabled
+                                                    name="date_certificate" id="date_certificate">
+                                            </div>
+                                        </div>
+                                    @endif
 
                                 </div>
                             </div>
@@ -199,7 +204,7 @@
                                             (as per CMVR):</label>
                                         <select class="form-select readonly" disabled name="vehicle_category"
                                             id="vehicle_category">
-                                            <option>{{$oemMOdelDetail->vehicle_cat}}</option>
+                                            <option>{{ $oemMOdelDetail->vehicle_cat }}</option>
                                             <input readonly type="hidden" id="vehicle_cat"
                                                 value="{{ $oemMOdelDetail->vehicle_cat }}">
 
@@ -231,8 +236,8 @@
                                             <option value="other"
                                                 {{ $oemMOdelDetail->battery_type == 'other' ? 'selected' : '' }}>Other
                                                 Battery Parameters</option>
-					     <option value="lft"
-                                                    {{ $oemMOdelDetail->battery_type == 'lft' ? 'selected' : '' }}>LFT</option>
+                                            <option value="lft"
+                                                {{ $oemMOdelDetail->battery_type == 'lft' ? 'selected' : '' }}>LFT</option>
                                         </select>
                                     </div>
 
@@ -272,7 +277,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-4 mb-3">
-                                        <label class="form-label" for="specific_density">Specific Density
+                                        <label class="form-label" for="specific_density"> Density
                                             (Wh/Kg):</label>
                                         <input class="form-control readonly" readonly id="specific_density"
                                             type="text" value="{{ $oemMOdelDetail->spec_density }}"
@@ -285,7 +290,7 @@
                                             value="{{ $oemMOdelDetail->life_cyc }}" name="life_cycle">
                                     </div>
 
-                                    <div class="col-4 mb-3 ">
+                                    {{-- <div class="col-4 mb-3 ">
                                         <label class="form-label" for="battery_cat_repulsion">No. of Batteries
                                             Required for Vehicle Propulsion:*</label>
                                         <input type="hidden" name="battery_data" id="battery_data"
@@ -325,9 +330,17 @@
                                                 {{ $oemMOdelDetail->no_of_battery == '10' ? 'selected' : '' }}>10
                                             </option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
-                                    @for ($i = 1; $i <= $oemMOdelDetail->no_of_battery; $i++)
+                                    <div class="col-4 mb-3">
+                                        <label class="form-label" for="battery_cat_repulsion">No. of Batteries
+                                                Required for Vehicle Propulsion:*</label>
+                                        <input class="form-control readonly" readonly id="battery_data" type="number"
+                                           value="{{ $oemMOdelDetail->no_of_battery }}" name="battery_cat_repulsion">
+                                    </div>
+                                    
+
+                                    {{-- @for ($i = 1; $i <= $oemMOdelDetail->no_of_battery; $i++)
                                         <div class="col-md-4 mb-3 dynamic-field">
                                             <label class="form-label">{{ $i }}.) Battery xEV Capacity (in
                                                 kWh):</label>
@@ -335,7 +348,7 @@
                                                 value="{{ $oemMOdelDetail->{'bat_' . $i} }}"
                                                 name="bat_{{ $i }}">
                                         </div>
-                                    @endfor
+                                    @endfor --}}
 
 
                                     <div class="col-md-4 mb-3">
@@ -448,7 +461,7 @@
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">Warranty Period Indicates*</label>
                                         <select disabled name="warranty_period_indicate" class="form-control">
-                                            <option selected>{{$oemMOdelDetail->warranty_period_indicate}}</option>
+                                            <option selected>{{ $oemMOdelDetail->warranty_period_indicate }}</option>
                                             {{-- @php
                                             for($i = 1; $i <= 10; $i++) {
 
@@ -489,38 +502,41 @@
                                             </div>
                                         </div>
                                     </div>
-                                <div class="col-md-4 mb-3" id="existing_vehicle">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <label class="form-label" for="vehicle_img">PM E-Drive Certificate Copy:</label><br>
+                                    <div class="col-md-4 mb-3" id="existing_vehicle">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label class="form-label" for="vehicle_img">PM E-Drive Certificate
+                                                    Copy:</label><br>
 
-                                            <a class="btn btn-success btn-sm"
-                                                href="{{ route('doc.down', encrypt($oemMOdelDetail->testing_cmvr_doc_id)) }}">
-                                                <i class="fa fa-download"></i> View Certificate
-                                            </a>
+                                                <a class="btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($oemMOdelDetail->testing_cmvr_doc_id)) }}">
+                                                    <i class="fa fa-download"></i> View Certificate
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                @if($oemMOdelDetail->assessment_report_id != null)
-                                <div class="col-md-4 mb-3" id="existing_vehicle">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <label class="form-label" for="vehicle_img">Assessment Report:</label><br>
+                                    @if ($oemMOdelDetail->assessment_report_id != null)
+                                        <div class="col-md-4 mb-3" id="existing_vehicle">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <label class="form-label" for="vehicle_img">Assessment
+                                                        Report:</label><br>
 
-                                            <a class="btn btn-success btn-sm"
-                                                href="{{ route('doc.down', encrypt($oemMOdelDetail->assessment_report_id)) }}">
-                                                <i class="fa fa-download"></i> View Certificate
-                                            </a>
+                                                    <a class="btn btn-success btn-sm"
+                                                        href="{{ route('doc.down', encrypt($oemMOdelDetail->assessment_report_id)) }}">
+                                                        <i class="fa fa-download"></i> View Certificate
+                                                    </a>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                @endif
+                                    @endif
                                 </div>
                             </div>
                         </div>
                         <div class="row pb-3">
                             <div class="col-md-2 offset-md-0">
-                                <a href="{{ route('e-trucks.oemModel.index') }}" class="btn btn-warning form-control-sm mt-2">
+                                <a href="{{ route('e-trucks.oemModel.index') }}"
+                                    class="btn btn-warning form-control-sm mt-2">
                                     Back
                                 </a>
                             </div>
