@@ -50,7 +50,7 @@
             <div class="loader4"></div>
         </div>
     </div>
-  
+
     <!-- loader ends-->
     <!-- tap on top starts-->
     <div class="tap-top"><i data-feather="chevrons-up"></i></div>
@@ -136,7 +136,7 @@
                                     <h6 class="lan-1">PM E-DRIVE</h6>
                                 </div>
                             </li>
-                            <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
+                            {{-- <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                     class="sidebar-link sidebar-title link-nav" href="{{ route('e-trucks.dashboard') }}">
                                     <svg class="stroke-icon">
                                         <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-home') }}"></use>
@@ -145,7 +145,7 @@
                                         <use href="{{ asset('admin/svg/icon-sprite.svg#fill-home') }}"></use>
                                     </svg><span>Dashboard</span>
                                     <div class="according-menu"><i class="fa fa-angle-right"></i></div>
-                                </a></li>
+                                </a></li> --}}
 
                             @if (Auth::user()->hasRole('OEM-Truck'))
                                 @if (getParentId() == Auth::user()->id)
@@ -230,7 +230,7 @@
                                                 Operator Details</a></li>
                                     </ul>
                                 </li>
-                                <li class="sidebar-list">
+                                {{-- <li class="sidebar-list">
                                     <a class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('e-trucks.unactiveUser') }}">
                                         <i class="fa fa-thumb-tack"></i>
@@ -245,7 +245,7 @@
                                         <span>Manage Dealer Devices</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a>
-                                </li>
+                                </li> --}}
 
                                 <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                         class="sidebar-link sidebar-title link-nav"
@@ -317,7 +317,7 @@
                                                 Dealer</a></li>
                                     </ul>
                                 </li>
-                                <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
+                                {{-- <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
                                         class="sidebar-link sidebar-title" href="#">
                                         <svg class="stroke-icon">
                                             <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-sample-page') }}">
@@ -334,7 +334,7 @@
                                         </li>
                                         <li><a href="{{ route('e-trucks.claimSubmitted') }}">Claim Submitted</a></li>
                                     </ul>
-                                </li>
+                                </li> --}}
                                 <li class="sidebar-list">
                                     <a class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('e-trucks.VinChassis.index') }}">
@@ -351,7 +351,7 @@
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a>
                                 </li>
-                                <li class="sidebar-list">
+                                {{-- <li class="sidebar-list">
                                     <a class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('e-trucks.vinExcel.index') }}">
                                         <i class="fa fa-thumb-tack"></i>
@@ -366,9 +366,9 @@
                                         <span>Claim Generation validity</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a>
-                                </li>
+                                </li> --}}
 
-                                <li class="sidebar-list">
+                                {{-- <li class="sidebar-list">
                                     <a class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('e-trucks.authenticationReport.index') }}">
                                         <i class="fa fa-thumb-tack"></i>
@@ -383,7 +383,7 @@
                                         <span> EMPS Authentication Report</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a>
-                                </li>
+                                </li> --}}
                                 @php
                                     $vinCheck = DB::table('vin_chassis_edit')
                                         ->where('oem_id', Auth::user()->id)
@@ -411,8 +411,7 @@
                                         </a>
                                     </li>
                                 @endif
-                           
-                                @elseif(Auth::user()->hasRole('DEALER-Truck'))
+                            @elseif(Auth::user()->hasRole('DEALER-Truck'))
                                 @if (getParentId() == Auth::user()->id)
                                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a
                                             class="sidebar-link sidebar-title link-nav"
@@ -450,8 +449,7 @@
                                         style="white-space: nowrap;" class="sidebar-link sidebar-title link-nav"
                                         href="{{ route('e-trucks.checkEligibility.index') }}">
                                         <svg class="stroke-icon">
-                                            <use
-                                                href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
+                                            <use href="{{ asset('admin/svg/icon-sprite.svg#stroke-knowledgebase') }}">
                                             </use>
                                         </svg>
                                         <svg class="fill-icon">
@@ -472,8 +470,10 @@
                                             </use>
                                         </svg><span>Customer Information </span></a>
                                     <ul class="sidebar-submenu">
-                                        <li><a href="{{ route('e-trucks.buyerdetail.index') }}">Individual Customer </a></li>
-                                        <li><a href="{{ route('e-trucks.buyerdetail.multi_buyers') }}">Bulk Customer</a></li>
+                                        <li><a href="{{ route('e-trucks.buyerdetail.index') }}">Individual Customer
+                                            </a></li>
+                                        <li><a href="{{ route('e-trucks.buyerdetail.multi_buyers') }}">Bulk
+                                                Customer</a></li>
                                     </ul>
                                 </li>
                                 <li class="sidebar-list"><i class="fa fa-thumb-tack"> </i><a
@@ -589,4 +589,5 @@
     @include('sweetalert::alert')
     <script src="{{ asset('admin/js/script.js') }}"></script>
 </body>
+
 </html>

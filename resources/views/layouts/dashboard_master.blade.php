@@ -617,7 +617,7 @@
                                             <use
                                                 href="{{ asset('admin/svg/icon-sprite.svg#fill-stroke-knowledgebase') }}">
                                             </use>
-                                        </svg><span>Truck Model Request Received</span>
+                                        </svg><span>Truck Model Request</span>
                                         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
                                     </a></li>
                                   

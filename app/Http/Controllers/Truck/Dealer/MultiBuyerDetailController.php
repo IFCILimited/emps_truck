@@ -9,13 +9,14 @@ use Auth;
 use App\Models\ModelVerification;
 use App\Models\User;
 use App\Models\DocumentUpload;
-use App\Models\BuyerDetail;
+use App\Models\Trucks\BuyerDetail;
 use Exception;
 use Illuminate\Support\Carbon;
 use App\Models\SMS;
 use App\Http\Requests\OtpRequest;
 use Session;
 use App\Exports\MultiBuyerAllDetailExport;
+use App\Models\Trucks\TruckCdInformation;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MultiBuyerDetailController extends Controller
@@ -28,7 +29,7 @@ class MultiBuyerDetailController extends Controller
 
             // $dealerDetail = DB::table('multi_buyer_details')->where('dealer_id', Auth::user()->id)->whereNotIn('oem_status', ['R'])->orWhereNull('oem_status');
 
-            $dealerDetail = DB::table('multi_buyer_details')->where(function ($query) {
+            $dealerDetail = DB::table('multi_buyer_details_trucks')->where(function ($query) {
                 $query->where('dealer_id', '=', getParentId())
                     ->where(function ($subQuery) {
                         $subQuery->where('oem_status', '!=', 'R')
@@ -72,7 +73,6 @@ class MultiBuyerDetailController extends Controller
             // dd($minDate);
 
             return view('truck.buyer.bulkbuyer.create_multiple_2', compact('user', 'type', 'oemname', 'minDate', 'maxDate'));
-
         } catch (Exception $e) {
             // dd($e->getMessage());
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
@@ -89,7 +89,7 @@ class MultiBuyerDetailController extends Controller
         try {
             // dd($id);
             $rowId = decrypt($id);
-            $multiBuyerDetail = DB::table('multi_buyer_details')->where('id', $rowId)->first();
+            $multiBuyerDetail = DB::table('multi_buyer_details_trucks')->where('id', $rowId)->first();
 
             $vins = json_decode($multiBuyerDetail->vin_map, true);
             // dd($vins[array_keys($vins)[0]]);
@@ -105,21 +105,21 @@ class MultiBuyerDetailController extends Controller
             foreach ($vins as $vin => $buyerTableId) {
 
 
-                $productionDetails[$vin] = DB::table('buyer_details as bd')
+                $productionDetails[$vin] = DB::table('buyer_details_trucks as bd')
                     ->select('bd.*')
                     ->where('bd.id', $buyerTableId)->first();
-                    
+
                 // $productionDetails[$vin] = DB::table('buyer_details_view as bd')
                 //     ->select('prd.manufacturing_date', 'bd.*')
                 //     ->join('production_data as prd', 'prd.id', '=', 'bd.production_id')
                 //     ->where('bd.id', $buyerTableId)->first();
             }
             // dd($productionDetails);
-            $bankDetail = DB::table('buyer_details_view as bd')
+            $bankDetail = DB::table('buyer_details_trucks_view as bd')
                 ->where('id', $id)->first();
             // dd($bankDetail);
 
-            $prodDet = DB::table('production_data')->where('id', $bankDetail->production_id)->first();
+            $prodDet = DB::table('trucks_production_data')->where('id', $bankDetail->production_id)->first();
             // dd($productionDetails, $prodDet);
 
             $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
@@ -152,31 +152,34 @@ class MultiBuyerDetailController extends Controller
     public function mangeInvoicePreview($id, $rowId, $flag, $userType)
     {
         ini_set('memory_limit', '7048M');
-    ini_set('max_execution_time', 7600);
+        ini_set('max_execution_time', 7600);
         try {
 
             // $id = decrypt($id);
             $rowId = decrypt($rowId);
-            $multiBuyerDetail = DB::table('multi_buyer_details')->where('id', $rowId)->first();
+            $multiBuyerDetail = DB::table('multi_buyer_details_trucks')->where('id', $rowId)->first();
 
             $type = DB::table('customer_doc_verf_type')->whereIn('id', [7, 9, 2])->get();
 
             // $user = User::where('id', Auth::user()->id)->first();
             $user = User::where('id', $multiBuyerDetail->created_by)->first();
 
-            $bankDetail = DB::table('buyer_details_view as bd')
+            $bankDetail = DB::table('buyer_details_trucks_view as bd')
                 ->where('id', $id)->first();
 
-            $prodDet = DB::table('production_data')->where('id', $bankDetail->production_id)->first();
+            $prodDet = DB::table('trucks_production_data')->where('id', $bankDetail->production_id)->first();
 
             // $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
             $oemname = DB::table('users')->where('id', $user->oem_id)->first();
 
+            $cdInfo = DB::table('truck_cd_information')
+                ->where('vin_chassin_no', $bankDetail->vin_chassis_no)->get();
+                // dd($cdInfo);
+
             $minDate = '2024-04-01';
             $maxDate = '2025-09-30';
 
-            return view('truck.buyer.bulkbuyer.buyer_multi_invoice_preview', compact('userType', 'bankDetail', 'prodDet', 'user', 'id', 'type', 'oemname', 'minDate', 'maxDate', 'rowId', 'flag'));
-
+            return view('truck.buyer.bulkbuyer.buyer_multi_invoice_preview', compact('cdInfo', 'userType', 'bankDetail', 'prodDet', 'user', 'id', 'type', 'oemname', 'minDate', 'maxDate', 'rowId', 'flag'));
         } catch (Exception $e) {
             // dd($e->getMessage());
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
@@ -189,8 +192,6 @@ class MultiBuyerDetailController extends Controller
     public function manageInvoice($id, $rowId)
     {
         try {
-            
-
             // $id = decrypt($id);
             $rowId = decrypt($rowId);
             // dd($id, $rowId);
@@ -199,10 +200,13 @@ class MultiBuyerDetailController extends Controller
 
             $user = User::where('id', Auth::user()->id)->first();
 
-            $bankDetail = DB::table('buyer_details_view as bd')
+            $bankDetail = DB::table('buyer_details_trucks_view as bd')
                 ->where('id', $id)->first();
 
-            $prodDet = DB::table('production_data')->where('id', $bankDetail->production_id)->first();
+            $cdinformation = DB::table('truck_cd_information')
+                ->where('vin_chassin_no', $bankDetail->vin_chassis_no)->get();
+
+            $prodDet = DB::table('trucks_production_data')->where('id', $bankDetail->production_id)->first();
 
             $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
 
@@ -210,8 +214,7 @@ class MultiBuyerDetailController extends Controller
             $maxDate = '2026-03-31';
             // dd($bankDetail);
 
-            return view('truck.buyer.bulkbuyer.buyer_multi_invoice', compact('bankDetail', 'prodDet', 'user', 'id', 'type', 'oemname', 'minDate', 'maxDate', 'rowId'));
-
+            return view('truck.buyer.bulkbuyer.buyer_multi_invoice', compact('cdinformation', 'bankDetail', 'prodDet', 'user', 'id', 'type', 'oemname', 'minDate', 'maxDate', 'rowId'));
         } catch (Exception $e) {
             // dd($e->getMessage());
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
@@ -268,10 +271,10 @@ class MultiBuyerDetailController extends Controller
         try {
             DB::transaction(function () use ($request, $id) {
 
-
                 $file = '';
 
                 $BuyerDetail = BuyerDetail::find($id);
+                // dd($BuyerDetail);
                 $buyerData = [];
 
                 if ($request->hasFile('cust_sec_file')) {
@@ -287,7 +290,7 @@ class MultiBuyerDetailController extends Controller
                 $buyerData['custmr_name'] = $request->custmr_name;
                 $buyerData['addi_cust_id'] = $request->addi_cust_id;
                 $buyerData['cust_id_sec'] = $request->cust_id_sec;
-                
+
                 BuyerDetail::where('buyer_id', $request->buyer_id)->update($buyerData);
 
                 // $BuyerDetail->auth_per_name = $request->authr_per_name;
@@ -308,7 +311,6 @@ class MultiBuyerDetailController extends Controller
                     'customer_name' => $request->custmr_name,
                     'auth_prs_name' => $request->authr_per_name
                 ]);
-
             });
             alert()->success('Data has been updated successfully.', '')->persistent('Close');
 
@@ -323,6 +325,7 @@ class MultiBuyerDetailController extends Controller
 
     public function generateId(Request $request)
     {
+
         try {
             //check duplicates in vin numbers
             $vins = $request->vin;
@@ -404,9 +407,6 @@ class MultiBuyerDetailController extends Controller
                     $BuyerDetail->invoice_amt = 0;
                     $BuyerDetail->tot_inv_amt = 0;
 
-
-                    // $BuyerDetail->save();
-
                     $BuyerDetail->save();
                     // dd($BuyerDetail->id);
                     $insertedIds[$vin] = $BuyerDetail->id;
@@ -414,7 +414,7 @@ class MultiBuyerDetailController extends Controller
                 $pid = getParentId();
                 // dd($pid);
 
-                DB::table('multi_buyer_details')->insert([
+                DB::table('multi_buyer_details_trucks')->insert([
                     'dealer_id' => $pid,
                     'created_by' => Auth::user()->id,
                     'buyer_id' => $BuyerId,
@@ -436,15 +436,13 @@ class MultiBuyerDetailController extends Controller
                     'updated_at' => Carbon::now(),
                     'submitted_at' => Carbon::now()
                 ]);
-
             });
 
 
             alert()->success('<b>Customer ID: ' . $BuyerId . '</b><br><b>Customer Name: ' . $custmrName . '</b><br> successfully generated and saved.', 'Kindly note down the Customer ID. You will need it for authentication:')
                 ->persistent('Close');
 
-            return redirect()->route('buyerdetail.multi_buyers');
-
+            return redirect()->route('e-trucks.buyerdetail.multi_buyers');
         } catch (Exception $e) {
             dd($e);
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
@@ -455,22 +453,23 @@ class MultiBuyerDetailController extends Controller
 
     public function manageInvoiceDocs(Request $request)
     {
+        // dd($request);
         try {
-            
-            $mid = DB::table('production_data')->where('vin_chassis_no',$request->vin)->first();
-            $fn = CheckValidity($request->invoice_dt,$mid->model_master_id);
-   
-            // dd($fn);\
-            if($fn == false){
-                alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
-           
-                return redirect()->route('buyerdetail.multi_buyers');
-            }
+
+            $mid = DB::table('trucks_production_data')->where('vin_chassis_no', $request->vin)->first();
+            // $fn = CheckValidity($request->invoice_dt,$mid->model_master_id);
+
+            // // dd($fn);\
+            // if($fn == false){
+            //     alert()->warning('Invoice date is outside PM E-DRIVE certificate date.', 'warning')->persistent('Close');
+
+            //     return redirect()->route('e-trucks.buyerdetail.multi_buyers');
+            // }
 
             // dd($request->all());
             $id = $request->bankDetailRowId;
+            // $cdEntries = [];
             DB::transaction(function () use ($request, $id) {
-
 
                 $file = '';
 
@@ -534,12 +533,30 @@ class MultiBuyerDetailController extends Controller
 
                 $BuyerDetail->save();
 
+                $buyerDetailId = $BuyerDetail->id;
+                foreach ($request->data as $val) {
+                    $CdDetail = new TruckCdInformation();
+                    $CdDetail->cd_number = $val['cdnumber'];
+                    $CdDetail->cd_owner_name = $val['cd_owner_name'];
+                    $CdDetail->vehicle_gvw = $val['gvw'];
+                    $CdDetail->vin_scrapped = $val['vin_no'];
+                    $CdDetail->status_flag = $val['status'];
+                    $CdDetail->cd_issue_date = $val['cd_issue_date'];
+                    $CdDetail->cd_validity_upto = $val['cd_validation_date'];
+                    $CdDetail->buyer_detail_id = $buyerDetailId;
+                    $CdDetail->vin_chassin_no = $request->vin;
+                    $CdDetail->cd_status = 'L';
+                    $CdDetail->save();
+                }
+                // $cdEntries = TruckCdInformation::where('buyer_detail_id', $buyerDetailId)->get();
+
             });
             alert()->success('Data has been updated successfully.', '')->persistent('Close');
 
             return redirect()->back();
+            // return view('truck.buyer.bulkbuyer.buyer_multi_invoice', compact('cdEntries'));
         } catch (Exception $e) {
-            // dd($e->getMessage());
+            dd($e->getMessage());
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
             // errorMail($e, Auth::user()->id);
             return redirect()->back();
@@ -552,11 +569,11 @@ class MultiBuyerDetailController extends Controller
         $rowId = decrypt($request->row_id);
 
 
-        $multiData = DB::table('multi_buyer_details')->where('id', $rowId)->first();
-        $buyer_entries = DB::table('buyer_details')->where('buyer_id', $multiData->buyer_id)->get();
+        $multiData = DB::table('multi_buyer_details_trucks')->where('id', $rowId)->first();
+        $buyer_entries = DB::table('buyer_details_trucks')->where('buyer_id', $multiData->buyer_id)->get();
 
-        foreach($buyer_entries as $buyer){
-            if((int)$buyer->addmi_inc_amt == 0) {
+        foreach ($buyer_entries as $buyer) {
+            if ((int)$buyer->addmi_inc_amt == 0) {
                 alert()->warning("Incentive amount is zero", 'Cannot proceed with current request')->persistent('Close');
                 return redirect()->back();
             }
@@ -569,7 +586,7 @@ class MultiBuyerDetailController extends Controller
         $buyerId = $multiData->buyer_id;
         $vinCount = $multiData->vin_count;
 
-        $buyerData = DB::table('buyer_details')->where(['buyer_id' => $buyerId, 'status' => 'S'])->count();
+        $buyerData = DB::table('buyer_details_trucks')->where(['buyer_id' => $buyerId, 'status' => 'S'])->count();
 
         if ($buyerData == $vinCount) {
 
@@ -602,10 +619,10 @@ class MultiBuyerDetailController extends Controller
             //     }
             // }
 
-            DB::table('buyer_details')->where('buyer_id', $buyerId)->update(['status' => 'A', 'buyer_submitted_at' => Carbon::now()]);
+            DB::table('buyer_details_trucks')->where('buyer_id', $buyerId)->update(['status' => 'A', 'buyer_submitted_at' => Carbon::now()]);
 
             //submit to oem
-            DB::table('multi_buyer_details')->where('id', $rowId)->update([
+            DB::table('multi_buyer_details_trucks')->where('id', $rowId)->update([
                 'status' => 'A',
                 'oem_status' => NULL,
                 'submitted_at' => Carbon::now(),
@@ -613,13 +630,12 @@ class MultiBuyerDetailController extends Controller
             ]);
             alert()->success('Success', 'Submitted to OEM successfully.')->persistent('Close');
 
-            return redirect()->route("buyerdetail.multi_buyers");
+            return redirect()->route("e-trucks.buyerdetail.multi_buyers");
         }
 
         alert()->error('Error', "Kindly add details of all the VIN's")->persistent('Close');
 
         return redirect()->back();
-
     }
 
     public function manageInvoiceDocsSubmit(Request $request)
@@ -634,11 +650,10 @@ class MultiBuyerDetailController extends Controller
                 $BuyerDetail->status = "S";
 
                 $BuyerDetail->save();
-
             });
             alert()->success('Submitted successfully!', '')->persistent('Close');
 
-            return redirect()->route('buyerdetail.multi_detail_edit', encrypt($rowId));
+            return redirect()->route('e-trucks.buyerdetail.multi_detail_edit', encrypt($rowId));
         } catch (Exception $e) {
             // dd($e->getMessage());
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
@@ -703,11 +718,10 @@ class MultiBuyerDetailController extends Controller
         } catch (Exception $e) {
             //    dd($e->getMessage());
             return response()->json(['status' => false, 'message' => 'something went wrong!'], 200);
-
         }
     }
 
-public function mangeVinWiseInvoicePreview($id, $rowId)
+    public function mangeVinWiseInvoicePreview($id, $rowId)
     {
         try {
             $rowId = decrypt($rowId);
@@ -726,13 +740,10 @@ public function mangeVinWiseInvoicePreview($id, $rowId)
             // $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
             $oemname = DB::table('users')->where('id', $user->oem_id)->first();
 
-            return view('truck.buyer.bulkbuyer.buyer_multi_vin_invoice_preview', compact( 'bankDetail', 'prodDet', 'user', 'id', 'type', 'oemname', 'rowId', 'multiBuyerDetail'));
-
+            return view('truck.buyer.bulkbuyer.buyer_multi_vin_invoice_preview', compact('bankDetail', 'prodDet', 'user', 'id', 'type', 'oemname', 'rowId', 'multiBuyerDetail'));
         } catch (Exception $e) {
             alert()->error('Oops!', 'Something went wrong!')->persistent('Close');
             return redirect()->back();
         }
     }
-
-
 }

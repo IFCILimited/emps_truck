@@ -36,7 +36,8 @@
         },
         "files": [
             "app/Helpers/helperFunction1.php",
-            "app/Helpers/getClaimNumberFormat.php"
+            "app/Helpers/getClaimNumberFormat.php",
+            "app/Helpers/crypto_helper.php"
         ]
         
     },

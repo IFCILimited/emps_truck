@@ -121,6 +121,11 @@
                             <td>{{ $maindata->vin_chassis_no }}</td>
                         </tr>
                         <tr>
+                            <td>5</td>
+                            <td>Gross Vehicle Weight (GVW In Tons)*</td>
+                            <td>{{ $maindata->gross_weight }}</td>
+                        </tr>
+                        <tr>
                             <td>6</td>
                             <td>Dealer Invoice No.*</td>
                             <td>{{ $buyer->dlr_invoice_no }}</td>

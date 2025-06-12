@@ -65,17 +65,17 @@ class ManageCertificateController extends Controller
     {
 
         $rowId = decrypt($id);
-        // dd($userId);
-        $detail = DB::table('buyer_details_view')
-            ->where('id', $rowId)
-            ->first();
+        $detail = DB::table('buyer_details_trucks_view')
+        ->where('id', $rowId)
+        ->first();
+        dd($detail);
 
             if((int)$detail->addmi_inc_amt == 0) {
                 alert()->warning("Incentive amount hasn't been updated yet", 'Kindly update it first.');
                 return redirect()->back();
             }
 
-        $buyerAuth=DB::table('buyer_authentication_details')->where('buyer_id', $detail->buyer_id)->first();
+        // $buyerAuth=DB::table('buyer_authentication_details')->where('buyer_id', $detail->buyer_id)->first();
 
         // dd($buyerAuth);
 
@@ -100,7 +100,7 @@ class ManageCertificateController extends Controller
 
         //$smsResponse = sendSMS($detail->mobile, $msg_mail);
 
-        return view('truck.buyer.certificate', compact('qRCode', 'detail','buyerAuth'));
+        return view('truck.buyer.certificate', compact('qRCode', 'detail'));
     }
 
     // public function verifyCertificateView($dealerId, $certificateId)

@@ -310,9 +310,11 @@ class ModelRequestController extends Controller
                 $pid = Auth::user()->id;
             }
             $id = decrypt($id);
+            // dd($id);
             if (Auth::user()->hasRole('TESTINGAGENCY')) {
                 $model = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->where('testing_agency_id', $pid)->first();
                 $testing_agency_name = Auth::user()->name;
+                // dd($model);
             } elseif (Auth::user()->hasRole('PMA')) {
                 $model = DB::table('vw_model_details_trucks')->where('model_detail_id', $id)->first();
                 $testing_agency_name = DB::table('users')->where('id', $model->testing_agency_id)->first()->name;

@@ -24,6 +24,17 @@ use Carbon\Carbon;
 
 class BuyerDetailController extends Controller
 {
+    private $responseMessages = [
+        300 => 'Client-Id cannot be empty/blank',
+        301 => 'COD Number cannot be empty/blank',
+        302 => 'COD number length can not be greater than 30',
+        303 => 'Cod has expired. It cannot be utilised',
+        304 => 'COD No does not exist',
+        // 305 => 'The Certificate of Cod has been utilized',
+        306 => 'COD has been marked as trade',
+        307 => 'Something went wrong. Please try after some time.',
+    ];
+
     public function index(Request $request)
     {
 
@@ -190,7 +201,7 @@ class BuyerDetailController extends Controller
             $response = array(
                 'data1' => $vinchasis,
                 'data2' => $count,
-                'data3' => 0,
+                'data3' => 5000,
                 'data4' => $RCDetailAPI['status'],
                 'data5' => $RCDetailAPI['prcn'],
                 'data6' => $RCDetailAPI['prcndt'],
@@ -202,7 +213,7 @@ class BuyerDetailController extends Controller
             $response = array(
                 'data1' => $vinchasis,
                 'data2' => $count,
-                'data3' => 0,
+                'data3' => 4000,
                 'data4' => true,
                 'data5' => 'TEL',
                 'data6' => 'TEL',
@@ -405,6 +416,7 @@ class BuyerDetailController extends Controller
                 ->where('id', $id)->first();
 
             $cdDet = DB::table('truck_cd_information')->where('buyer_detail_id', $bankDetail->id)->get();
+
             $prodDet = DB::table('trucks_production_data')->where('id', $bankDetail->production_id)->first();
 
             $oemname = DB::table('users')->where('id', Auth::user()->oem_id)->first();
@@ -909,7 +921,7 @@ class BuyerDetailController extends Controller
             $incentive_amount = ($this->getcode($request->vin, $request->oemid))["data3"];
             //incentive amount
             $buyer_detail = BuyerDetail::find($request->row_id);
-
+            //  dd($buyer_detail);
             // $net_amt = 0;
             // if((int)$buyer_detail->addmi_inc_amt == 0 || (int)$buyer_detail->addmi_inc_amt == ""){
 
@@ -918,7 +930,7 @@ class BuyerDetailController extends Controller
             // $buyer_detail->amt_custmr;
             // $net_amt = ($buyer_detail->invoice_amt - $incentive_amount);
             $net_amt = ((int)$request->invoice_amt - (int)$incentive_amount);
-            // dd($request->all(), $net_amt, $incentive_amount);
+            // dd($net_amt);
             $buyer_detail->invoice_amt = $request->invoice_amt;
             $buyer_detail->tot_inv_amt = $buyer_detail->amt_custmr = $net_amt;
             $buyer_detail->addmi_inc_amt = $buyer_detail->tot_admi_inc_amt = $incentive_amount;
@@ -932,18 +944,29 @@ class BuyerDetailController extends Controller
 
     public function getCdData($cdnumber)
     {
-        $chk = DB::table('truck_cd_information')->where('cd_number', $cdnumber)->count();
+        $clientId = 'madhyamtest';
+        $userPass = 'Madhyam@123';
+        $password = '4wFbeiZfbyeagjg10DPqI4QLyWbP5o92oK292HBNGH4=';
+        $results = [];
+
+        $chk = DB::table('truck_cd_information')->where('cd_number', $cdnumber)
+        ->where('cd_status', 'L')->count();
+    
         if ($chk > 0) {
             return response()->json(['error' => 'This CD is already Utilised in Escrap']);
         }
 
         try {
 
-            $cdRes = cdNumber($cdnumber);
-
-
+            $cdRes = fetchCodDetails($clientId, $userPass, $cdnumber, $password, $this->responseMessages);
             if ($cdRes) {
-                return response()->json($cdRes);
+                $responseCode = $cdRes['responseCode'];
+                if (array_key_exists($responseCode, $this->responseMessages)) {
+                    $message = $this->responseMessages[$responseCode];
+                    return response()->json(['error' =>  $message]);
+                } else {
+                    return response()->json($cdRes);
+                }
             } else {
                 return response()->json('Something went wrong while fetching CD data.');
             }

@@ -82,6 +82,7 @@ class BankDetailController extends Controller
 
             return redirect()->route('e-trucks.bankDetails.index');
         } catch (\Exception $e) {
+            dd($e);
             errorMail($e, Auth::user()->id);
             return redirect()->back();
         }

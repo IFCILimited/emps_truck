@@ -133,60 +133,66 @@
             @endif --}}
 
             <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="dt-ext table-responsive custom-scrollbar">
-                            @if (isset($results) && count($results) > 0)
-                                <table class="display table-bordered table-striped" id="export-button">
-                                    <thead>
-                                        <tr>
-                                            <th>S.No.</th>
-                                            <th>CD Number</th>
-                                            <th>Present Owner</th>
-                                            <th>Vehicle GVW</th>
-                                            <th>Scrapped VIN</th>
-                                            <th>Status Flag</th>
-                                            <th>Issue Date</th>
-                                            <th>Valid Upto</th>
-                                            <th>New Owner</th>
-                                            <th>New Reg No</th>
-                                            <th>New Reg Date</th>
-                                            <th>New VIN</th>
-                                            <th>Response Message</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($results as $key => $item)
-                                            @php $r = $item['response']; @endphp
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="dt-ext table-responsive custom-scrollbar">
+                                @if (isset($results) && count($results) > 0)
+                                    <table class="display table-bordered table-striped" id="export-button">
+                                        <thead>
                                             <tr>
-                                                <td>{{ $key + 1 }}</td>
-                                                <td>{{ $item['cdnumber'] }}</td>
-                                                <td>{{ $r['present_owner_name'] }}</td>
-                                                <td>{{ $r['vehicle_gvw'] }}</td>
-                                                <td>{{ $r['scrapped_vin'] }}</td>
-                                                <td>{{ $r['status_flag'] }}</td>
-                                                <td>{{ $r['issue_date'] }}</td>
-                                                <td>{{ $r['valid_upto_date'] }}</td>
-                                                <td>{{ $r['new_owner_name'] ?? '-' }}</td>
-                                                <td>{{ $r['new_registration_no'] ?? '-' }}</td>
-                                                <td>{{ $r['new_registration_date'] ?? '-' }}</td>
-                                                <td>{{ $r['new_vin'] ?? '-' }}</td>
-                                                <td>{{ $r['response_message'] }}</td>
+                                                <th>S.No.</th>
+                                                <th>CD Number</th>
+                                                <th>Final Status</th>
+                                                <th>Present Owner</th>
+                                                <th>Vehicle GVW</th>
+                                                <th>Scrapped VIN</th>
+                                                <th>Status Flag</th>
+                                                <th>Issue Date</th>
+                                                <th>Valid Upto</th>
+                                                <th>New Owner</th>
+                                                <th>New Reg No</th>
+                                                <th>New Reg Date</th>
+                                                <th>New VIN</th>
+                                                <th>Response Message</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @else
-                                <p>No results found.</p>
-                            @endif
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($results as $key => $item)
+                                                @php $r = $item['response']; @endphp
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $item['cdnumber'] }}</td>
+                                                    @if ($r['statusFlag'] == 'U')
+                                                        <td><strong>Not Eligible</strong></td>
+                                                    @else
+                                                        <td><strong>Eligible</strong></td>
+                                                    @endif
+                                                    <td>{{ $r['presentCdOwnerName'] }}</td>
+                                                    <td>{{ $r['gvw'] }}</td>
+                                                    <td>{{ $r['chassisNo'] }}</td>
+                                                    <td>{{ $r['statusFlag'] }}</td>
+                                                    <td>{{ $r['issueDate'] }}</td>
+                                                    <td>{{ $r['validUpto'] }}</td>
+                                                    <td>{{ $r['newVehicleOwnerName'] ?? '-' }}</td>
+                                                    <td>{{ $r['newRegnNo'] ?? '-' }}</td>
+                                                    <td>{{ $r['newRegnDate'] ?? '-' }}</td>
+                                                    <td>{{ $r['newChasisNo'] ?? '-' }}</td>
+                                                    <td>{{ $r['responseMessage'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p>No results found.</p>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
+
+
             </div>
-
-
-</div>
         </div>
     </div>
 @endsection
