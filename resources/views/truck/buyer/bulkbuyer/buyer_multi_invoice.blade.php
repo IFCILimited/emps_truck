@@ -123,6 +123,12 @@
                                                 value="{{ date('Y-m-d', strtotime($prodDet->manufacturing_date)) }}"
                                                 id="manufacturing_date" name="manufacturing_date" readonly>
                                         </div>
+                                        <div class="col-4 mb-3" id="">
+                                            <label class="form-label" for="manu_date">Gross Vehicle Weight (GVW in
+                                                Tons):</label>
+                                            <input class="form-control srchV readonly" id="gross_weight"
+                                                value="{{ $bankDetail->gross_weight }}" name="gvw" readonly>
+                                        </div>
                                         {{-- <div class="col-4 mb-3" id="">
                                             <label class="form-label" for="vehicle_segment">Temporary Registration Number:</label>
                                             <input class="form-control srchV readonly" id="ex_price" name="exfactry"
@@ -139,6 +145,212 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- CD No----------------------------- --}}
+                            {{-- <div class="card height-equal">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4>CD Information</h4>
+                                    <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="vehicle_div">
+                                        <div class="row border p-3 cd-block" id="cd-inputs-wrapper">
+                                            <div class="col-4 mb-3 cd-entry">
+                                                <label class="form-label">CD Number</label>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <input class="form-control cdnumber-input"
+                                                            name="data[1][cdnumber]">
+
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <button type="button"
+                                                            class="btn btn-primary btn-sm p-2 fetch-cd-btn"
+                                                            data-index="1">Fetch CD Data</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD Owner Name:</label>
+                                                <input class="form-control readonly cd_owner_name"
+                                                    name="data[1][cd_owner_name]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">Gross Vehicle Weight (GVW in Tons):</label>
+                                                <input class="form-control readonly gvw" name="data[1][gvw]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">VIN/Chassis Number:</label>
+                                                <input class="form-control readonly vin_no" name="data[1][vin_no]"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">Status Flag:</label>
+                                                <input class="form-control readonly status" name="data[1][status]"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD – Issue Date:</label>
+                                                <input class="form-control readonly cd_issue_date"
+                                                    name="data[1][cd_issue_date]" readonly>
+                                            </div>
+
+                                            <div class="col-4 mb-3">
+                                                <label class="form-label">CD - Validity Upto Date:</label>
+                                                <input class="form-control readonly cd_validation_date"
+                                                    name="data[1][cd_validation_date]" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> --}}
+
+                            {{-- end cd no------------ --}}
+
+                            {{-- CD Information Section --}}
+                            <div class="card height-equal">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4>CD Information</h4>
+                                    {{-- <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button> --}}
+                                    @if (!isset($cdinformation) || !$cdinformation->count())
+                                        <button type="button" class="btn btn-info" id="add_multi_cdn">Add Row</button>
+                                    @endif
+
+                                </div>
+                                <div class="card-body">
+                                    <div class="vehicle_div" id="cd-inputs-wrapper">
+
+                                        @if (isset($cdinformation) && $cdinformation->count())
+                                            @foreach ($cdinformation as $index => $cd)
+                                                <div class="row border p-3 cd-block">
+                                                    <div class="col-4 mb-3 cd-entry">
+                                                        <label class="form-label">CD Number</label>
+                                                        <input class="form-control cdnumber-input readonly"
+                                                            name="data[{{ $index + 1 }}][cdnumber]"
+                                                            value="{{ $cd->cd_number }}" readonly>
+                                                        {{-- <div class="row">
+                                                            <div class="col-md-6">
+                                                                <input class="form-control cdnumber-input readonly"
+                                                                    name="data[{{ $index + 1 }}][cdnumber]"
+                                                                    value="{{ $cd->cd_number }}" readonly>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <button type="button"
+                                                                    class="btn btn-primary btn-sm p-2 fetch-cd-btn"
+                                                                    data-index="{{ $index + 1 }}" disabled>Fetch CD
+                                                                    Data</button>
+                                                            </div>
+                                                        </div> --}}
+                                                    </div>
+
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">CD Owner Name:</label>
+                                                        <input class="form-control readonly cd_owner_name"
+                                                            name="data[{{ $index + 1 }}][cd_owner_name]"
+                                                            value="{{ $cd->cd_owner_name }}" readonly>
+                                                    </div>
+
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">Gross Vehicle Weight (GVW in
+                                                            Tons):</label>
+                                                        <input class="form-control readonly gvw"
+                                                            name="data[{{ $index + 1 }}][gvw]"
+                                                            value="{{ $cd->vehicle_gvw }}" readonly>
+                                                    </div>
+
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">VIN/Chassis Number:</label>
+                                                        <input class="form-control readonly vin_no"
+                                                            name="data[{{ $index + 1 }}][vin_no]"
+                                                            value="{{ $cd->vin_scrapped }}" readonly>
+                                                    </div>
+
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">Status Flag:</label>
+                                                        <input class="form-control readonly status"
+                                                            name="data[{{ $index + 1 }}][status]"
+                                                            value="{{ $cd->status_flag }}" readonly>
+                                                    </div>
+
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">CD – Issue Date:</label>
+                                                        <input class="form-control readonly cd_issue_date"
+                                                            name="data[{{ $index + 1 }}][cd_issue_date]"
+                                                            value="{{ $cd->cd_issue_date }}" readonly>
+                                                    </div>
+
+                                                    <div class="col-4 mb-3">
+                                                        <label class="form-label">CD - Validity Upto Date:</label>
+                                                        <input class="form-control readonly cd_validation_date"
+                                                            name="data[{{ $index + 1 }}][cd_validation_date]"
+                                                            value="{{ $cd->cd_validity_upto }}" readonly>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <div class="row border p-3 cd-block">
+                                                <div class="col-4 mb-3 cd-entry">
+                                                    <label class="form-label">CD Number</label>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <input class="form-control cdnumber-input"
+                                                                name="data[1][cdnumber]">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <button type="button"
+                                                                class="btn btn-primary btn-sm p-2 fetch-cd-btn"
+                                                                data-index="1">Fetch CD Data</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-4 mb-3">
+                                                    <label class="form-label">CD Owner Name:</label>
+                                                    <input class="form-control readonly cd_owner_name"
+                                                        name="data[1][cd_owner_name]" readonly>
+                                                </div>
+
+                                                <div class="col-4 mb-3">
+                                                    <label class="form-label">Gross Vehicle Weight (GVW in Tons):</label>
+                                                    <input class="form-control readonly gvw" name="data[1][gvw]" readonly>
+                                                </div>
+
+                                                <div class="col-4 mb-3">
+                                                    <label class="form-label">VIN/Chassis Number:</label>
+                                                    <input class="form-control readonly vin_no" name="data[1][vin_no]"
+                                                        readonly>
+                                                </div>
+
+                                                <div class="col-4 mb-3">
+                                                    <label class="form-label">Status Flag:</label>
+                                                    <input class="form-control readonly status" name="data[1][status]"
+                                                        readonly>
+                                                </div>
+
+                                                <div class="col-4 mb-3">
+                                                    <label class="form-label">CD – Issue Date:</label>
+                                                    <input class="form-control readonly cd_issue_date"
+                                                        name="data[1][cd_issue_date]" readonly>
+                                                </div>
+
+                                                <div class="col-4 mb-3">
+                                                    <label class="form-label">CD - Validity Upto Date:</label>
+                                                    <input class="form-control readonly cd_validation_date"
+                                                        name="data[1][cd_validation_date]" readonly>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                    </div>
+                                </div>
+                            </div>
+
+
 
 
                             {{-- <div class="col-sm-12">
@@ -214,19 +426,19 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div> --}}
+
+
+                        </div>
+
+                        <div class="card height-equal" id="Vehicle_details">
+                            <div class="card-header">
+                                <h4>Vehicle Details:</h4>
                             </div>
-                            
 
-                        </div> --}}
-
-                            <div class="card height-equal" id="Vehicle_details">
-                                <div class="card-header">
-                                    <h4>Vehicle Details:</h4>
-                                </div>
-
-                                <div class="card-body">
-                                    <div class="row">
-                                        {{-- <div class="col-3 mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    {{-- <div class="col-3 mb-3">
                                         <label class="form-label" for="temp_reg">Temporary Registration<br> Number</label>
                                         <input data-target="temp_reg" type="text"
                                             class="reg_num form-control readonly"
@@ -234,191 +446,188 @@
                                         <span style="display: none" id="temp_reg_error" class="text-danger">Please enter
                                             a valid Temporary Registration Number</span>
                                     </div> --}}
-                                        <div class="col-3 mb-3">
-                                            <label class="form-label" for="vhcl_regis_no">Permanent Registration<br>
-                                                Number:</label>
-                                            <input data-target="perm_reg" class="reg_num form-control readonly"
-                                                id="vhcl_regis_no" type="text" name="vhcl_regis_no"
-                                                value="{{ $bankDetail->vhcl_regis_no }}" readonly>
-                                            <span style="display:none" id="perm_reg_error" class="text-danger">Please
-                                                enter a
-                                                valid Permanent Registration Number</span>
+                                    <div class="col-3 mb-3">
+                                        <label class="form-label" for="vhcl_regis_no">Permanent Registration<br>
+                                            Number:</label>
+                                        <input data-target="perm_reg" class="reg_num form-control readonly"
+                                            id="vhcl_regis_no" type="text" name="vhcl_regis_no"
+                                            value="{{ $bankDetail->vhcl_regis_no }}" readonly>
+                                        <span style="display:none" id="perm_reg_error" class="text-danger">Please
+                                            enter a
+                                            valid Permanent Registration Number</span>
 
-                                        </div>
+                                    </div>
 
-                                        <div class="col-3 mb-3">
-                                            <label class="form-label" for="vihcle_dt">Permanent Registration
-                                                <br>Date:</label>
-                                            <input class="form-control readonly" id="vihcle_dt" type="text"
-                                                @if ($bankDetail->vihcle_dt) value="{{ date('Y-m-d', strtotime($bankDetail->vihcle_dt)) }}" @endif
-                                                name="vihcle_dt" readonly>
-                                        </div>
-                                        <div class="col-3 mb-3">
-                                            <label class="form-label" for="vhcl_reg_file">Permanent Registration
-                                                <br>Copy:</label>
-                                            <input class="form-control" id="vhcl_reg_file" type="file"
-                                                name="vhcl_reg_file"
-                                                @if ($bankDetail->vhcl_reg_file) value="{{ $bankDetail->vhcl_reg_file }}" @endif>
-                                            <input id="vhcl_reg_file_exist" type="hidden" name="vhcl_reg_file_exist"
-                                                @if ($bankDetail->vhcl_reg_file) value="{{ $bankDetail->vhcl_reg_file }}" @endif />
-                                            <span id="vhcl_reg_file_error" class="text-danger"></span>
-                                            @if ($bankDetail->vhcl_reg_file != null)
-                                                <a class="btn btn-success btn-sm"
-                                                    href="{{ route('doc.down', encrypt($bankDetail->vhcl_reg_file)) }}">
-                                                    <i class="fa fa-download"></i> View Document
-                                                </a>
-                                            @endif
-                                        </div>
-                                        <div class="col-12">
-                                            <button type="button" class="btn btn-info text-light"
-                                                id="fetchDetails">Fetch RC Details</button>
-                                            {{-- @if ($bankDetail->temp_reg_no || $bankDetail->vhcl_regis_no) --}}
-                                            {{-- <div class="" id="e_voucher_div"> --}}
-                                            <a style="width: 35%;float: right;" id="e_voucher_div" target="_blank"
-                                                href="{{ route('e-trucks.dealer.multiBuyerVoucher', encrypt($bankDetail->id)) }}"
-                                                class="btn btn-success">Generate &
-                                                download E-Voucher</a>
-                                            {{-- </div> --}}
-                                            {{-- @endif --}}
-                                        </div>
+                                    <div class="col-3 mb-3">
+                                        <label class="form-label" for="vihcle_dt">Permanent Registration
+                                            <br>Date:</label>
+                                        <input class="form-control readonly" id="vihcle_dt" type="text"
+                                            @if ($bankDetail->vihcle_dt) value="{{ date('Y-m-d', strtotime($bankDetail->vihcle_dt)) }}" @endif
+                                            name="vihcle_dt" readonly>
+                                    </div>
+                                    <div class="col-3 mb-3">
+                                        <label class="form-label" for="vhcl_reg_file">Permanent Registration
+                                            <br>Copy:</label>
+                                        <input class="form-control" id="vhcl_reg_file" type="file"
+                                            name="vhcl_reg_file"
+                                            @if ($bankDetail->vhcl_reg_file) value="{{ $bankDetail->vhcl_reg_file }}" @endif>
+                                        <input id="vhcl_reg_file_exist" type="hidden" name="vhcl_reg_file_exist"
+                                            @if ($bankDetail->vhcl_reg_file) value="{{ $bankDetail->vhcl_reg_file }}" @endif />
+                                        <span id="vhcl_reg_file_error" class="text-danger"></span>
+                                        @if ($bankDetail->vhcl_reg_file != null)
+                                            <a class="btn btn-success btn-sm"
+                                                href="{{ route('doc.down', encrypt($bankDetail->vhcl_reg_file)) }}">
+                                                <i class="fa fa-download"></i> View Document
+                                            </a>
+                                        @endif
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-info text-light" id="fetchDetails">Fetch RC
+                                            Details</button>
+                                        {{-- @if ($bankDetail->temp_reg_no || $bankDetail->vhcl_regis_no) --}}
+                                        {{-- <div class="" id="e_voucher_div"> --}}
+                                        <a style="width: 35%;float: right;" id="e_voucher_div" target="_blank"
+                                            href="{{ route('e-trucks.dealer.multiBuyerVoucher', encrypt($bankDetail->id)) }}"
+                                            class="btn btn-success">Generate &
+                                            download E-Voucher</a>
+                                        {{-- </div> --}}
+                                        {{-- @endif --}}
                                     </div>
                                 </div>
                             </div>
-
-
-
-                            <div class="col-sm-12">
-                                <div class="card height-equal">
-                                    <div class="card-header d-flex align-items-center justify-content-between">
-                                        <h4>Invoice Detail</h4>
-                                        <!-- @if ($bankDetail->addmi_inc_amt == 0)
-    -->
-                                        <button id="update_incentive" class="btn btn-primary" type="button">Update
-                                            Incentive Ammount</button>
-                                        <!--
-    @endif -->
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-4 mb-3">
-                                                <label class="form-label" for="range">Dealer Invoice No.:</label>
-                                                <input class="form-control" id="range" type="text"
-                                                    value="{{ $bankDetail->dlr_invoice_no }}" name="dlr_invoice_no">
-                                                <span class="text-danger" id="invoice_no_err"></span><br>
-
-                                                <span class="text-primary">As mentioned invoice copy</span>
-                                            </div>
-                                            <div class="col-4 mb-3">
-                                                <label class="form-label" for="invoice_dt">
-                                                    Dealer Invoice Date:</label>
-                                                <input class="form-control" id="invoice_dt" type="date"
-                                                    @if ($bankDetail->invoice_dt) value="{{ date('Y-m-d', strtotime($bankDetail->invoice_dt)) }}" @endif
-                                                    name="invoice_dt" min="{{ $minDate }}"
-                                                    max="{{ \Carbon\Carbon::now()->format('Y-m-d') }}
-                                                onchange="validateDates()">
-                                                <span class="text-danger" id="invoice_date_err"></span>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">Invoice Amount(INR)(per vehicle):</label>
-                                                <input class="form-control" id="invoice_amt" type="number"
-                                                    value="{{ $bankDetail->invoice_amt }}" name="invoice_amt" min=0>
-                                                <span class="text-danger" id="invoice_amt_err"></span>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">Admissible Incentive Amount(INR)(per
-                                                    vehicle):</label>
-                                                <input class="form-control readonly" id="addmi_inc_amt" type="number"
-                                                    value="{{ $bankDetail->addmi_inc_amt }}" readonly
-                                                    name="addmi_inc_amt">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">Total Invoice Amount(INR):</label>
-                                                <input class="form-control readonly" id="tot_inv_amt" type="number"
-                                                    value="{{ $bankDetail->tot_inv_amt }}" readonly name="tot_inv_amt">
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">Total Admissible Incentive Amount(INR):</label>
-                                                <input class="form-control readonly" id="tot_adm_inc_amt" type="number"
-                                                    value="{{ $bankDetail->tot_admi_inc_amt }}" readonly
-                                                    name="tot_admi_inc_amt">
-
-                                            </div>
-                                            <div class="col-4 mb-3 ">
-                                                <label class="form-label" for="minimax_speed">Amount Payable by Customer
-                                                    (INR):</label>
-                                                <input class="form-control readonly" id="amt_custmr" type="number"
-                                                    value="{{ $bankDetail->amt_custmr }}" readonly name="amt_custmr">
-                                                <span class="text-primary">Amount after deduction of PM E-DRIVE
-                                                    Incentive</span>
-                                            </div>
-
-                                        </div>
-                                        <div class="col-12">
-                                            <button id="print_ack" type="button" class="btn btn-warning">Save & Print
-                                                Acknowledge</button>
-
-                                            <a target="_blank" href="{{ route('e-trucks.ack.view', $bankDetail->id) }}"
-                                                class="btn btn-success form-control-sm" id="acknowledgeButton"
-                                                style="display:none;">Print Acknowledge</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
                         </div>
 
 
 
-                        <div class="card height-equal">
-                            <div class="card-header">
-                                <h4>Dcoument Upload:</h4>
+                        <div class="col-sm-12">
+                            <div class="card height-equal">
+                                <div class="card-header d-flex align-items-center justify-content-between">
+                                    <h4>Invoice Detail</h4>
+                                    @if ($bankDetail->addmi_inc_amt == 0)
+                                        <button id="update_incentive" class="btn btn-primary" type="button">Update
+                                            Incentive Ammount</button>
+                                    @endif
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-4 mb-3">
+                                            <label class="form-label" for="range">Dealer Invoice No.:</label>
+                                            <input class="form-control" id="range" type="text"
+                                                value="{{ $bankDetail->dlr_invoice_no }}" name="dlr_invoice_no">
+                                            <span class="text-danger" id="invoice_no_err"></span><br>
+
+                                            <span class="text-primary">As mentioned invoice copy</span>
+                                        </div>
+                                        <div class="col-4 mb-3">
+                                            <label class="form-label" for="invoice_dt">
+                                                Dealer Invoice Date:</label>
+                                            <input class="form-control" id="invoice_dt" type="date"
+                                                @if ($bankDetail->invoice_dt) value="{{ date('Y-m-d', strtotime($bankDetail->invoice_dt)) }}" @endif
+                                                name="invoice_dt" min="{{ $minDate }}"
+                                                max="{{ \Carbon\Carbon::now()->format('Y-m-d') }}
+                                                onchange="validateDates()">
+                                            <span class="text-danger" id="invoice_date_err"></span>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Invoice Amount(INR)(per vehicle):</label>
+                                            <input class="form-control" id="invoice_amt" type="number"
+                                                value="{{ $bankDetail->invoice_amt }}" name="invoice_amt" min=0>
+                                            <span class="text-danger" id="invoice_amt_err"></span>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Admissible Incentive Amount(INR)(per
+                                                vehicle):</label>
+                                            <input class="form-control readonly" id="addmi_inc_amt" type="number"
+                                                value="{{ $bankDetail->addmi_inc_amt }}" readonly name="addmi_inc_amt">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Total Invoice Amount(INR):</label>
+                                            <input class="form-control readonly" id="tot_inv_amt" type="number"
+                                                value="{{ $bankDetail->tot_inv_amt }}" readonly name="tot_inv_amt">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Total Admissible Incentive Amount(INR):</label>
+                                            <input class="form-control readonly" id="tot_adm_inc_amt" type="number"
+                                                value="{{ $bankDetail->tot_admi_inc_amt }}" readonly
+                                                name="tot_admi_inc_amt">
+
+                                        </div>
+                                        <div class="col-4 mb-3 ">
+                                            <label class="form-label" for="minimax_speed">Amount Payable by Customer
+                                                (INR):</label>
+                                            <input class="form-control readonly" id="amt_custmr" type="number"
+                                                value="{{ $bankDetail->amt_custmr }}" readonly name="amt_custmr">
+                                            <span class="text-primary">Amount after deduction of PM E-DRIVE
+                                                Incentive</span>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-12">
+                                        <button id="print_ack" type="button" class="btn btn-warning">Save & Print
+                                            Acknowledge</button>
+
+                                        <a target="_blank" href="{{ route('e-trucks.ack.view', $bankDetail->id) }}"
+                                            class="btn btn-success form-control-sm" id="acknowledgeButton"
+                                            style="display:none;">Print Acknowledge</a>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <table class="table">
-                                        <tr>
-                                            <td>
-                                                <label class="form-label" for="cust_acknwldge">Customer
-                                                    Acknowledgement:</label>
-                                                <input class="form-control docs_upload" data-target="ack"
-                                                    id="cust_acknwldge" type="file" name="cst_ack_file">
-                                                <input type="hidden" name="cust_ack_exist"
-                                                    value="{{ $bankDetail->cst_ack_file }}" />
-                                                <span class="text-primary">Upload Signed & Stamped Customer Acknowledgement
-                                                    Form.</span>
-                                            </td>
-                                            <td>
-                                                <label class="form-label" for="invoice_copy">
-                                                    Invoice Copy:</label>
-                                                <input class="form-control docs_upload" data-target="invc"
-                                                    id="invoice_copy" type="file" name="invc_copy_file">
-                                                <input type="hidden" name="cust_invoice_exist"
-                                                    value="{{ $bankDetail->invc_copy_file }}" />
-                                                <br>
-                                                <br>
-                                            </td>
-                                            <td>
-                                                <label class="form-label" for="e_voucher_copy">
-                                                    E-Voucher Copy:</label>
-                                                <input class="form-control docs_upload" data-target="evoucher"
-                                                    id="e_voucher_copy" type="file" name="evoucher_copy_file">
-                                                <input type="hidden" name="cust_voucher_exist"
-                                                    value="{{ $bankDetail->evoucher_copy_id }}" />
-                                                <span class="text-primary">upload Signed & Stamped E-Voucher</span>
-                                            </td>
-                                            <td>
-                                                <label class="form-label" for="customer_selfie_copy">
-                                                    Customer selfie Copy:</label>
-                                                <input class="form-control docs_upload" data-target="selfie"
-                                                    id="customer_selfie_copy" type="file" name="selfi_copy_file">
-                                                <input type="hidden" name="cust_self_file"
-                                                    value="{{ $bankDetail->self_copy_id }}" />
-                                                <br>
-                                                <br>
-                                            </td>
-                                        </tr>
-                                        {{-- <tr>
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="card height-equal">
+                        <div class="card-header">
+                            <h4>Dcoument Upload:</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <table class="table">
+                                    <tr>
+                                        <td>
+                                            <label class="form-label" for="cust_acknwldge">Customer
+                                                Acknowledgement:</label>
+                                            <input class="form-control docs_upload" data-target="ack" id="cust_acknwldge"
+                                                type="file" name="cst_ack_file">
+                                            <input type="hidden" name="cust_ack_exist"
+                                                value="{{ $bankDetail->cst_ack_file }}" />
+                                            <span class="text-primary">Upload Signed & Stamped Customer Acknowledgement
+                                                Form.</span>
+                                        </td>
+                                        <td>
+                                            <label class="form-label" for="invoice_copy">
+                                                Invoice Copy:</label>
+                                            <input class="form-control docs_upload" data-target="invc" id="invoice_copy"
+                                                type="file" name="invc_copy_file">
+                                            <input type="hidden" name="cust_invoice_exist"
+                                                value="{{ $bankDetail->invc_copy_file }}" />
+                                            <br>
+                                            <br>
+                                        </td>
+                                        <td>
+                                            <label class="form-label" for="e_voucher_copy">
+                                                E-Voucher Copy:</label>
+                                            <input class="form-control docs_upload" data-target="evoucher"
+                                                id="e_voucher_copy" type="file" name="evoucher_copy_file">
+                                            <input type="hidden" name="cust_voucher_exist"
+                                                value="{{ $bankDetail->evoucher_copy_id }}" />
+                                            <span class="text-primary">upload Signed & Stamped E-Voucher</span>
+                                        </td>
+                                        <td>
+                                            <label class="form-label" for="customer_selfie_copy">
+                                                Customer selfie Copy:</label>
+                                            <input class="form-control docs_upload" data-target="selfie"
+                                                id="customer_selfie_copy" type="file" name="selfi_copy_file">
+                                            <input type="hidden" name="cust_self_file"
+                                                value="{{ $bankDetail->self_copy_id }}" />
+                                            <br>
+                                            <br>
+                                        </td>
+                                    </tr>
+                                    {{-- <tr>
                                             <td>
                                                 <span class="text-primary">Upload Signed & Stamped Customer Acknowledgement
                                                     Form.</span>
@@ -428,57 +637,56 @@
                                             <td><span class="text-primary">upload Signed & Stamped E-Voucher</span></td>
                                             <td></td>
                                         </tr> --}}
-                                        <tr>
-                                            <td>
-                                                @if ($bankDetail->cst_ack_file != null)
-                                                    <a class="btn btn-success btn-sm"
-                                                        href="{{ route('doc.down', encrypt($bankDetail->cst_ack_file)) }}">
-                                                        <i class="fa fa-download"></i> View Document
-                                                    </a>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($bankDetail->invc_copy_file != null)
-                                                    <a class="btn btn-success btn-sm"
-                                                        href="{{ route('doc.down', encrypt($bankDetail->invc_copy_file)) }}">
-                                                        <i class="fa fa-download"></i> View Document
-                                                    </a>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($bankDetail->evoucher_copy_id != null)
-                                                    <a class="btn btn-success btn-sm"
-                                                        href="{{ route('doc.down', encrypt($bankDetail->evoucher_copy_id)) }}">
-                                                        <i class="fa fa-download"></i> View Document
-                                                    </a>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($bankDetail->self_copy_id != null)
-                                                    <a class="btn btn-success btn-sm"
-                                                        href="{{ route('doc.down', encrypt($bankDetail->self_copy_id)) }}">
-                                                        <i class="fa fa-download"></i> View Document
-                                                    </a>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
+                                    <tr>
+                                        <td>
+                                            @if ($bankDetail->cst_ack_file != null)
+                                                <a class="btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($bankDetail->cst_ack_file)) }}">
+                                                    <i class="fa fa-download"></i> View Document
+                                                </a>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($bankDetail->invc_copy_file != null)
+                                                <a class="btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($bankDetail->invc_copy_file)) }}">
+                                                    <i class="fa fa-download"></i> View Document
+                                                </a>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($bankDetail->evoucher_copy_id != null)
+                                                <a class="btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($bankDetail->evoucher_copy_id)) }}">
+                                                    <i class="fa fa-download"></i> View Document
+                                                </a>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($bankDetail->self_copy_id != null)
+                                                <a class="btn btn-success btn-sm"
+                                                    href="{{ route('doc.down', encrypt($bankDetail->self_copy_id)) }}">
+                                                    <i class="fa fa-download"></i> View Document
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
+        </div>
 
-                <div style="display: flex;justify-content: space-evenly;align-items: center;">
-                    <div class="text-left">
-                        <a href="{{ route('e-trucks.buyerdetail.multi_detail_edit', encrypt($rowId)) }}"
-                            class="btn btn-warning">Back</a>
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-primary form-control-sm mt-2" type="submit"
-                            id="callFunctionBtn">Update</button>
-                    </div>
-                    {{-- <div class="text-center">
+        <div style="display: flex;justify-content: space-evenly;align-items: center;">
+            <div class="text-left">
+                <a href="{{ route('e-trucks.buyerdetail.multi_detail_edit', encrypt($rowId)) }}"
+                    class="btn btn-warning">Back</a>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary form-control-sm mt-2" type="submit" id="callFunctionBtn">Update</button>
+            </div>
+            {{-- <div class="text-center">
                         <a target="_blank" href="{{ route('ack.view', $bankDetail->id) }}"
                             class="btn btn-warning form-control-sm mt-2" id="acknowledgeButton"
                             @if ($bankDetail->status == 'S') disabled @endif>Print Acknowledge</a>
@@ -514,499 +722,6 @@
 @endsection
 @push('scripts')
     @include('partials.js.pincode')
-    <script>
-        $("#update_incentive").on("click", function() {
-            let vin = document.getElementById("vin_number").value;
-            let row_id = {{ $bankDetail->id }};
-            let oemid = document.getElementById("oem_id").value;
-            let invoice_amt = document.getElementById("invoice_amt").value;
-            $.ajax({
-                url: "{{ route('buyerdetail.update.incentive') }}",
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    vin,
-                    row_id,
-                    oemid,
-                    invoice_amt
-                },
-                success: function(result) {
-                    if (result.status == 0) {
-                        $('#addmi_inc_amt').val(result.data.invt_amt);
-                        $('#tot_adm_inc_amt').val(result.data.invt_amt);
-                        $('#tot_inv_amt').val(result.data.net_amt);
-                        $('#amt_custmr').val(result.data.net_amt);
-                        Swal.fire(
-                            '',
-                            'Incentive amount updated successfully!',
-                            'success'
-                        );
-                        return;
-                    }
-                    Swal.fire(
-                        '',
-                        'Something went wrong!',
-                        'error'
-                    );
-                    console.error(result.msg);
-
-                },
-                error: function(err) {
-                    Swal.fire(
-                        '',
-                        'Something went wrong!',
-                        'error'
-                    );
-                    console.error(err);
-                }
-            })
-        });
-
-        $(document).ready(function() {
-            function toggleButton() {
-                let allFilled = true;
-                const eVoucherDiv = document.getElementById('e_voucher_div');
-                $('.reg_num').each(function() {
-                    if ($(this).val().trim() === '') {
-                        allFilled = false;
-                        return false; // Exit loop early
-                    }
-                });
-
-                if (allFilled) {
-                    // $('#submitBtn').show(); // Show button
-                    eVoucherDiv.style.display = 'block';
-                } else {
-                    // $('#submitBtn').hide(); // Hide button
-                    eVoucherDiv.style.display = 'none';
-                }
-            }
-
-            // Check on input change
-            $('.reg_num').on('input', toggleButton);
-
-            // Initially hide the button
-            // $('#submitBtn').hide();
-            // eVoucherDiv.style.display = 'none';
-        });
-
-        // $('.reg_num').on('input', function(){
-        //     const tempReg = this.value;
-        //     const eVoucherDiv = document.getElementById('e_voucher_div');
-
-        //     const tmp_regex = /^T[0-9]{4}[A-Z]{2}[0-9]{4}[A-Z]{1,2}$/;
-
-        //     if(tmp_regex.test($('#temp_reg').val()) || $('#vhcl_regis_no').val().trim().length >= 9){
-        //         eVoucherDiv.style.display = 'block'; // Show the E-Voucher button
-        //         // submitBtn.disabled = false;
-        //         document.getElementById("temp_reg_error").style.display = 'none';
-        //         document.getElementById("perm_reg_error").style.display = 'none';
-
-        //         return;
-        //     }
-
-        //     let toShow = "";
-        //     let toHide = "";
-        //     if(!tmp_regex.test($('#temp_reg').val())){
-        //         toShow = "temp_reg_error";
-        //         toHide = "perm_reg_error";
-        //     }
-        //     if($('#vhcl_regis_no').val().trim() && $('#vhcl_regis_no').val().trim().length < 9){
-        //         toShow = "perm_reg_error";
-        //         toHide = "temp_reg_error";
-
-        //     }
-        //     document.getElementById(toShow).style.display = 'block';
-        //     document.getElementById(toHide).style.display = 'none';
-
-        //     // submitBtn.disabled = true;
-        //     eVoucherDiv.style.display = 'none'; // Hide the E-Voucher button if not 13 characters
-        // })
-
-        // Add click event to the "View E-Voucher" button
-        document.getElementById('e_voucher_div').addEventListener('click', function() {
-            event.preventDefault(); // Prevent the form from being submitted
-            let isTempReg = false;
-            let isPermReg = false;
-            let notifyText = "This will lock the Temporary Registration Number field.";
-            let target = "temp";
-            let tempVal = 0;
-            let permVal = 0;
-            let buyer_id = {!! json_encode($bankDetail->buyer_id) !!};
-            vehicleRegDate = $('#vihcle_dt').val();
-
-            const tmp_regex = /^T[0-9]{4}[A-Z]{2}[0-9]{4}[A-Z]{1,2}$/;
-            if (tmp_regex.test($('#temp_reg').val())) {
-                isTempReg = true;
-                tempVal = $('#temp_reg').val().trim();
-            }
-            if ($('#vhcl_regis_no').val().trim().length >= 9) {
-                isPermReg = true;
-                notifyText = "This will lock the Permanent Registration Number field.";
-                target = "perm";
-                permVal = $('#vhcl_regis_no').val().trim();
-            }
-
-            if (isTempReg && isPermReg) {
-                notifyText = "This will lock the Temporary & Permanent Registration Number field.";
-                target = "both";
-                tempVal = $('#temp_reg').val().trim();
-                permVal = $('#vhcl_regis_no').val().trim();
-            }
-
-            let reqData = {
-                _token: "{{ csrf_token() }}", // CSRF token for security
-                id: "{{ $id }}", // The ID of the record
-                target,
-                tempVal,
-                permVal,
-                buyer_id,
-                vehicleRegDate
-            }
-
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: notifyText,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, Generate E-Voucher'
-            }).then((result) => {
-                // return;
-                if (result.isConfirmed) {
-                    const tempRegField = document.getElementById('temp_reg');
-                    const permRegField = document.getElementById('vhcl_regis_no');
-                    const permRegDt = document.getElementById('vihcle_dt');
-
-                    // Send AJAX request to update temp_reg in the database
-                    $.ajax({
-                        url: "{{ route('update-temp-reg') }}", // Laravel route
-                        method: "POST",
-                        data: reqData,
-                        success: function(response) {
-                            Swal.fire(
-                                'Locked!',
-                                response.message,
-                                'success'
-                            );
-
-                            if (target == "both") {
-                                permRegField.readOnly = true;
-                                permRegField.classList.add('readonly'); // Add readonly class
-
-                                permRegDt.readOnly = true;
-                                permRegDt.classList.add('readonly'); // Add readonly class
-
-                                tempRegField.readOnly = true;
-                                tempRegField.classList.add('readonly'); // Add readonly class
-                            } else if (target == "perm") {
-                                permRegField.readOnly = true;
-                                permRegField.classList.add('readonly'); // Add readonly class
-
-                                permRegDt.readOnly = true;
-                                permRegDt.classList.add('readonly'); // Add readonly class
-
-                            } else {
-                                tempRegField.readOnly = true;
-                                tempRegField.classList.add('readonly');
-                            }
-
-                            // Hide the "View E-Voucher" button after confirmation
-                            document.getElementById('e_voucher_div').style.display = 'none';
-
-                            // Open the route in a new tab/window
-                            // window.open(
-                            //     "{{ route('dealer.view_certificate', encrypt($bankDetail->buyer_id)) }}",
-                            //     '_blank');
-                            window.open(
-                                "{{ route('dealer.multiBuyerVoucher', encrypt($bankDetail->id)) }}",
-                                '_blank');
-                        },
-                        error: function(xhr) {
-                            Swal.fire(
-                                'Error!',
-                                'There was an error updating the Registration Number.',
-                                'error'
-                            );
-                        }
-                    });
-                }
-            });
-        });
-
-
-        $(function() {
-            $('#e_voucher_div').hide();
-
-            if ($('#temp_reg').val().trim() != '' || $('#vhcl_regis_no').val().trim() != '') {
-                // console.log("true");
-                $('#e_voucher_div').show();
-            }
-        });
-
-        $('#fetchDetails').on("click", function() {
-            $('#fetchDetails').text("Fetching...");
-            $('#fetchDetails').attr("disabled", true);
-
-            var val = document.getElementById("vin_number").value;
-            var oemid = document.getElementById("oem_id").value;
-
-            var token = $("input[name='_token']").val();
-
-            $.ajax({
-                url: '/vin/getcode/' + val + '/' + oemid,
-                method: 'GET',
-                success: function(responce) {
-                    // console.log(responce);
-
-                    // if(responce.data4 == true) {
-                    if (responce.data4 == true && responce.data5) {
-                        $('#temp_reg').val("");
-                        $('#vhcl_regis_no').val("");
-                        $('#vihcle_dt').val("");
-
-                        $('#temp_reg').val(responce.data7);
-                        $('#vhcl_regis_no').val(responce.data5);
-
-
-                        $('#vihcle_dt').attr("type", "text");
-                        let dateFetched = responce.data6;
-                        $('#vihcle_dt').val(dateFetched);
-
-                        $('#temp_reg').attr("readonly", true);
-                        $('#temp_reg').addClass("readonly");
-
-                        $('#vhcl_regis_no').attr("readonly", true);
-                        $('#vhcl_regis_no').addClass("readonly");
-
-                        $('#vihcle_dt').attr("readonly", true);
-                        $('#vihcle_dt').addClass("readonly");
-
-                        $('#e_voucher_div').show();
-
-                    } else {
-                        console.log(responce);
-                        if (responce.data4 == false && responce.data5 == 'TEL' && responce.data6 ==
-                            'TEL') {
-                            Swal.fire({
-                                title: 'RC Details Not Found!',
-                                text: "'RC detail not found in vahan, Please Enter it Manually.",
-                                icon: 'warning',
-                                confirmButtonColor: '#3085d6'
-                            });
-
-                            // $('#vhcl_regis_no').attr("readonly", false);
-                            // $('#vhcl_regis_no').addClass("readonly");
-
-                            // $('#vihcle_dt').attr("readonly", false);
-                            // $('#vihcle_dt').addClass("readonly");
-
-                            $('#vhcl_regis_no').prop('readonly', false).removeClass('readonly');
-                            // $('#vihcle_dt').prop('readonly', false).removeClass('readonly');
-                            let minDate = '2024-04-01';
-                            let maxDate = new Date().toISOString().split('T')[
-                                0]; // Gets today's date in YYYY-MM-DD format
-
-                            // $('#vihcle_dt').attr('min', minDate).attr('max', maxDate);
-
-                            $('#vihcle_dt').prop('readonly', false).removeClass('readonly').attr('type',
-                                'date').attr('min', minDate).attr('max', maxDate);
-
-                        } else {
-                            Swal.fire({
-                                title: 'RC Details Not Found!',
-                                text: "RC details for the entered VIN were not found. Please register your VIN on the Vahan portal first.",
-                                icon: 'warning',
-                                confirmButtonColor: '#3085d6'
-                            });
-                            if ($('#vhcl_regis_no').val()) {
-                                $('#vhcl_regis_no').prop('readonly', true).addClass('readonly');
-                            }
-
-                            if ($('#vihcle_dt').val()) {
-                                $('#vihcle_dt').prop('readonly', true).addClass('readonly');
-                            }
-                        }
-
-                    }
-
-                    $('#fetchDetails').text("Fetch RC Details");
-                    $('#fetchDetails').removeAttr("disabled");
-
-                },
-                error: function(err) {
-                    console.error(err);
-                    $('#fetchDetails').text("Fetch RC Details");
-                    $('#fetchDetails').removeAttr("disabled");
-                }
-            });
-        });
-
-        $('#invoice_amt').on('keyup', function() {
-            var val1 = parseFloat($('#invoice_amt').val()) || 0;
-            var val2 = parseFloat($('#addmi_inc_amt').val()) || 0;
-            // Check if val1 is smaller than val2
-            if (val1 < val2) {
-                $('#error_msg').text(
-                    'Invoice Amount should be greater than Admissible Incentive Amount');
-                $('#tot_inv_amt').val('');
-                $('#amt_custmr').val('');
-            } else {
-                $('#error_msg').text(''); // Clear error message
-                var result = val1 - val2;
-                $('#tot_inv_amt').val(result);
-                $('#amt_custmr').val(result);
-            }
-        });
-
-        $('#print_ack').on('click', function() {
-            const invRange = $('#range').val().trim();
-            const invDate = $('#invoice_dt').val().trim();
-            const invAmt = $('#invoice_amt').val().trim();
-
-            $('#invoice_no_err').text("");
-            $('#invoice_date_err').text("");
-            $('#invoice_amt_err').text("");
-
-            if (!invRange) {
-                $('#invoice_no_err').text("This field is required");
-                return;
-            }
-
-            if (!invDate) {
-                $('#invoice_date_err').text("This field is required");
-                return;
-            }
-
-            if (!invAmt || parseInt(invAmt, 10) == 0) {
-                $('#invoice_amt_err').text("This field is required");
-                return;
-            }
-
-            var token = $("input[name='_token']").val();
-
-            $.ajax({
-                url: "{{ route('save.invoice') }}",
-                method: 'POST',
-                data: {
-                    '_token': '{{ csrf_token() }}',
-                    invRange,
-                    invDate,
-                    invAmt,
-                    invAdmisAmt: $('#addmi_inc_amt').val(),
-                    invTotAmt: $('#tot_inv_amt').val(),
-                    invTotAdmisAmt: $('#tot_adm_inc_amt').val(),
-                    invPayCust: $('#amt_custmr').val(),
-                    id: $('#bankDetailRowId').val()
-                },
-                success: function(responce) {
-                    console.log(responce);
-                    if (!responce.status) {
-                        Swal.fire({
-                            title: 'Error',
-                            text: responce.message,
-                            icon: 'error',
-                            confirmButtonColor: '#3085d6'
-                        });
-                        return;
-                    }
-
-                    $('#acknowledgeButton').show();
-                },
-                error: function(err) {
-                    Swal.fire({
-                        title: 'Error',
-                        text: "Something went wrong!",
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    console.error(err);
-                }
-            });
-
-        });
-
-        $(document).ready(function() {
-            $('#model_create').on('submit', function(event) {
-
-                document.getElementById('vhcl_reg_file_error').innerText = "";
-                let prmt_reg_val = document.getElementById('vhcl_regis_no').value;
-                let prev_upl_reg_file = document.getElementById('vhcl_reg_file_exist').value;
-                let prmt_reg_file = document.getElementById('vhcl_reg_file').value;
-                // console.log(prmt_reg_val, prev_upl_reg_file);
-                if (prmt_reg_val && !prev_upl_reg_file) {
-                    if (!prmt_reg_file) {
-                        document.getElementById('vhcl_reg_file_error').innerText = "This field is required";
-                        document.getElementById('Vehicle_details').scrollIntoView();
-                        event.preventDefault();
-                    }
-                }
-
-                $(this).find('#callFunctionBtn').prop('disabled', true);
-                var buttons = $(this).find('#callFunctionBtn');
-                setTimeout(function() {
-                    buttons.prop('disabled', false);
-                }, 20000); // 25 seconds in milliseconds
-            });
-
-            $('#final_submit_form').on('submit', function(event) {
-                event.preventDefault();
-
-                if (!$("#model_create").valid()) {
-                    return;
-                }
-
-
-                $(this).find('#final_submit_btn').prop('disabled', true);
-                var buttons = $(this).find('#final_submit_btn');
-                setTimeout(function() {
-                    buttons.prop('disabled', false);
-                }, 20000); // 25 seconds in milliseconds
-
-                Swal.fire({
-                    title: 'Are you sure you want to submit details?',
-                    text: "Once submitted, you can not make any changes.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, submit it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('final_submit_form').submit(); // Submit the form
-                    }
-                });
-            });
-        });
-
-
-
-
-        // function citydata(value) {
-        //     $('#OEMAddCity0').val('')
-        //     GetCityByPinCode('OEM', value, 0)
-        // }
-
-
-
-        function validateDates() {
-            var manu_date = new Date($("#manufacturing_date").val());
-            var invoiceDate = new Date($("#invoice_dt").val());
-            var vehicleDate = new Date($("#vihcle_dt").val());
-
-            if (invoiceDate < manu_date) {
-                alert("Invoice date is less than manufacturing date");
-                return;
-            }
-
-            if (invoiceDate > vehicleDate) {
-                alert("Invoice date cannot be greater than vehicle registration date");
-                $("#invoice_dt").val("");
-            }
-        }
-        $("#invoice_dt, #vihcle_dt").change(validateDates);
-    </script>
+    @include('partials.trucks.multi_invoice')
     {!! JsValidator::formRequest('App\Http\Requests\CreateMultiInvoiceDocsRequest', '#model_create') !!}
 @endpush

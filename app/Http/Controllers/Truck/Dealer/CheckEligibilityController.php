@@ -10,6 +10,18 @@ use DB;
 
 class CheckEligibilityController extends Controller
 {
+
+     private $responseMessages = [
+        300 => 'Client-Id cannot be empty/blank',
+        301 => 'COD Number cannot be empty/blank',
+        302 => 'COD number length can not be greater than 30',
+        303 => 'Cod has expired. It cannot be utilised',
+        304 => 'COD No does not exist',
+        305 => 'The Certificate of Cod has been utilized',
+        306 => 'COD has been marked as trade',
+        307 => 'Something went wrong. Please try after some time.',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -183,6 +195,10 @@ class CheckEligibilityController extends Controller
 
     public function checkCDNumber(Request $request)
     {
+
+        $clientId = 'madhyamtest';
+        $userPass = 'Madhyam@123';
+        $password = '4wFbeiZfbyeagjg10DPqI4QLyWbP5o92oK292HBNGH4=';
         $results = [];
 
         $cdNumbers = collect($request->data)
@@ -192,14 +208,17 @@ class CheckEligibilityController extends Controller
             ->values();
 
         foreach ($cdNumbers as $cdNumber) {
-            $response = cdNumber($cdNumber); // Call helper
-
+        $codNo = $cdNumber;
+        // $response = cdNumber($cdNumber);
+      
+        $response = fetchCodDetails($clientId, $userPass, $codNo, $password, $this->responseMessages);
+        // dd($response);
             $results[] = [
                 'cdnumber' => $cdNumber,
                 'response' => $response
             ];
         }
-
+      
         // foreach ($request->data as $val) {
         //     $cdNumber = $val['cdnumber'] ?? null;
 

@@ -47,6 +47,13 @@ class CreateMultiInvoiceDocsRequest extends FormRequest
             'invc_copy_file' => 'required_without:cust_invoice_exist|mimes:pdf|max:2048',
             'evoucher_copy_file' => 'required_without:cust_voucher_exist|mimes:pdf|max:2048',
             'selfi_copy_file' => 'required_without:cust_self_file|mimes:pdf|max:2048',
+            'data.*.cdnumber' => 'required',
+            'data.*.cd_owner_name' => 'required',
+            'data.*.gvw' => 'required',
+            'data.*.vin_no' => 'required',
+            'data.*.status' => 'required',
+            'data.*.cd_issue_date' => 'required',
+            'data.*.cd_validation_date' => 'required',
         ];
     }
 

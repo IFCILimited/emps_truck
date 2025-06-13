@@ -5,9 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DealerController;
 use App\Http\Controllers\APIVahanController;
 use App\Http\Controllers\VahanController;
+use App\Http\Controllers\VahanContoller1;
 use App\Http\Controllers\VinController;
 use App\Http\Controllers\CDRecordController;
-
+use App\Http\Controllers\LocalController;
+use App\Http\Controllers\VahanController2;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +21,11 @@ use App\Http\Controllers\CDRecordController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/vahan-cod', [VahanContoller1::class, 'sendEncryptedRequest']);
+Route::Post('/vahan-cod', [VahanController2::class, 'sendEncryptedRequest']);
+// Route::get('/get-data', [LocalController::class, 'encryptPayload']);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

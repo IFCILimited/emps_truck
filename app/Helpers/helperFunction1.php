@@ -119,6 +119,7 @@ function vahanAPI($Chassis_Number)
 
 function fnDecrypt($sValue, $sSecretKey)
 {
+    // dd($sValue, $sSecretKey);
     try {
         if (isset($sValue)) {
             $sValueS = $sValue;
@@ -126,20 +127,27 @@ function fnDecrypt($sValue, $sSecretKey)
             $sValueS = "OPPS! Something went wrong. Data is does not exist.";
         }
         $decodeData = base64_decode($sValue);
+        // dd($decodeData);
         if ($decodeData === false) {
             alert()->warning('Something went wrong!', 'Error')->persistent(true)->autoClose(false);
             return redirect()->back();
         } else {
             $iv = substr($sValue, 0, 16);
+            dd($iv);
             $decryptedData = openssl_decrypt($decodeData, 'aes-128-cbc', $sSecretKey, OPENSSL_RAW_DATA, $iv);
+            dd($decryptedData);
             $trimmedValue = rtrim($decryptedData, "\0");
+            dd($trimmedValue);
             $apos = strpos($trimmedValue, "<VehicleDetails>");
             $data = substr($decryptedData, $apos);
             $xmlObject = simplexml_load_string($data);
+            dd($xmlObject);
 
             // Convert SimpleXMLElement object to JSON
             $jsonString = json_encode($xmlObject);
+            dd($jsonString);
             $jsonString1 = json_decode($jsonString, true);
+            dd($jsonString1);
             return ($jsonString1);
         }
     } catch (\Exception $e) {
@@ -995,3 +1003,227 @@ function cdNumber($cd)
         ];
     }
 }
+
+// Encrypts plaintext using AES-256-GCM and PBKDF2-derived key
+// function encryptGCM(string $plainText, string $password): string
+//     {
+//         $salt = random_bytes(16);       // 16 bytes salt
+//         $iv   = random_bytes(12);       // 12 bytes IV (GCM standard)
+//         // $key  = self::pbkdf2Key($password, $salt);
+//          $key  = pbkdf2Key($password, $salt);
+
+//         $tag  = '';  // GCM Tag (16 bytes)
+//         $cipherText = openssl_encrypt(
+//             $plainText,
+//             'aes-256-gcm',
+//             $key,
+//             OPENSSL_RAW_DATA,
+//             $iv,
+//             $tag
+//         );
+
+//         // Pack [IV | salt | ciphertext | tag]
+//         $combined = $iv . $salt . $cipherText . $tag;
+//         return base64_encode($combined);
+//     }
+
+//     // Decrypts AES-256-GCM data
+// function decryptGCM(string $base64Text, string $password): string
+//     {
+//         $decoded = base64_decode($base64Text);
+
+//         $iv        = substr($decoded, 0, 12);
+//         $salt      = substr($decoded, 12, 16);
+//         $cipherTag = substr($decoded, -16);             // last 16 bytes is GCM tag
+//         $cipherText = substr($decoded, 28, -16);        // between salt+iv and tag
+
+//         $key = pbkdf2Key($password, $salt);
+
+//         $plainText = openssl_decrypt(
+//             $cipherText,
+//             'aes-256-gcm',
+//             $key,
+//             OPENSSL_RAW_DATA,
+//             $iv,
+//             $cipherTag
+//         );
+
+//         return $plainText;
+//     }
+
+//     // PBKDF2 key derivation using SHA256, 65536 iterations
+// function pbkdf2Key(string $password, string $salt): string
+//     {
+//         return hash_pbkdf2('sha256', $password, $salt, 65536, 32, true); // 256-bit key
+//     }
+
+
+
+     function encryptData(string $plaintext, string $password): string
+    {
+        $salt = random_bytes(16);
+        $iv = random_bytes(12);
+
+        $key = hash_pbkdf2('sha256', $password, $salt, 65536, 32, true);
+
+        $ciphertext = openssl_encrypt(
+            $plaintext,
+            'aes-256-gcm',
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+
+        $ciphertextWithIvSaltTag = $iv . $salt . $tag . $ciphertext;
+
+        return base64_encode($ciphertextWithIvSaltTag);
+    }
+
+   function decryptData(string $encrypted, string $password): string
+    {
+        $data = base64_decode($encrypted);
+        // dd($data);
+
+        $iv = substr($data, 0, 12);
+        // dd($iv);
+        $salt = substr($data, 12, 16);
+        // dd($salt);
+        $tag = substr($data, 28, 16);
+        // dd($tag);
+        $ciphertext = substr($data, 44);
+        // dd($ciphertext);
+
+        $key = hash_pbkdf2('sha256', $password, $salt, 65536, 32, true);
+        // dd($key);
+
+        $plaintext = openssl_decrypt(
+            $ciphertext,
+            'aes-256-gcm',
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+// dd($plaintext) ;
+        return $plaintext;
+    }
+
+    if (!function_exists('callVahanApi')) {
+    function callVahanApi(array $data)
+{
+    $url = 'https://pmedriveuat.heavyindustries.gov.in/api/vahan-cod-uat';
+
+    $dataApi = json_encode($data);
+// dd($data, $dataApi);
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $dataApi);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($dataApi),
+    ]);
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        $error = curl_error($ch);
+        curl_close($ch);
+        return 'Curl error: ' . $error;
+    }
+
+    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpStatus !== 200) {
+        return "HTTP $httpStatus Error: " . $response;
+    }
+// dd($response);
+    return $response;
+}
+
+
+//     function encryptAPIData(array $data, string $base64Key): string
+// {
+//     $jsonData = json_encode($data);
+
+//     // Decode base64 encryption key
+//     $key = base64_decode($base64Key);
+
+//     // Use a 16-byte IV filled with zeros (or you can use random if API expects it)
+//     $iv = str_repeat("\0", 16);
+
+//     // Encrypt using AES-256-CBC
+//     $encrypted = openssl_encrypt(
+//         $jsonData,
+//         'AES-256-CBC',
+//         $key,
+//         OPENSSL_RAW_DATA,
+//         $iv
+//     );
+
+//     // Return base64-encoded encrypted payload
+//     return base64_encode($encrypted);
+// }
+}
+
+function encryptMhaCodPayload(string $plainText, string $base64SecretKey): string
+{
+    $salt = random_bytes(16);
+    $iv = random_bytes(12);
+
+    $key = hash_pbkdf2("sha256", base64_decode($base64SecretKey), $salt, 65536, 32, true);
+
+    $tag = '';
+    $cipherText = openssl_encrypt(
+        $plainText,
+        'aes-256-gcm',
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv,
+        $tag
+    );
+
+    // Combine IV + Salt + CipherText + Tag (Java-style)
+    $result = $iv . $salt . $cipherText . $tag;
+
+    return base64_encode($result);
+}
+function decryptMhaCodPayload(string $base64EncryptedData, string $base64SecretKey): string
+{
+    $decodedData = base64_decode($base64EncryptedData);
+
+    if (strlen($decodedData) < 28) {
+        throw new Exception('Invalid encrypted payload');
+    }
+
+    $iv = substr($decodedData, 0, 12);       // 12-byte IV
+    $salt = substr($decodedData, 12, 16);    // 16-byte salt
+    $cipherTagData = substr($decodedData, 28);
+
+    $tag = substr($cipherTagData, -16);      // 16-byte GCM tag
+    $cipherText = substr($cipherTagData, 0, -16);
+
+    $key = hash_pbkdf2("sha256", base64_decode($base64SecretKey), $salt, 65536, 32, true);
+
+    $plainText = openssl_decrypt(
+        $cipherText,
+        'aes-256-gcm',
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv,
+        $tag
+    );
+
+    if ($plainText === false) {
+        throw new Exception('Decryption failed.');
+    }
+
+    return $plainText;
+}
+
+
+
+

@@ -280,7 +280,9 @@ class AckViewController extends Controller
             $type = DB::table('customer_doc_verf_type')->where('id', $bankDetail->addi_cust_id)->first();
             // dd($type);
 
-            return view('truck.buyer.view', compact('bankDetail', 'user', 'id', 'type', 'cat', 'oemname'));
+            $cdDet = DB::table('truck_cd_information')->where('buyer_detail_id', $bankDetail->id)->get();
+
+            return view('truck.buyer.view', compact('bankDetail', 'user', 'id', 'type', 'cat', 'oemname', 'cdDet'));
         } catch (Exception $e) {
             //errorMail($e, Auth::user()->id);
             return redirect()->back();
@@ -292,7 +294,7 @@ class AckViewController extends Controller
     {
         try {
 
-            $bankDetail = DB::table('buyer_details_view')
+            $bankDetail = DB::table('buyer_details_trucks_view')
                 ->where('oem_status', 'R')
                 ->where('dealer_id', Auth::user()->id)
                 ->where('custmr_typ', 1)
@@ -307,7 +309,7 @@ class AckViewController extends Controller
     // for count and sum data check at buyer details submission page.
     private function ClaimDataCheck($segment)
     {
-        $data = DB::table('buyer_details_view')->where('status', 'S')->get();
+        $data = DB::table('buyer_details_trucks_view')->where('status', 'S')->get();
         if ($segment->segment_id == 1) {
             $count2W = $data->where('segment_id', $segment->segment_id)
                 ->whereIn('vehicle_cat_id', [1, 2])

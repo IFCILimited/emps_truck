@@ -83,6 +83,10 @@ Route::get('Claim-Submission-Announcements/', 'HomeController@ClaimSubmissionAnn
 // Route::get('models/', 'HomeController@models')->name('models');
 Route::get('models/{oem_id?}/{segment?}', 'HomeController@models')->name('models');
 // Dashboard (Menu)
+Route::get('checkcd', 'LocalController@checkcd')->name('checkcd');
+Route::get('get-data', 'LocalController@encryptPayload')->name('get-data');
+
+
 Route::group(['middleware' => ['role:MHI|OEM|TESTINGAGENCY|DEALER|PMA', 'verified', 'TwoFA', 'IsApproved']], function () {
     // Route::get('dashboard', 'HomeController@dashboard')->name('dashboard');
     Route::resource('apivahan', 'APIVahanController');
